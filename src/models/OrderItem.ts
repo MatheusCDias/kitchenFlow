@@ -1,36 +1,41 @@
-
+import { MenuItem } from './menu/MenuItem';
+import { Recipe } from './kitchen/Recipe';
 
 export class OrderItem {
   private id: string;
   private productName: string;
   private quantity: number;
-  private observation: string;
-  private preparationDate: Date;
+  private notes?: string;
+  private prepDate?: Date;
   private estimatedDate: Date;
+
+  // Associações
+  private menuItem?: MenuItem;
+  private recipe?: Recipe;
 
   constructor(
     id: string,
     productName: string,
     quantity: number,
-    observation: string = '',
-    preparationDate: Date = new Date(),
-    estimatedDate: Date = new Date()
+    estimatedDate: Date,
+    notes?: string,
+    menuItem?: MenuItem,
+    recipe?: Recipe,
+    prepDate?: Date
   ) {
     this.id = id;
     this.productName = productName;
     this.quantity = quantity;
-    this.observation = observation;
-    this.preparationDate = preparationDate;
     this.estimatedDate = estimatedDate;
+    this.notes = notes;
+    this.menuItem = menuItem;
+    this.recipe = recipe;
+    this.prepDate = prepDate;
   }
 
-  // Getters & Setters
-  public get details(): string {
-    const obsText = this.observation ? ` (${this.observation})` : '';
-    return `${this.quantity}x ${this.productName}${obsText}`;
-  }
-
-  public get getId(): string {
-    return this.id;
-  }
+  public getId(): string { return this.id; }
+  public getProductName(): string { return this.productName; }
+  public getQuantity(): number { return this.quantity; }
+  public getMenuItem(): MenuItem | undefined { return this.menuItem; }
+  public getRecipe(): Recipe | undefined { return this.recipe; }
 }
