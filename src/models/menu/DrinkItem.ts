@@ -1,9 +1,9 @@
 import { MenuItem } from './MenuItem';
-import { DrinkType } from '../../enums/DrinkTypeEnum';
+import { DrinkTypeEnum } from '../../enums/DrinkTypeEnum';
 
 export class DrinkItem extends MenuItem {
     private isAlcoholic: boolean;
-    private drinkType: DrinkType;
+    private drinkType: DrinkTypeEnum;
 
     constructor(
         id: string,
@@ -13,7 +13,7 @@ export class DrinkItem extends MenuItem {
         year: number,
         month: number,
         isAlcoholic: boolean,
-        drinkType: DrinkType
+        drinkType: DrinkTypeEnum
     ) {
         super(id, name, price, description, year, month);
         this.isAlcoholic = isAlcoholic;
@@ -21,5 +21,5 @@ export class DrinkItem extends MenuItem {
     }
 
     public getIsAlcoholic(): boolean { return this.isAlcoholic; }
-    public getDrinkType(): DrinkType { return this.drinkType; }
+    public getDrinkType(): DrinkTypeEnum { return this.drinkType; }
 }

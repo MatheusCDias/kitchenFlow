@@ -8,8 +8,6 @@ export class OrderItem {
   private notes?: string;
   private prepDate?: Date;
   private estimatedDate: Date;
-
-  // Associações
   private menuItem?: MenuItem;
   private recipe?: Recipe;
 

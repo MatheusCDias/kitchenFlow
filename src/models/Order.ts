@@ -11,7 +11,7 @@ import { Employee } from './employee/Employee';
 export class Order {
     private id: string;
     private orderCode: number;
-    private origin: OrderOriginEnum; // Atualizado para Enum
+    private origin: OrderOriginEnum;
     private promisedTime: Date;
     private createdAt: Date;
     private kitchenDeadline: Date;

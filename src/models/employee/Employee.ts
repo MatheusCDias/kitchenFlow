@@ -2,8 +2,8 @@ export abstract class Employee {
     protected id: string;
     protected name: string;
     protected role: string;
-    protected stationNumber: number; // 'numeroBancada'
-    protected shift: string;         // 'turno'
+    protected stationNumber: number;
+    protected shift: string;
 
     constructor(id: string, name: string, role: string, stationNumber: number, shift: string) {
         this.id = id;
