@@ -13,14 +13,24 @@ export const styles = StyleSheet.create({
         paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 12 : 50,
     },
     title: {
-        color: '#FFFFFF',
-        fontSize: 20,
+        color: '#EAE8E5',
+        fontSize: 24,
         fontWeight: '600',
         textAlign: 'center',
+        userSelect: 'none',
     },
     iconButton: {
-        padding: 8,
+        width: 40,
+        aspectRatio: 1,
+        borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
+        ...(Platform.OS === 'web' && {
+            cursor: 'pointer',
+            transition: 'background-color 0.2s ease',
+        }),
+    },
+    iconButtonPressed: {
+        backgroundColor: 'rgba(234,232,229, 0.15)',
     },
 });

@@ -31,9 +31,13 @@ export class OrderItem {
     this.prepDate = prepDate;
   }
 
+  // Getters
   public getId(): string { return this.id; }
   public getProductName(): string { return this.productName; }
   public getQuantity(): number { return this.quantity; }
+  public getNotes(): string | undefined { return this.notes; }
+  public getPrepDate(): Date | undefined { return this.prepDate; }
+  public getEstimatedDate(): Date { return this.estimatedDate; }
   public getMenuItem(): MenuItem | undefined { return this.menuItem; }
   public getRecipe(): Recipe | undefined { return this.recipe; }
 }

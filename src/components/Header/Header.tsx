@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { styles } from './Header.styles';
 
@@ -16,23 +16,30 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
     return (
         <View style={styles.container}>
-            <TouchableOpacity
-                style={styles.iconButton}
+            <Pressable
+                style={({ pressed }) => [
+                    styles.iconButton,
+                    // Aplica uma cor circular suave no iOS/Web ao pressionar
+                    pressed && { backgroundColor: 'rgba(234,232,229, 0.15)' }
+                ]}
                 onPress={onMenuPress}
-                activeOpacity={0.7}
+                android_ripple={{ color: 'rgba(234,232,229, 0.15)', borderless: true, radius: 20 }}
             >
-                <MaterialIcons name="menu" size={26} color="#333333" />
-            </TouchableOpacity>
+                <MaterialIcons name="menu" size={24} color="#303338" />
+            </Pressable>
 
             <Text style={styles.title}>{title}</Text>
 
-            <TouchableOpacity
-                style={styles.iconButton}
+            <Pressable
+                style={({ pressed }) => [
+                    styles.iconButton,
+                    pressed && { backgroundColor: 'rgba(234,232,229, 0.15)' }
+                ]}
                 onPress={onNotificationPress}
-                activeOpacity={0.7}
+                android_ripple={{ color: 'rgba(234,232,229, 0.15)', borderless: true, radius: 20 }}
             >
-                <MaterialIcons name="notifications-none" size={26} color="#333333" />
-            </TouchableOpacity>
+                <MaterialIcons name="notifications-none" size={24} color="#303338" />
+            </Pressable>
         </View>
     );
 };
