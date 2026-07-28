@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingBottom: 16,
         // Garante que o Header não fique escondido sob a barra de status do celular
-        paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 12 : 50,
+        paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 12 : 32,
     },
     title: {
         color: '#EAE8E5',

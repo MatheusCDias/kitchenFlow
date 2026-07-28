@@ -24,11 +24,14 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
     if (!order) {
         return (
             <View style={styles.emptyContainer}>
-                <MaterialIcons name="restaurant" size={48} color="#FFF" />
-                <Text style={styles.emptyTitle}>Nenhum pedido em preparo no momento</Text>
-                <Text style={styles.emptySubtitle}>
-                    Selecione um pedido na lista abaixo para começar a cozinhar!
-                </Text>
+                <View style={styles.emptyContent}>
+                    <MaterialIcons name="restaurant" size={48} color="#FFF" />
+                    <Text style={styles.emptyTitle}>Nenhum pedido em preparo no momento</Text>
+                    <Text style={styles.emptySubtitle}>
+                        Selecione um pedido na lista abaixo para começar a cozinhar!
+                    </Text>
+                </View>
+                <CheckeredBorder />
             </View>
         );
     }
@@ -92,6 +95,63 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
                             Cozinha
                         </Text>
                     </TouchableOpacity>
+                </View>
+            </View>
+            <View style={styles.orderContainer}>
+                <View style={styles.ticketWrapper}>
+                    <TicketCard
+                        order={order}
+                        selectedItemIndex={selectedItemIndex}
+                        onItemPress={(index) => setSelectedItemIndex(index)}
+                    />
+                </View>
+                {/* Detalhes do Pedido e Receita */}
+                <View style={styles.detailsContainer}>
+                    <View style={styles.recipeHeader}>
+                        <Text style={styles.recipeTitleLabel}>Receita</Text>
+                        <Text style={styles.selectedItemName}>{selectedItem?.getProductName()}</Text>
+                    </View>
+
+                    {/* Exibição dos Ingredientes e Modo de Preparo */}
+                    <View style={styles.recipeContent}>
+                        {recipe ? (
+                            <>
+                                <Text style={styles.sectionSubTitle}>Ingredientes:</Text>
+                                {recipe.getIngredients().map((ing) => (
+                                    <View key={ing.getId()} style={styles.ingredientRow}>
+                                        <Text style={styles.ingredientText}>
+                                            • {ing.getProductName()} ({ing.getRecipeQuantity()} {ing.getUnitOfMeasure()})
+                                        </Text>
+                                    </View>
+                                ))}
+
+                                <Text style={[styles.sectionSubTitle, { marginTop: 12 }]}>Preparo:</Text>
+                                <Text style={styles.instructionsText}>
+                                    {recipe.getPrepInstructions()}
+                                </Text>
+                            </>
+                        ) : (
+                            <Text style={styles.noRecipeText}>
+                                Este item não possui uma receita detalhada cadastrada.
+                            </Text>
+                        )}
+                    </View>
+
+                    {/* Rodapé: Timer Grande + Botão Concluir */}
+                    <View style={styles.footer}>
+                        <View style={styles.timerBox}>
+                            <MaterialIcons name="access-time" size={28} color="#FFF" />
+                            <Text style={styles.timerText}>04:59</Text>
+                        </View>
+
+                        <TouchableOpacity
+                            style={styles.completeButton}
+                            activeOpacity={0.8}
+                            onPress={() => onCompleteOrder(order)}
+                        >
+                            <Text style={styles.completeButtonText}>Concluir</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
             <CheckeredBorder />

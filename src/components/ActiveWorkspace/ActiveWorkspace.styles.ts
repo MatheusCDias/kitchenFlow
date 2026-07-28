@@ -10,10 +10,15 @@ export const styles = StyleSheet.create({
         alignItems: 'stretch',
         overflow: 'hidden',
     },
+    orderContainer: {
+        flexDirection: 'row',
+        paddingHorizontal: 32,
+        paddingBottom: 16,
+        gap: 16,
+    },
     workspaceHeader: {
         width: '100%',
         flexDirection: 'row',
-        paddingVertical: 16,
         paddingHorizontal: 32,
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -56,12 +61,17 @@ export const styles = StyleSheet.create({
         color: '#EAE8E5',
     },
     emptyContainer: {
-        backgroundColor: '#F26E3B',
-        borderRadius: 12,
-        padding: 32,
+        backgroundColor: '#F07342',
+        borderBottomLeftRadius: 32,
+        borderBottomRightRadius: 32,
+        overflow: 'hidden',
+    },
+    emptyContent: {
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: 280,
+        minHeight: 240,
+        padding: 32,
+        gap: 8,
     },
     emptyTitle: {
         fontSize: 18,
