@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { TicketCard } from '../TicketCard/TicketCard';
 import { Order } from '../../models/Order';
 import { styles } from './ActiveWorkspace.styles';
+import { CheckeredBorder } from '../CheckeredBorder/CheckeredBorder';
 
 interface ActiveWorkspaceProps {
     order: Order | null;
@@ -93,6 +94,7 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
                     </TouchableOpacity>
                 </View>
             </View>
+            <CheckeredBorder />
         </View>
     );
 };

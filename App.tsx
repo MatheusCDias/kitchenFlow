@@ -19,6 +19,7 @@ import { DrinkItem } from './src/models/menu/DrinkItem';
 import { OrderItem } from './src/models/OrderItem';
 import { Ingredient } from './src/models/kitchen/Ingredient';
 import { Recipe } from './src/models/kitchen/Recipe';
+import { CheckeredBorder } from './src/components/CheckeredBorder/CheckeredBorder';
 
 // Função auxiliar para montar um pedido inicial de teste
 const createMockOrder = (): Order => {
@@ -73,7 +74,7 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#F26E3B" />
+      <StatusBar barStyle="light-content" backgroundColor='#F07342' />
       <View style={styles.container}>
         <Header />
         <ScrollView contentContainerStyle={styles.content}>
@@ -83,12 +84,13 @@ export default function App() {
           />
         </ScrollView>
       </View>
+      <CheckeredBorder primaryColor='#E52E24' secondaryColor='#EAE8E5' />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#F07342' },
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
+  container: { flex: 1, backgroundColor: '#EAE8E5' },
   content: { padding: 0 },
 });
