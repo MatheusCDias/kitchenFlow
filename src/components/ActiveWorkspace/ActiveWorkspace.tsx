@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { TicketCard } from '../TicketCard/TicketCard';
 import { Order } from '../../models/Order';
 import { styles } from './ActiveWorkspace.styles';
-import { CheckeredBorder } from '../CheckeredBorder/CheckeredBorder';
+import { CheckeredBorder } from '../Patterns/CheckeredBorder';
 
 interface ActiveWorkspaceProps {
     order: Order | null;
@@ -106,13 +106,13 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
                     />
                 </View>
                 {/* Detalhes do Pedido e Receita */}
+                {/*
                 <View style={styles.detailsContainer}>
                     <View style={styles.recipeHeader}>
                         <Text style={styles.recipeTitleLabel}>Receita</Text>
                         <Text style={styles.selectedItemName}>{selectedItem?.getProductName()}</Text>
                     </View>
 
-                    {/* Exibição dos Ingredientes e Modo de Preparo */}
                     <View style={styles.recipeContent}>
                         {recipe ? (
                             <>
@@ -137,7 +137,6 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
                         )}
                     </View>
 
-                    {/* Rodapé: Timer Grande + Botão Concluir */}
                     <View style={styles.footer}>
                         <View style={styles.timerBox}>
                             <MaterialIcons name="access-time" size={28} color="#FFF" />
@@ -153,6 +152,7 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
                         </TouchableOpacity>
                     </View>
                 </View>
+                */}
             </View>
             <CheckeredBorder />
         </View>

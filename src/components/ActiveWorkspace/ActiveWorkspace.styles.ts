@@ -9,6 +9,14 @@ export const styles = StyleSheet.create({
         gap: 16,
         alignItems: 'stretch',
         overflow: 'hidden',
+        shadowColor: '#000000',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
+        elevation: 6,
     },
     orderContainer: {
         flexDirection: 'row',
@@ -65,6 +73,14 @@ export const styles = StyleSheet.create({
         borderBottomLeftRadius: 32,
         borderBottomRightRadius: 32,
         overflow: 'hidden',
+        shadowColor: '#000000',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
+        elevation: 6,
     },
     emptyContent: {
         alignItems: 'center',

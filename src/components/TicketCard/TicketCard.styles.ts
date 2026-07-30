@@ -2,17 +2,14 @@ import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
     cardContainer: {
-        backgroundColor: '#EAEAEA',
-        borderRadius: 8,
-        padding: 12,
-        width: 210,
-        minHeight: 260,
+        backgroundColor: '#EAE8E5',
         justifyContent: 'space-between',
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        width: 280,
+        minHeight: 402,
+    },
+    cardContent: {
+        padding: 24,
+        justifyContent: 'space-between',
     },
     header: {
         flexDirection: 'row',

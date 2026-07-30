@@ -5,6 +5,7 @@ import { Order } from '../../models/Order';
 import { TableService } from '../../models/service/TableService';
 import { DeliveryService } from '../../models/service/DeliveryService';
 import { styles } from './TicketCard.styles';
+import { ScallopedBorder } from '../Patterns/ScallopedBorder';
 
 interface TicketCardProps {
     order: Order;
@@ -23,7 +24,6 @@ export const TicketCard: React.FC<TicketCardProps> = ({
     onItemPress,
     selectedItemIndex,
 }) => {
-    // Lógica para determinar o tipo de atendimento (Mesa ou Delivery)
     const service = order.getService();
     let serviceInfo = 'Geral';
     if (service instanceof TableService) {
@@ -32,12 +32,15 @@ export const TicketCard: React.FC<TicketCardProps> = ({
         serviceInfo = 'Delivery';
     }
 
-    // Captura a anotação/observação do primeiro item que possuir notes
     const firstObservation = order.getItems().find(item => item.getNotes())?.getNotes();
 
     return (
         <View style={styles.cardContainer}>
-            {/* Cabeçalho do Cupom */}
+            <ScallopedBorder
+                position="top"
+            />
+            <View style={styles.cardContent}>
+                {/*
             <View style={styles.header}>
                 <Text style={styles.orderCode}>#{order.getOrderCode()}</Text>
                 <Text style={styles.serviceText}>{serviceInfo}</Text>
@@ -45,7 +48,6 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
             <View style={styles.divider} />
 
-            {/* Lista de Itens do Pedido */}
             <View style={styles.itemsContainer}>
                 {order.getItems().map((item, index) => (
                     <TouchableOpacity
@@ -69,14 +71,12 @@ export const TicketCard: React.FC<TicketCardProps> = ({
                 ))}
             </View>
 
-            {/* Observação Geral / Detalhes */}
             {firstObservation ? (
                 <Text style={styles.notesText} numberOfLines={2}>
                     Obs: {firstObservation}
                 </Text>
             ) : null}
 
-            {/* Rodapé do Cupom com Timer e Ação */}
             <View style={styles.footer}>
                 <View style={styles.timerContainer}>
                     <MaterialIcons name="access-time" size={16} color="#333" />
@@ -93,6 +93,11 @@ export const TicketCard: React.FC<TicketCardProps> = ({
                     </TouchableOpacity>
                 ) : null}
             </View>
+            */}
+            </View>
+            <ScallopedBorder
+                position="bottom"
+            />
         </View>
     );
 };

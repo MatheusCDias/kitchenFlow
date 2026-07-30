@@ -19,7 +19,7 @@ import { DrinkItem } from './src/models/menu/DrinkItem';
 import { OrderItem } from './src/models/OrderItem';
 import { Ingredient } from './src/models/kitchen/Ingredient';
 import { Recipe } from './src/models/kitchen/Recipe';
-import { CheckeredBorder } from './src/components/CheckeredBorder/CheckeredBorder';
+import { CheckeredBorder } from './src/components/Patterns/CheckeredBorder';
 
 // Função auxiliar para montar um pedido inicial de teste
 const createMockOrder = (): Order => {
