@@ -1,4 +1,16 @@
 import React, { useState } from 'react';
+import {
+  useFonts,
+  Lexend_100Thin,
+  Lexend_200ExtraLight,
+  Lexend_300Light,
+  Lexend_400Regular,
+  Lexend_500Medium,
+  Lexend_600SemiBold,
+  Lexend_700Bold,
+  Lexend_800ExtraBold,
+  Lexend_900Black,
+} from '@expo-google-fonts/lexend';
 import { StyleSheet, View, SafeAreaView, StatusBar, ScrollView } from 'react-native';
 import { Header } from './src/components/Header/Header';
 import { ActiveWorkspace } from './src/components/ActiveWorkspace/ActiveWorkspace';
@@ -65,6 +77,18 @@ const createMockOrder = (): Order => {
 };
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Lexend_100Thin,
+    Lexend_200ExtraLight,
+    Lexend_300Light,
+    Lexend_400Regular,
+    Lexend_500Medium,
+    Lexend_600SemiBold,
+    Lexend_700Bold,
+    Lexend_800ExtraBold,
+    Lexend_900Black,
+  });
+
   const [activeOrder, setActiveOrder] = useState<Order | null>(createMockOrder());
 
   const handleCompleteOrder = (completedOrder: Order) => {

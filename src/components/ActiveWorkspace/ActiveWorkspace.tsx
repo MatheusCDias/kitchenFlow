@@ -106,7 +106,6 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
                     />
                 </View>
                 {/* Detalhes do Pedido e Receita */}
-                {/*
                 <View style={styles.detailsContainer}>
                     <View style={styles.recipeHeader}>
                         <Text style={styles.recipeTitleLabel}>Receita</Text>
@@ -139,7 +138,7 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
 
                     <View style={styles.footer}>
                         <View style={styles.timerBox}>
-                            <MaterialIcons name="access-time" size={28} color="#FFF" />
+                            <MaterialIcons name="timelapse" size={28} color="#FFF" />
                             <Text style={styles.timerText}>04:59</Text>
                         </View>
 
@@ -152,7 +151,6 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
                         </TouchableOpacity>
                     </View>
                 </View>
-                */}
             </View>
             <CheckeredBorder />
         </View>
