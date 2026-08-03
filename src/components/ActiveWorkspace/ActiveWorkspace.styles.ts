@@ -68,20 +68,6 @@ export const styles = StyleSheet.create({
     inactiveToggleText: {
         color: '#EAE8E5',
     },
-    emptyContainer: {
-        backgroundColor: '#F07342',
-        borderBottomLeftRadius: 32,
-        borderBottomRightRadius: 32,
-        overflow: 'hidden',
-        shadowColor: '#000000',
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 8,
-        elevation: 6,
-    },
     emptyContent: {
         alignItems: 'center',
         justifyContent: 'center',

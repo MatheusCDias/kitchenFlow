@@ -18,35 +18,17 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
     onCompleteOrder,
 }) => {
     const [selectedItemIndex, setSelectedItemIndex] = useState<number>(0);
-
     const [activeMode, setActiveMode] = useState<ViewMode>('cozinha');
 
-    if (!order) {
-        return (
-            <View style={styles.emptyContainer}>
-                <View style={styles.emptyContent}>
-                    <MaterialIcons name="restaurant" size={48} color="#FFF" />
-                    <Text style={styles.emptyTitle}>Nenhum pedido em preparo no momento</Text>
-                    <Text style={styles.emptySubtitle}>
-                        Selecione um pedido na lista abaixo para começar a cozinhar!
-                    </Text>
-                </View>
-                <CheckeredBorder />
-            </View>
-        );
-    }
-
-    const items = order.getItems();
+    // Cálculos dos dados da receita (só são processados se houver um order)
+    const items = order ? order.getItems() : [];
     const selectedItem = items[selectedItemIndex] || items[0];
     const recipe = selectedItem?.getRecipe();
 
     return (
         <View style={styles.container}>
             <View style={styles.workspaceHeader}>
-                {/* Título à esquerda */}
                 <Text style={styles.headerTitle}>Área de Trabalho</Text>
-
-                {/* Chaveador à direita */}
                 <View style={styles.toggleContainer}>
                     {/* Botão Recepção */}
                     <TouchableOpacity
@@ -97,61 +79,77 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
                     </TouchableOpacity>
                 </View>
             </View>
-            <View style={styles.orderContainer}>
-                <View style={styles.ticketWrapper}>
-                    <TicketCard
-                        order={order}
-                        selectedItemIndex={selectedItemIndex}
-                        onItemPress={(index) => setSelectedItemIndex(index)}
-                    />
+
+            {!order ? (
+                /* Estado Vazio */
+                <View style={styles.emptyContent}>
+                    <MaterialIcons name="restaurant" size={48} color="#FFF" />
+                    <Text style={styles.emptyTitle}>Nenhum pedido em preparo no momento</Text>
+                    <Text style={styles.emptySubtitle}>
+                        Selecione um pedido na lista abaixo para começar a cozinhar!
+                    </Text>
                 </View>
-                {/* Detalhes do Pedido e Receita */}
-                <View style={styles.detailsContainer}>
-                    <View style={styles.recipeHeader}>
-                        <Text style={styles.recipeTitleLabel}>Receita</Text>
-                        <Text style={styles.selectedItemName}>{selectedItem?.getProductName()}</Text>
+            ) : (
+                /* Conteúdo do Pedido Ativo */
+                <View style={styles.orderContainer}>
+                    <View style={styles.ticketWrapper}>
+                        <TicketCard
+                            order={order}
+                            selectedItemIndex={selectedItemIndex}
+                            onItemPress={(index) => setSelectedItemIndex(index)}
+                        />
                     </View>
 
-                    <View style={styles.recipeContent}>
-                        {recipe ? (
-                            <>
-                                <Text style={styles.sectionSubTitle}>Ingredientes:</Text>
-                                {recipe.getIngredients().map((ing) => (
-                                    <View key={ing.getId()} style={styles.ingredientRow}>
-                                        <Text style={styles.ingredientText}>
-                                            • {ing.getProductName()} ({ing.getRecipeQuantity()} {ing.getUnitOfMeasure()})
-                                        </Text>
-                                    </View>
-                                ))}
-
-                                <Text style={[styles.sectionSubTitle, { marginTop: 12 }]}>Preparo:</Text>
-                                <Text style={styles.instructionsText}>
-                                    {recipe.getPrepInstructions()}
-                                </Text>
-                            </>
-                        ) : (
-                            <Text style={styles.noRecipeText}>
-                                Este item não possui uma receita detalhada cadastrada.
-                            </Text>
-                        )}
-                    </View>
-
-                    <View style={styles.footer}>
-                        <View style={styles.timerBox}>
-                            <MaterialIcons name="timelapse" size={28} color="#FFF" />
-                            <Text style={styles.timerText}>04:59</Text>
+                    {/* Detalhes do Pedido e Receita */}
+                    <View style={styles.detailsContainer}>
+                        <View style={styles.recipeHeader}>
+                            <Text style={styles.recipeTitleLabel}>Receita</Text>
+                            <Text style={styles.selectedItemName}>{selectedItem?.getProductName()}</Text>
                         </View>
 
-                        <TouchableOpacity
-                            style={styles.completeButton}
-                            activeOpacity={0.8}
-                            onPress={() => onCompleteOrder(order)}
-                        >
-                            <Text style={styles.completeButtonText}>Concluir</Text>
-                        </TouchableOpacity>
+                        <View style={styles.recipeContent}>
+                            {recipe ? (
+                                <>
+                                    <Text style={styles.sectionSubTitle}>Ingredientes:</Text>
+                                    {recipe.getIngredients().map((ing) => (
+                                        <View key={ing.getId()} style={styles.ingredientRow}>
+                                            <Text style={styles.ingredientText}>
+                                                • {ing.getProductName()} ({ing.getRecipeQuantity()} {ing.getUnitOfMeasure()})
+                                            </Text>
+                                        </View>
+                                    ))}
+
+                                    <Text style={[styles.sectionSubTitle, { marginTop: 12 }]}>Preparo:</Text>
+                                    <Text style={styles.instructionsText}>
+                                        {recipe.getPrepInstructions()}
+                                    </Text>
+                                </>
+                            ) : (
+                                <Text style={styles.noRecipeText}>
+                                    Este item não possui uma receita detalhada cadastrada.
+                                </Text>
+                            )}
+                        </View>
+
+                        <View style={styles.footer}>
+                            <View style={styles.timerBox}>
+                                <MaterialIcons name="timelapse" size={28} color="#FFF" />
+                                <Text style={styles.timerText}>04:59</Text>
+                            </View>
+
+                            <TouchableOpacity
+                                style={styles.completeButton}
+                                activeOpacity={0.8}
+                                onPress={() => onCompleteOrder(order)}
+                            >
+                                <Text style={styles.completeButtonText}>Concluir</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
-            </View>
+            )}
+
+            {/* Borda no rodapé da seção */}
             <CheckeredBorder />
         </View>
     );

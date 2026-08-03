@@ -120,23 +120,42 @@ export default function App() {
       <View style={styles.container}>
         <Header />
         <ScrollView contentContainerStyle={styles.content}>
+
           <ActiveWorkspace
             order={activeOrder}
             onCompleteOrder={handleCompleteOrder}
           />
+
           <AllOrders
             orders={allOrders}
             onClaimOrder={handleClaimOrder}
           />
+
+          {/* Container mágico que empurra o footer para baixo */}
+          <View style={styles.footerWrapper}>
+            <CheckeredBorder primaryColor='#E52E24' secondaryColor='#EAE8E5' />
+          </View>
+
         </ScrollView>
       </View>
-      <CheckeredBorder primaryColor='#E52E24' secondaryColor='#EAE8E5' />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F07342' },
-  container: { flex: 1, backgroundColor: '#EAE8E5' },
-  content: { padding: 0 },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F07342'
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#EAE8E5'
+  },
+  content: {
+    flexGrow: 1,
+  },
+  footerWrapper: {
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+  }
 });
