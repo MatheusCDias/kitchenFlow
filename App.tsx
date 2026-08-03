@@ -131,9 +131,8 @@ export default function App() {
             onClaimOrder={handleClaimOrder}
           />
 
-          {/* Container mágico que empurra o footer para baixo */}
           <View style={styles.footerWrapper}>
-            <CheckeredBorder primaryColor='#E52E24' secondaryColor='#EAE8E5' />
+            <CheckeredBorder primaryColor='#DB4037' secondaryColor='#EAE8E5' />
           </View>
 
         </ScrollView>

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, FlatList, LayoutChangeEvent } from 'react-native';
+import { View, Text, FlatList, LayoutChangeEvent, TouchableOpacity } from 'react-native';
 import { Order } from '../../models/Order';
 import { styles } from './AllOrders.styles';
 
@@ -42,7 +42,7 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
             {/* Grid Dinâmico */}
             {containerWidth > 0 && (
                 <FlatList
-                    key={numColumns} // OBRIGATÓRIO: Força a reinicialização da FlatList quando numColumns muda
+                    key={numColumns}
                     data={orders}
                     keyExtractor={(item) => item.getId()}
                     numColumns={numColumns}
@@ -51,9 +51,14 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
                     columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined}
                     renderItem={({ item }) => (
                         <View style={styles.columnItem}>
-                            <View style={styles.placeholderCard}>
+                            {/* Transformado em botão clicável */}
+                            <TouchableOpacity
+                                style={styles.placeholderCard}
+                                activeOpacity={0.7}
+                                onPress={() => onClaimOrder(item.getId())}
+                            >
                                 <Text>Pedido #{item.getOrderCode()}</Text>
-                            </View>
+                            </TouchableOpacity>
                         </View>
                     )}
                 />
