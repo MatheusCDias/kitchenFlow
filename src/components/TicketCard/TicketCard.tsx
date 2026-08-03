@@ -14,6 +14,7 @@ interface TicketCardProps {
     isActionDisabled?: boolean;
     onItemPress?: (itemIndex: number) => void;
     selectedItemIndex?: number;
+    backgroundColor?: string;
 }
 
 export const TicketCard: React.FC<TicketCardProps> = ({
@@ -23,7 +24,9 @@ export const TicketCard: React.FC<TicketCardProps> = ({
     isActionDisabled = false,
     onItemPress,
     selectedItemIndex,
+    backgroundColor = '#EAE8E5',
 }) => {
+    const bottomColor = backgroundColor === '#DEDEDE' ? '#EAE8E5' : '#F07342';
     const service = order.getService();
     let serviceInfo = 'Geral';
     if (service instanceof TableService) {
@@ -35,9 +38,11 @@ export const TicketCard: React.FC<TicketCardProps> = ({
     const firstObservation = order.getItems().find(item => item.getNotes())?.getNotes();
 
     return (
-        <View style={styles.cardContainer}>
+        <View style={[styles.cardContainer, { backgroundColor }]}>
             <ScallopedBorder
                 position="top"
+                topColor={backgroundColor}
+                bottomColor={bottomColor}
             />
             <View style={styles.cardContent}>
 
@@ -92,10 +97,12 @@ export const TicketCard: React.FC<TicketCardProps> = ({
                         </TouchableOpacity>
                     ) : null}
                 </View>
-                
+
             </View>
             <ScallopedBorder
                 position="bottom"
+                topColor={backgroundColor}
+                bottomColor={bottomColor}
             />
         </View>
     );

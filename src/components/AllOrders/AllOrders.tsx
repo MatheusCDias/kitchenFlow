@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, FlatList, LayoutChangeEvent, TouchableOpacity } from 'react-native';
 import { Order } from '../../models/Order';
+import { TicketCard } from '../TicketCard/TicketCard';
 import { styles } from './AllOrders.styles';
 
 interface AllOrdersProps {
@@ -53,11 +54,15 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
                         <View style={styles.columnItem}>
                             {/* Transformado em botão clicável */}
                             <TouchableOpacity
-                                style={styles.placeholderCard}
-                                activeOpacity={0.7}
+                                activeOpacity={0.8}
                                 onPress={() => onClaimOrder(item.getId())}
                             >
-                                <Text>Pedido #{item.getOrderCode()}</Text>
+                                <TicketCard
+                                    order={item}
+                                    selectedItemIndex={0}
+                                    actionText='Pegar Pedido'
+                                    backgroundColor="#DEDEDE"
+                                />
                             </TouchableOpacity>
                         </View>
                     )}

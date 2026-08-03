@@ -132,7 +132,7 @@ export default function App() {
           />
 
           <View style={styles.footerWrapper}>
-            <CheckeredBorder primaryColor='#DB4037' secondaryColor='#EAE8E5' />
+            <CheckeredBorder primaryColor='#ED4545' secondaryColor='#EAE8E5' />
           </View>
 
         </ScrollView>

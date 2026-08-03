@@ -11,7 +11,6 @@ export const styles = StyleSheet.create({
         height: '90%',
         marginHorizontal: 24,
         gap: 16,
-        //backgroundColor: '#FF0000',
     },
     header: {
         flexDirection: 'row',
@@ -88,16 +87,16 @@ export const styles = StyleSheet.create({
     },
     actionButton: {
         backgroundColor: '#F26E3B',
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 6,
+        padding: 8,
+        borderRadius: 8,
     },
     disabledButton: {
-        backgroundColor: '#AAA',
+        backgroundColor: '#B2B2B2',
     },
+
     actionButtonText: {
-        color: '#FFF',
-        fontSize: 11,
-        fontWeight: 'bold',
+        fontFamily: 'Lexend_400Regular',
+        fontSize: 14,
+        color: '#EAE8E5',
     },
 });
