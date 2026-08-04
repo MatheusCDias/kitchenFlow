@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Order } from '../../models/Order';
 import { TableService } from '../../models/service/TableService';
 import { DeliveryService } from '../../models/service/DeliveryService';
@@ -61,7 +61,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
                             onPress={() => onItemPress && onItemPress(index)}
                             style={[
                                 styles.itemRow,
-                                selectedItemIndex === index && styles.selectedItemRow,
+                                Boolean(onItemPress) && selectedItemIndex === index && styles.selectedItemRow,
                             ]}
                         >
                             <Text style={styles.itemText}>
@@ -73,17 +73,18 @@ export const TicketCard: React.FC<TicketCardProps> = ({
                             ) : null}
                         </TouchableOpacity>
                     ))}
+                    <View style={styles.dividerLine} />
+                    {firstObservation ? (
+                        <Text style={styles.notesText} numberOfLines={2}>
+                            Obs: {firstObservation}
+                        </Text>
+                    ) : null}
                 </View>
 
-                {firstObservation ? (
-                    <Text style={styles.notesText} numberOfLines={2}>
-                        Obs: {firstObservation}
-                    </Text>
-                ) : null}
 
                 <View style={styles.footer}>
                     <View style={styles.timerContainer}>
-                        <MaterialCommunityIcons name="timer-outline" size={20} color="#303338" />
+                        <MaterialIcons name="timer" size={20} color="#303338" />
                         <Text style={styles.timerText}>05:00</Text>
                     </View>
 

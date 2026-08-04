@@ -34,6 +34,11 @@ export const styles = StyleSheet.create({
         borderStyle: 'dashed',
         //marginVertical: 8,
     },
+    dividerLine: {
+        height: 1,
+        borderWidth: 0.8,
+        borderColor: '#CECECE',
+    },
     itemsContainer: {
         flex: 1,
         gap: 16,
@@ -67,7 +72,6 @@ export const styles = StyleSheet.create({
         fontSize: 14,
         color: '#555',
         fontStyle: 'italic',
-        marginVertical: 6,
     },
     footer: {
         flexDirection: 'row',
@@ -96,7 +100,7 @@ export const styles = StyleSheet.create({
 
     actionButtonText: {
         fontFamily: 'Lexend_400Regular',
-        fontSize: 14,
+        fontSize: 16,
         color: '#EAE8E5',
     },
 });
