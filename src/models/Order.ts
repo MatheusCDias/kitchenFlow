@@ -70,4 +70,22 @@ export class Order {
     public getId(): string { return this.id; }
     public getOrderCode(): number { return this.orderCode; }
     public getOrigin(): OrderOriginEnum { return this.origin; }
+    public getKitchenDeadline(): Date {
+        return this.kitchenDeadline;
+    }
+
+    // Adicione este método na classe Order em Order.ts:
+    public getFormattedTotalPrepTime(): string {
+        // Diferença em ms entre a data limite e a data de criação
+        const totalMs = this.kitchenDeadline.getTime() - this.createdAt.getTime();
+        const totalSeconds = Math.max(0, Math.floor(totalMs / 1000));
+
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+
+        const paddedMinutes = String(minutes).padStart(2, '0');
+        const paddedSeconds = String(seconds).padStart(2, '0');
+
+        return `${paddedMinutes}:${paddedSeconds}`;
+    }
 }

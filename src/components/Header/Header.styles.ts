@@ -15,7 +15,8 @@ export const styles = StyleSheet.create({
     title: {
         color: '#EAE8E5',
         fontSize: 24,
-        fontFamily: 'Lexend_600SemiBold',
+        fontFamily: 'Lexend',
+        fontWeight: 600,
         textAlign: 'center',
         userSelect: 'none',
     },

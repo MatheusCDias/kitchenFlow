@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
 import { Order } from '../../models/Order';
 import { TableService } from '../../models/service/TableService';
 import { DeliveryService } from '../../models/service/DeliveryService';
 import { styles } from './TicketCard.styles';
 import { ScallopedBorder } from '../Patterns/ScallopedBorder';
+import Icon from '../Icon'
 
 interface TicketCardProps {
     order: Order;
@@ -84,8 +84,9 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
                 <View style={styles.footer}>
                     <View style={styles.timerContainer}>
-                        <MaterialIcons name="timer" size={20} color="#303338" />
-                        <Text style={styles.timerText}>05:00</Text>
+                        <Icon name="timer" size={20}/>
+                        {/* Renderiza o tempo total fixo/estático do pedido */}
+                        <Text style={styles.timerText}>{order.getFormattedTotalPrepTime()}</Text>
                     </View>
 
                     {actionText ? (

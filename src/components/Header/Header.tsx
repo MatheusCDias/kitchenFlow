@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import Icon from '../Icon'
 import { styles } from './Header.styles';
 
 interface HeaderProps {
@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({
                 onPress={onMenuPress}
                 android_ripple={{ color: 'rgba(234,232,229, 0.15)', borderless: true, radius: 20 }}
             >
-                <MaterialIcons name="menu" size={24} color="#303338" />
+                <Icon name="menu" />
             </Pressable>
 
             <Text style={styles.title}>{title}</Text>
@@ -38,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
                 onPress={onNotificationPress}
                 android_ripple={{ color: 'rgba(234,232,229, 0.15)', borderless: true, radius: 20 }}
             >
-                <MaterialIcons name="notifications-none" size={24} color="#303338" />
+                <Icon name="notifications" fill={false}/>
             </Pressable>
         </View>
     );

@@ -1,16 +1,5 @@
 import React, { useState } from 'react';
-import {
-  useFonts,
-  Lexend_100Thin,
-  Lexend_200ExtraLight,
-  Lexend_300Light,
-  Lexend_400Regular,
-  Lexend_500Medium,
-  Lexend_600SemiBold,
-  Lexend_700Bold,
-  Lexend_800ExtraBold,
-  Lexend_900Black,
-} from '@expo-google-fonts/lexend';
+import { useFonts } from 'expo-font';
 import { StyleSheet, View, SafeAreaView, StatusBar, ScrollView } from 'react-native';
 import { Header } from './src/components/Header/Header';
 import { ActiveWorkspace } from './src/components/ActiveWorkspace/ActiveWorkspace';
@@ -28,19 +17,22 @@ import { Customer } from './src/models/Customer';
 import { Address } from './src/models/Address';
 import { TableService } from './src/models/service/TableService';
 import { Cook } from './src/models/employee/Cook';
+import { Employee } from './src/models/employee/Employee';
 import { FoodItem } from './src/models/menu/FoodItem';
 import { DrinkItem } from './src/models/menu/DrinkItem';
 import { OrderItem } from './src/models/OrderItem';
 import { Ingredient } from './src/models/kitchen/Ingredient';
 import { Recipe } from './src/models/kitchen/Recipe';
 
+// Usuário atual logado na aplicação (Simulação)
+const currentUser: Employee = new Cook('emp-99', 'Funcionário #1', 5, 'Manhã');
+
 // Função auxiliar para montar um pedido inicial de teste
-const createMockOrder = (id: string, code: number): Order => {
+const createMockOrder = (id: string, code: number, assignedEmployee?: Employee): Order => {
   const address = new Address('Rua Principal', 100, '13730-000', 'Apto 12');
   const customer = new Customer('cust-101', 'João Silva', '(19) 98765-4321');
   customer.addAddress(address);
 
-  const cook = new Cook('emp-1', 'Chef Roberto', 3, 'Tarde');
   const tableService = new TableService(new Date(), 5, 2);
 
   const ing1 = new Ingredient('ing-1', 'Carne Artesanal 180g', 1, 1, 'unidade');
@@ -60,11 +52,11 @@ const createMockOrder = (id: string, code: number): Order => {
     code,
     OrderOriginEnum.PRESENTIAL,
     new Date(now.getTime() + 20 * 60000),
-    new Date(now.getTime() + 10 * 60000),
+    new Date(now.getTime() + 5 * 60000),
     new Date(now.getTime() + 25 * 60000),
     customer,
     tableService,
-    cook
+    assignedEmployee
   );
 
   order.addItem(new OrderItem('item-1', burger.getName(), 2, new Date(), '1x Sem picles', burger, burgerRecipe));
@@ -74,30 +66,30 @@ const createMockOrder = (id: string, code: number): Order => {
   return order;
 };
 
+// Pedido inicial do ActiveWorkspace (já atribuído ao usuário atual)
+const initialActiveOrder = createMockOrder('ord-101', 101, currentUser);
+
+// Exemplo de outro funcionário para testar a indicação no botão
+const otherCook = new Cook('emp-2', 'Funcionário #2', 3, 'Tarde');
+
 export default function App() {
   const [fontsLoaded] = useFonts({
-    Lexend_100Thin,
-    Lexend_200ExtraLight,
-    Lexend_300Light,
-    Lexend_400Regular,
-    Lexend_500Medium,
-    Lexend_600SemiBold,
-    Lexend_700Bold,
-    Lexend_800ExtraBold,
-    Lexend_900Black,
+    'Lexend': require('./src/assets/fonts/Lexend.ttf'),
+    'MaterialSymbolsRounded': require('./src/assets/fonts/MaterialSymbolsRounded-Regular.ttf'),
+    'MaterialSymbolsRoundedFilled': require('./src/assets/fonts/MaterialSymbolsRounded_Filled-Regular.ttf'),
   });
 
   // Estado do pedido atualmente selecionado no workspace principal
-  const [activeOrder, setActiveOrder] = useState<Order | null>(createMockOrder('ord-101', 101));
+  const [activeOrder, setActiveOrder] = useState<Order | null>(initialActiveOrder);
 
-  // Estado da lista geral com 6 pedidos de exemplo para preencher a grid de 3 colunas
+  // Lista geral de pedidos
   const [allOrders, setAllOrders] = useState<Order[]>([
-    createMockOrder('ord-101', 101),
-    createMockOrder('ord-102', 102),
-    createMockOrder('ord-103', 103),
-    createMockOrder('ord-104', 104),
-    createMockOrder('ord-105', 105),
-    createMockOrder('ord-106', 106),
+    initialActiveOrder,                             // Em Andamento (usuário atual)
+    createMockOrder('ord-102', 102, otherCook),     // Atribuído a outro funcionário ("Chef Roberto")
+    createMockOrder('ord-103', 103),                 // Disponível ("Pegar Pedido")
+    createMockOrder('ord-104', 104),                 // Disponível ("Pegar Pedido")
+    createMockOrder('ord-105', 105),                 // Disponível ("Pegar Pedido")
+    createMockOrder('ord-106', 106),                 // Disponível ("Pegar Pedido")
   ]);
 
   // Finaliza o pedido atual do ActiveWorkspace
@@ -110,6 +102,8 @@ export default function App() {
   const handleClaimOrder = (orderId: string) => {
     const selected = allOrders.find((order) => order.getId() === orderId);
     if (selected) {
+      // Atribui o funcionário logado ao pedido selecionado
+      selected.setAssignedEmployee(currentUser);
       setActiveOrder(selected);
     }
   };
@@ -128,11 +122,13 @@ export default function App() {
 
           <AllOrders
             orders={allOrders}
+            activeOrder={activeOrder}
+            currentUser={currentUser}
             onClaimOrder={handleClaimOrder}
           />
 
           <View style={styles.footerWrapper}>
-            <CheckeredBorder primaryColor='#ED4545' secondaryColor='#EAE8E5' />
+            <CheckeredBorder primaryColor='#ED4545' />
           </View>
 
         </ScrollView>

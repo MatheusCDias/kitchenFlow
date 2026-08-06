@@ -1,11 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, FlatList, LayoutChangeEvent, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, LayoutChangeEvent } from 'react-native';
 import { Order } from '../../models/Order';
+import { Employee } from '../../models/employee/Employee';
 import { TicketCard } from '../TicketCard/TicketCard';
 import { styles } from './AllOrders.styles';
 
 interface AllOrdersProps {
     orders: Order[];
+    activeOrder: Order | null;
+    currentUser: Employee;
     onClaimOrder: (orderId: string) => void;
 }
 
@@ -14,6 +17,8 @@ const GAP = 32;
 
 export const AllOrders: React.FC<AllOrdersProps> = ({
     orders,
+    activeOrder,
+    currentUser,
     onClaimOrder,
 }) => {
     const [containerWidth, setContainerWidth] = useState<number>(0);
@@ -27,13 +32,35 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
     // Calcula dinamicamente quantas colunas cabem no espaço disponível
     const numColumns = useMemo(() => {
         if (!containerWidth) return 1;
-
-        // Exemplo: Se couberem 3 cards + 2 gaps, coloca 3 colunas
         const calculated = Math.floor((containerWidth + GAP) / (CARD_WIDTH + GAP));
-
-        // Garante no mínimo 1 coluna
         return Math.max(1, calculated);
     }, [containerWidth]);
+
+    // Função para definir o texto e estado do botão de ação de acordo com as regras de negócio
+    const getActionButtonConfig = (order: Order) => {
+        const assignedEmployee = order.getAssignedEmployee();
+        const isActiveOrder = activeOrder?.getId() === order.getId();
+        const isAssignedToCurrentUser = assignedEmployee?.getId() === currentUser.getId();
+
+        if (isActiveOrder || isAssignedToCurrentUser) {
+            return {
+                actionText: 'Em Andamento',
+                isActionDisabled: true,
+            };
+        }
+
+        if (assignedEmployee) {
+            return {
+                actionText: assignedEmployee.getName(),
+                isActionDisabled: true,
+            };
+        }
+
+        return {
+            actionText: 'Pegar Pedido',
+            isActionDisabled: false,
+        };
+    };
 
     return (
         <View style={styles.container} onLayout={handleLayout}>
@@ -50,22 +77,21 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
                     scrollEnabled={false}
                     contentContainerStyle={styles.listContent}
                     columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined}
-                    renderItem={({ item }) => (
-                        <View style={styles.columnItem}>
-                            {/* Transformado em botão clicável */}
-                            <TouchableOpacity
-                                activeOpacity={0.8}
-                                onPress={() => onClaimOrder(item.getId())}
-                            >
+                    renderItem={({ item }) => {
+                        const { actionText, isActionDisabled } = getActionButtonConfig(item);
+
+                        return (
+                            <View style={styles.columnItem}>
                                 <TicketCard
                                     order={item}
-                                    selectedItemIndex={0}
-                                    actionText='Pegar Pedido'
+                                    actionText={actionText}
+                                    isActionDisabled={isActionDisabled}
+                                    onSelectAction={() => onClaimOrder(item.getId())}
                                     backgroundColor="#DEDEDE"
                                 />
-                            </TouchableOpacity>
-                        </View>
-                    )}
+                            </View>
+                        );
+                    }}
                 />
             )}
         </View>
