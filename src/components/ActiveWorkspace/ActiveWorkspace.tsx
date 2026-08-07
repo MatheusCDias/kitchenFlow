@@ -21,7 +21,7 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
     const [activeMode, setActiveMode] = useState<ViewMode>('cozinha');
     const [secondsLeft, setSecondsLeft] = useState<number>(0);
 
-    // Efeito para contagem regressiva do timer baseado no deadline do pedido
+    // Efeito para contagem regressiva do timer
     useEffect(() => {
         setSelectedItemIndex(0);
 
@@ -30,11 +30,15 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
             return;
         }
 
+        // Se por algum motivo o timer não foi disparado ao selecionar, dispara agora:
+        if (order.getKitchenDeadline().getTime() <= Date.now()) {
+            order.startKitchenTimer();
+        }
+
         const calculateSecondsLeft = () => {
-            // Usa o promisedTime do pedido atual
-            const deadline = order.getPromisedTime().getTime();
-            const now = new Date().getTime();
-            const diffInSeconds = Math.floor((deadline - now) / 1000);
+            const deadlineMs = order.getKitchenDeadline().getTime();
+            const nowMs = Date.now();
+            const diffInSeconds = Math.ceil((deadlineMs - nowMs) / 1000);
 
             return diffInSeconds > 0 ? diffInSeconds : 0;
         };
@@ -42,16 +46,11 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
         setSecondsLeft(calculateSecondsLeft());
 
         const intervalId = setInterval(() => {
-            const remaining = calculateSecondsLeft();
-            setSecondsLeft(remaining);
-
-            if (remaining <= 0) {
-                clearInterval(intervalId);
-            }
+            setSecondsLeft(calculateSecondsLeft());
         }, 1000);
 
         return () => clearInterval(intervalId);
-    }, [order?.getId()]); // O ID garante a reinicialização ao trocar de pedido
+    }, [order?.getId()]);
 
     // Função utilitária para formatar segundos no padrão MM:SS
     const formatTime = (totalSeconds: number): string => {

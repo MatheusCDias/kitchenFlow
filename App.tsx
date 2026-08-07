@@ -47,16 +47,20 @@ const createMockOrder = (id: string, code: number, deadline: number, assignedEmp
   const soda = new DrinkItem('menu-3', 'Refrigerante', 7.00, 'Lata 350ml', 2026, 5, false, DrinkTypeEnum.CAN);
 
   const now = new Date();
+  const kitchenDeadlineDate = new Date(now.getTime() + deadline * 60000); // tempo limite do pedido
+
   const order = new Order(
     id,
     code,
     OrderOriginEnum.PRESENTIAL,
-    new Date(now.getTime() + deadline * 60000),
-    new Date(now.getTime() + 5 * 60000),
-    new Date(now.getTime() + 25 * 60000),
+    kitchenDeadlineDate,
+    kitchenDeadlineDate,
+    new Date(now.getTime() + (deadline + 15) * 60000),
+    deadline,
     customer,
     tableService,
-    assignedEmployee
+    assignedEmployee,
+    now,
   );
 
   order.addItem(new OrderItem('item-1', burger.getName(), 2, new Date(), '1x Sem picles', burger, burgerRecipe));
@@ -102,8 +106,11 @@ export default function App() {
   const handleClaimOrder = (orderId: string) => {
     const selected = allOrders.find((order) => order.getId() === orderId);
     if (selected) {
-      // Atribui o funcionário logado ao pedido selecionado
       selected.setAssignedEmployee(currentUser);
+
+      // 🚀 O SEGREDO ESTÁ AQUI: Dispara o timer do pedido no MOMENTO do clique!
+      selected.startKitchenTimer();
+
       setActiveOrder(selected);
     }
   };
@@ -116,7 +123,7 @@ export default function App() {
         <ScrollView contentContainerStyle={styles.content}>
 
           <ActiveWorkspace
-            key={activeOrder ? activeOrder.getId() : 'empty'}
+            key={activeOrder ? activeOrder.getId() : 'no-active-order'}
             order={activeOrder}
             onCompleteOrder={handleCompleteOrder}
           />
