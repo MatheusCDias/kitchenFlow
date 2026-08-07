@@ -73,11 +73,12 @@ export class Order {
     public getKitchenDeadline(): Date {
         return this.kitchenDeadline;
     }
+    public getPromisedTime(): Date {
+        return this.promisedTime;
+    }
 
-    // Adicione este método na classe Order em Order.ts:
     public getFormattedTotalPrepTime(): string {
-        // Diferença em ms entre a data limite e a data de criação
-        const totalMs = this.kitchenDeadline.getTime() - this.createdAt.getTime();
+        const totalMs = this.promisedTime.getTime() - this.createdAt.getTime();
         const totalSeconds = Math.max(0, Math.floor(totalMs / 1000));
 
         const minutes = Math.floor(totalSeconds / 60);

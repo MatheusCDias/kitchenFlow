@@ -28,7 +28,7 @@ import { Recipe } from './src/models/kitchen/Recipe';
 const currentUser: Employee = new Cook('emp-99', 'Funcionário #1', 5, 'Manhã');
 
 // Função auxiliar para montar um pedido inicial de teste
-const createMockOrder = (id: string, code: number, assignedEmployee?: Employee): Order => {
+const createMockOrder = (id: string, code: number, deadline: number, assignedEmployee?: Employee): Order => {
   const address = new Address('Rua Principal', 100, '13730-000', 'Apto 12');
   const customer = new Customer('cust-101', 'João Silva', '(19) 98765-4321');
   customer.addAddress(address);
@@ -51,7 +51,7 @@ const createMockOrder = (id: string, code: number, assignedEmployee?: Employee):
     id,
     code,
     OrderOriginEnum.PRESENTIAL,
-    new Date(now.getTime() + 20 * 60000),
+    new Date(now.getTime() + deadline * 60000),
     new Date(now.getTime() + 5 * 60000),
     new Date(now.getTime() + 25 * 60000),
     customer,
@@ -67,7 +67,7 @@ const createMockOrder = (id: string, code: number, assignedEmployee?: Employee):
 };
 
 // Pedido inicial do ActiveWorkspace (já atribuído ao usuário atual)
-const initialActiveOrder = createMockOrder('ord-101', 101, currentUser);
+const initialActiveOrder = createMockOrder('ord-101', 101, 5, currentUser);
 
 // Exemplo de outro funcionário para testar a indicação no botão
 const otherCook = new Cook('emp-2', 'Funcionário #2', 3, 'Tarde');
@@ -85,11 +85,11 @@ export default function App() {
   // Lista geral de pedidos
   const [allOrders, setAllOrders] = useState<Order[]>([
     initialActiveOrder,                             // Em Andamento (usuário atual)
-    createMockOrder('ord-102', 102, otherCook),     // Atribuído a outro funcionário ("Chef Roberto")
-    createMockOrder('ord-103', 103),                 // Disponível ("Pegar Pedido")
-    createMockOrder('ord-104', 104),                 // Disponível ("Pegar Pedido")
-    createMockOrder('ord-105', 105),                 // Disponível ("Pegar Pedido")
-    createMockOrder('ord-106', 106),                 // Disponível ("Pegar Pedido")
+    createMockOrder('ord-102', 102, 10, otherCook),     // Atribuído a outro funcionário ("Chef Roberto")
+    createMockOrder('ord-103', 103, 7),                 // Disponível ("Pegar Pedido")
+    createMockOrder('ord-104', 104, 20),                 // Disponível ("Pegar Pedido")
+    createMockOrder('ord-105', 105, 9),                 // Disponível ("Pegar Pedido")
+    createMockOrder('ord-106', 106, 30),                 // Disponível ("Pegar Pedido")
   ]);
 
   // Finaliza o pedido atual do ActiveWorkspace
@@ -116,6 +116,7 @@ export default function App() {
         <ScrollView contentContainerStyle={styles.content}>
 
           <ActiveWorkspace
+            key={activeOrder ? activeOrder.getId() : 'empty'}
             order={activeOrder}
             onCompleteOrder={handleCompleteOrder}
           />

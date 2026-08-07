@@ -53,6 +53,7 @@ export const styles = StyleSheet.create({
         gap: 4,
         padding: 8,
         borderRadius: 8,
+        userSelect: 'none',
     },
     activeToggleButton: {
         backgroundColor: '#EAE8E5',

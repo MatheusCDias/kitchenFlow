@@ -23,24 +23,24 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
 
     // Efeito para contagem regressiva do timer baseado no deadline do pedido
     useEffect(() => {
+        setSelectedItemIndex(0);
+
         if (!order) {
             setSecondsLeft(0);
             return;
         }
 
         const calculateSecondsLeft = () => {
-            const deadline = order.getKitchenDeadline().getTime();
+            // Usa o promisedTime do pedido atual
+            const deadline = order.getPromisedTime().getTime();
             const now = new Date().getTime();
             const diffInSeconds = Math.floor((deadline - now) / 1000);
 
-            // Retorna o tempo restante ou 0 se já tiver expirado
             return diffInSeconds > 0 ? diffInSeconds : 0;
         };
 
-        // Define o tempo inicial
         setSecondsLeft(calculateSecondsLeft());
 
-        // Atualiza a contagem a cada 1 segundo
         const intervalId = setInterval(() => {
             const remaining = calculateSecondsLeft();
             setSecondsLeft(remaining);
@@ -50,9 +50,8 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
             }
         }, 1000);
 
-        // Limpa o intervalo quando o componente desmontar ou o pedido mudar
         return () => clearInterval(intervalId);
-    }, [order]);
+    }, [order?.getId()]); // O ID garante a reinicialização ao trocar de pedido
 
     // Função utilitária para formatar segundos no padrão MM:SS
     const formatTime = (totalSeconds: number): string => {
