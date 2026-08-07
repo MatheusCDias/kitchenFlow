@@ -65,10 +65,10 @@ export class Order {
     public startKitchenTimer(): void {
         const now = new Date();
         this.kitchenDeadline = new Date(now.getTime() + this.prepMinutes * 60000);
+
     }
     public getFormattedTotalPrepTime(): string {
-        const totalMs = this.kitchenDeadline.getTime() - this.createdAt.getTime();
-        const totalSeconds = Math.max(0, Math.floor(totalMs / 1000));
+        const totalSeconds = this.prepMinutes * 60;
 
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
