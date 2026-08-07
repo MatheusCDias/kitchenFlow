@@ -3,6 +3,7 @@ import { View, Text, FlatList, LayoutChangeEvent } from 'react-native';
 import { Order } from '../../models/Order';
 import { Employee } from '../../models/employee/Employee';
 import { TicketCard } from '../TicketCard/TicketCard';
+import { OrderStateEnum } from '../../enums/OrderStateEnum';
 import { styles } from './AllOrders.styles';
 
 interface AllOrdersProps {
@@ -38,6 +39,18 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
 
     // Função para definir o texto e estado do botão de ação de acordo com as regras de negócio
     const getActionButtonConfig = (order: Order) => {
+        const status = order.getStatus();
+
+        if (
+            status === OrderStateEnum.READY ||
+            status === OrderStateEnum.DELIVERED
+        ) {
+            return {
+                actionText: 'Concluído',
+                isActionDisabled: true,
+            };
+        }
+
         const assignedEmployee = order.getAssignedEmployee();
         const isActiveOrder = activeOrder?.getId() === order.getId();
         const isAssignedToCurrentUser = assignedEmployee?.getId() === currentUser.getId();

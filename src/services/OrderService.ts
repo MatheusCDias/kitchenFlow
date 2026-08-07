@@ -25,10 +25,15 @@ export class OrderService {
 
     claimOrder(orderId: string, employee: Employee): Order | null {
         const order = this.orders.find(o => o.getId() === orderId);
+
         if (!order || order.getAssignedEmployee()) return null;
 
         order.setAssignedEmployee(employee);
+
+        order.advanceStage();
+
         order.startKitchenTimer();
+
         this.activeOrder = order;
 
         return order;
@@ -36,12 +41,15 @@ export class OrderService {
 
     completeOrder(orderId: string): boolean {
         const order = this.orders.find(o => o.getId() === orderId);
-        if (!order || order.getAssignedEmployee()?.getId() !== this.activeOrder?.getAssignedEmployee()?.getId()) {
+
+        if (!order) {
             return false;
         }
 
         order.advanceStage();
+
         this.activeOrder = null;
+
         return true;
     }
 
