@@ -116,8 +116,7 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
             {!order ? (
                 /* Estado Vazio */
                 <View style={styles.emptyContent}>
-                    <Icon name="chef_hat" />
-                    {/* <MaterialIcons name="restaurant" size={48} color="#FFF" /> */}
+                    <Icon name="chef_hat" size={48} color='#EAE8E5' fill={false}/>
                     <Text style={styles.emptyTitle}>Nenhum pedido em preparo no momento</Text>
                     <Text style={styles.emptySubtitle}>
                         Selecione um pedido na lista abaixo para começar a cozinhar!
