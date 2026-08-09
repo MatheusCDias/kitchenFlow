@@ -24,6 +24,9 @@ export class OrderService {
     }
 
     claimOrder(orderId: string, employee: Employee): Order | null {
+        if (this.activeOrder !== null) {
+            return null;
+        }
         const order = this.orders.find(o => o.getId() === orderId);
 
         if (!order || order.getAssignedEmployee()) return null;

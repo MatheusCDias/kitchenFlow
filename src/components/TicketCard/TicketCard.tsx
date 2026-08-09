@@ -85,7 +85,6 @@ export const TicketCard: React.FC<TicketCardProps> = ({
                 <View style={styles.footer}>
                     <View style={styles.timerContainer}>
                         <Icon name="timer" size={20}/>
-                        {/* Renderiza o tempo total fixo/estático do pedido */}
                         <Text style={styles.timerText}>{order.getFormattedTotalPrepTime()}</Text>
                     </View>
 

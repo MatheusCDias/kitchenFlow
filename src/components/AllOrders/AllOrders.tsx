@@ -69,9 +69,12 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
             };
         }
 
+        const hasActiveWorkspaceOrder = Boolean(activeOrder);
+
         return {
             actionText: 'Pegar Pedido',
-            isActionDisabled: false,
+            isActionDisabled: hasActiveWorkspaceOrder,
+            variant: 'default' as const,
         };
     };
 
