@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import { TicketCard } from '../TicketCard/TicketCard';
 import { Order } from '../../models/Order';
 import { styles } from './ActiveWorkspace.styles';
@@ -30,17 +30,11 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
             return;
         }
 
-        // Se por algum motivo o timer não foi disparado ao selecionar, dispara agora:
-        if (order.getKitchenDeadline().getTime() <= Date.now()) {
-            order.startKitchenTimer();
-        }
-
         const calculateSecondsLeft = () => {
             const deadlineMs = order.getKitchenDeadline().getTime();
             const nowMs = Date.now();
-            const diffInSeconds = Math.ceil((deadlineMs - nowMs) / 1000);
-
-            return diffInSeconds > 0 ? diffInSeconds : 0;
+            // Diferença real em segundos (pode ser negativa se agora > deadline)
+            return Math.ceil((deadlineMs - nowMs) / 1000);
         };
 
         setSecondsLeft(calculateSecondsLeft());
@@ -52,19 +46,52 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
         return () => clearInterval(intervalId);
     }, [order?.getId()]);
 
-    // Função utilitária para formatar segundos no padrão MM:SS
     const formatTime = (totalSeconds: number): string => {
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
+        const isOverdue = totalSeconds < 0;
+        const absSeconds = Math.abs(totalSeconds);
+
+        const minutes = Math.floor(absSeconds / 60);
+        const seconds = absSeconds % 60;
+
         const paddedMinutes = String(minutes).padStart(2, '0');
         const paddedSeconds = String(seconds).padStart(2, '0');
-        return `${paddedMinutes}:${paddedSeconds}`;
+
+        return isOverdue ? `+${paddedMinutes}:${paddedSeconds}` : `${paddedMinutes}:${paddedSeconds}`;
     };
 
-    // Cálculos dos dados da receita (só são processados se houver um order)
+    const fadeAnim = useRef(new Animated.Value(1)).current;
+
+    useEffect(() => {
+        const isOverdue = secondsLeft < 0;
+
+        if (isOverdue) {
+            const animation = Animated.loop(
+                Animated.sequence([
+                    Animated.timing(fadeAnim, {
+                        toValue: 0.3,
+                        duration: 700,
+                        useNativeDriver: true,
+                    }),
+                    Animated.timing(fadeAnim, {
+                        toValue: 1,
+                        duration: 700,
+                        useNativeDriver: true,
+                    }),
+                ])
+            );
+
+            animation.start();
+
+            return () => animation.stop();
+        } else {
+            fadeAnim.setValue(1);
+        }
+    }, [secondsLeft < 0]);
+
     const items = order ? order.getItems() : [];
     const selectedItem = items[selectedItemIndex] || items[0];
     const recipe = selectedItem?.getRecipe();
+    const isOverdue = secondsLeft < 0;
 
     return (
         <View style={styles.container}>
@@ -116,7 +143,7 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
             {!order ? (
                 /* Estado Vazio */
                 <View style={styles.emptyContent}>
-                    <Icon name="chef_hat" size={48} color='#EAE8E5' fill={false}/>
+                    <Icon name="chef_hat" size={48} color='#EAE8E5' fill={false} />
                     <Text style={styles.emptyTitle}>Nenhum pedido em preparo no momento</Text>
                     <Text style={styles.emptySubtitle}>
                         Selecione um pedido na lista abaixo para começar a cozinhar!
@@ -166,8 +193,19 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
 
                         <View style={styles.footer}>
                             <View style={styles.timerBox}>
-                                <Icon name="timelapse" color='#EAE8E5' size={32} />
-                                <Text style={styles.timerText}>{formatTime(secondsLeft)}</Text>
+                                <Icon name="timelapse" color="#EAE8E5" size={32} />
+
+                                <Animated.Text
+                                    style={[
+                                        styles.timerText,
+                                        isOverdue && {
+                                            color: '#EAE8E5',
+                                            opacity: fadeAnim
+                                        }
+                                    ]}
+                                >
+                                    {formatTime(secondsLeft)}
+                                </Animated.Text>
                             </View>
 
                             <TouchableOpacity
@@ -187,3 +225,4 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
         </View>
     );
 };
+
