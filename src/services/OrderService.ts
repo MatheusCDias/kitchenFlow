@@ -56,6 +56,22 @@ export class OrderService {
         return true;
     }
 
+    cancelOrder(orderId: string): boolean {
+        const order = this.orders.find(o => o.getId() === orderId);
+
+        if (!order) {
+            return false;
+        }
+
+        // Reseta funcionário e estado do pedido para ReceivedState
+        order.resetOrder();
+
+        // Remove da área de trabalho
+        this.activeOrder = null;
+
+        return true;
+    }
+
     getActiveOrder(): Order | null {
         return this.activeOrder;
     }

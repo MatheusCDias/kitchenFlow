@@ -57,7 +57,6 @@ export class Order {
         this.assignedEmployee = assignedEmployee;
     }
 
-    // --- Métodos de Manipulação do Timer ---
     public getPrepMinutes(): number {
         return this.prepMinutes;
     }
@@ -77,6 +76,11 @@ export class Order {
         const paddedSeconds = String(seconds).padStart(2, '0');
 
         return `${paddedMinutes}:${paddedSeconds}`;
+    }
+    
+    public resetOrder(): void {
+        this.assignedEmployee = undefined;
+        this.state = new ReceivedState();
     }
 
     // --- Métodos do Domínio / Getters & Setters ---

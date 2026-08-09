@@ -9,6 +9,7 @@ import Icon from '../Icon'
 interface ActiveWorkspaceProps {
     order: Order | null;
     onCompleteOrder: (order: Order) => void;
+    onCancelOrder: (order: Order) => void;
 }
 
 type ViewMode = 'recepcao' | 'cozinha';
@@ -16,12 +17,12 @@ type ViewMode = 'recepcao' | 'cozinha';
 export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
     order,
     onCompleteOrder,
+    onCancelOrder
 }) => {
     const [selectedItemIndex, setSelectedItemIndex] = useState<number>(0);
     const [activeMode, setActiveMode] = useState<ViewMode>('cozinha');
     const [secondsLeft, setSecondsLeft] = useState<number>(0);
 
-    // Efeito para contagem regressiva do timer
     useEffect(() => {
         setSelectedItemIndex(0);
 
@@ -208,13 +209,22 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
                                 </Animated.Text>
                             </View>
 
-                            <TouchableOpacity
-                                style={styles.completeButton}
-                                activeOpacity={0.8}
-                                onPress={() => onCompleteOrder(order)}
-                            >
-                                <Text style={styles.completeButtonText}>Concluir</Text>
-                            </TouchableOpacity>
+                            <View style={styles.buttonArea}>
+                                <TouchableOpacity
+                                    style={styles.button}
+                                    activeOpacity={0.8}
+                                    onPress={() => onCancelOrder(order)}
+                                >
+                                    <Text style={[styles.buttonText, { color: '#ED4545' }]}>Cancelar</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.button}
+                                    activeOpacity={0.8}
+                                    onPress={() => onCompleteOrder(order)}
+                                >
+                                    <Text style={[styles.buttonText, { color: '#3EB26A' }]}>Concluir</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
                 </View>
