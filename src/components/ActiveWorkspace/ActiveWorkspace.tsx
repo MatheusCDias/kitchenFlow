@@ -21,38 +21,36 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
     const [activeMode, setActiveMode] = useState<ViewMode>('cozinha');
     const [secondsLeft, setSecondsLeft] = useState<number>(0);
 
-    // Efeito para contagem regressiva do timer baseado no deadline do pedido
+    // Efeito para contagem regressiva do timer
     useEffect(() => {
+        setSelectedItemIndex(0);
+
         if (!order) {
             setSecondsLeft(0);
             return;
         }
 
-        const calculateSecondsLeft = () => {
-            const deadline = order.getKitchenDeadline().getTime();
-            const now = new Date().getTime();
-            const diffInSeconds = Math.floor((deadline - now) / 1000);
+        // Se por algum motivo o timer não foi disparado ao selecionar, dispara agora:
+        if (order.getKitchenDeadline().getTime() <= Date.now()) {
+            order.startKitchenTimer();
+        }
 
-            // Retorna o tempo restante ou 0 se já tiver expirado
+        const calculateSecondsLeft = () => {
+            const deadlineMs = order.getKitchenDeadline().getTime();
+            const nowMs = Date.now();
+            const diffInSeconds = Math.ceil((deadlineMs - nowMs) / 1000);
+
             return diffInSeconds > 0 ? diffInSeconds : 0;
         };
 
-        // Define o tempo inicial
         setSecondsLeft(calculateSecondsLeft());
 
-        // Atualiza a contagem a cada 1 segundo
         const intervalId = setInterval(() => {
-            const remaining = calculateSecondsLeft();
-            setSecondsLeft(remaining);
-
-            if (remaining <= 0) {
-                clearInterval(intervalId);
-            }
+            setSecondsLeft(calculateSecondsLeft());
         }, 1000);
 
-        // Limpa o intervalo quando o componente desmontar ou o pedido mudar
         return () => clearInterval(intervalId);
-    }, [order]);
+    }, [order?.getId()]);
 
     // Função utilitária para formatar segundos no padrão MM:SS
     const formatTime = (totalSeconds: number): string => {
@@ -118,8 +116,7 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
             {!order ? (
                 /* Estado Vazio */
                 <View style={styles.emptyContent}>
-                    <Icon name="chef_hat" />
-                    {/* <MaterialIcons name="restaurant" size={48} color="#FFF" /> */}
+                    <Icon name="chef_hat" size={48} color='#EAE8E5' fill={false}/>
                     <Text style={styles.emptyTitle}>Nenhum pedido em preparo no momento</Text>
                     <Text style={styles.emptySubtitle}>
                         Selecione um pedido na lista abaixo para começar a cozinhar!

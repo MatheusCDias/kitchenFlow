@@ -1,7 +1,7 @@
 import { OrderState } from './states/OrderState';
 import { ReceivedState } from './states/ReceivedState';
 import { OrderStateEnum } from '../enums/OrderStateEnum';
-import { OrderOriginEnum } from '../enums/OrderOriginEnum'; // Importado
+import { OrderOriginEnum } from '../enums/OrderOriginEnum';
 import { Payment } from './payments/Payment';
 import { Customer } from './Customer';
 import { Service } from './service/Service';
@@ -17,6 +17,7 @@ export class Order {
     private kitchenDeadline: Date;
     private orderDate: Date;
     private estimatedDeliveryDate: Date;
+    private prepMinutes: number;
 
     private state: OrderState;
     private payments: Payment[];
@@ -32,10 +33,11 @@ export class Order {
         promisedTime: Date,
         kitchenDeadline: Date,
         estimatedDeliveryDate: Date,
+        prepMinutes: number,
         customer?: Customer,
         service?: Service,
         assignedEmployee?: Employee,
-        orderDate: Date = new Date()
+        orderDate: Date = new Date(),
     ) {
         this.id = id;
         this.orderCode = orderCode;
@@ -45,6 +47,7 @@ export class Order {
         this.estimatedDeliveryDate = estimatedDeliveryDate;
         this.orderDate = orderDate;
         this.createdAt = new Date();
+        this.prepMinutes = prepMinutes;
 
         this.state = new ReceivedState();
         this.payments = [];
@@ -54,31 +57,18 @@ export class Order {
         this.assignedEmployee = assignedEmployee;
     }
 
-    // Métodos da classe
-    public addItem(item: OrderItem): void { this.items.push(item); }
-    public getItems(): OrderItem[] { return this.items; }
-    public advanceStage(): void { this.state.advance(this); }
-    public cancelOrder(): void { this.state.cancel(this); }
-    public setState(state: OrderState): void { this.state = state; }
-    public getStatus(): OrderStateEnum { return this.state.getStatus(); }
-    public addPayment(payment: Payment): void { this.payments.push(payment); }
-    public getPayments(): Payment[] { return this.payments; }
-    public setAssignedEmployee(employee: Employee): void { this.assignedEmployee = employee; }
-    public getAssignedEmployee(): Employee | undefined { return this.assignedEmployee; }
-    public getCustomer(): Customer | undefined { return this.customer; }
-    public getService(): Service | undefined { return this.service; }
-    public getId(): string { return this.id; }
-    public getOrderCode(): number { return this.orderCode; }
-    public getOrigin(): OrderOriginEnum { return this.origin; }
-    public getKitchenDeadline(): Date {
-        return this.kitchenDeadline;
+    // --- Métodos de Manipulação do Timer ---
+    public getPrepMinutes(): number {
+        return this.prepMinutes;
     }
 
-    // Adicione este método na classe Order em Order.ts:
+    public startKitchenTimer(): void {
+        const now = new Date();
+        this.kitchenDeadline = new Date(now.getTime() + this.prepMinutes * 60000);
+
+    }
     public getFormattedTotalPrepTime(): string {
-        // Diferença em ms entre a data limite e a data de criação
-        const totalMs = this.kitchenDeadline.getTime() - this.createdAt.getTime();
-        const totalSeconds = Math.max(0, Math.floor(totalMs / 1000));
+        const totalSeconds = this.prepMinutes * 60;
 
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
@@ -87,5 +77,75 @@ export class Order {
         const paddedSeconds = String(seconds).padStart(2, '0');
 
         return `${paddedMinutes}:${paddedSeconds}`;
+    }
+
+    // --- Métodos do Domínio / Getters & Setters ---
+
+    public addItem(item: OrderItem): void {
+        this.items.push(item);
+    }
+
+    public getItems(): OrderItem[] {
+        return this.items;
+    }
+
+    public advanceStage(): void {
+        this.state.advance(this);
+    }
+
+    public cancelOrder(): void {
+        this.state.cancel(this);
+    }
+
+    public setState(state: OrderState): void {
+        this.state = state;
+    }
+
+    public getStatus(): OrderStateEnum {
+        return this.state.getStatus();
+    }
+
+    public addPayment(payment: Payment): void {
+        this.payments.push(payment);
+    }
+
+    public getPayments(): Payment[] {
+        return this.payments;
+    }
+
+    public setAssignedEmployee(employee: Employee): void {
+        this.assignedEmployee = employee;
+    }
+
+    public getAssignedEmployee(): Employee | undefined {
+        return this.assignedEmployee;
+    }
+
+    public getCustomer(): Customer | undefined {
+        return this.customer;
+    }
+
+    public getService(): Service | undefined {
+        return this.service;
+    }
+
+    public getId(): string {
+        return this.id;
+    }
+
+    public getOrderCode(): number {
+        return this.orderCode;
+    }
+
+    public getOrigin(): OrderOriginEnum {
+        return this.origin;
+    }
+
+    public getKitchenDeadline(): Date {
+        return this.kitchenDeadline;
+    }
+
+    public getPromisedTime(): Date {
+        return this.promisedTime;
     }
 }

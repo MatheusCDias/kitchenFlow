@@ -26,6 +26,7 @@ export const styles = StyleSheet.create({
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
+        userSelect: 'none',
         ...(Platform.OS === 'web' && {
             cursor: 'pointer',
             transition: 'background-color 0.2s ease',
