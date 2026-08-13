@@ -18,14 +18,12 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
     },
     orderCode: {
-        fontFamily: 'Lexend',
-        fontWeight: 400,
+        fontFamily: 'Lexend_400Regular',
         fontSize: 20,
         color: '#303338',
     },
     serviceText: {
-        fontFamily: 'Lexend',
-        fontWeight: 300,
+        fontFamily: 'Lexend_300Light',
         fontSize: 20,
         color: '#303338',
     },
@@ -55,25 +53,22 @@ export const styles = StyleSheet.create({
         backgroundColor: 'rgba(242, 110, 59, 0.2)',
     },
     itemText: {
-        fontFamily: 'Lexend',
-        fontWeight: 300,
+        fontFamily: 'Lexend_300Light',
         fontSize: 16,
         color: '#303338',
     },
     itemQuantity: {
-        fontFamily: 'Lexend',
-        fontWeight: 400,
+        fontFamily: 'Lexend_400Regular',
+        fontWeight: 'bold',
     },
     itemSubObs: {
-        fontFamily: 'Lexend',
-        fontWeight: 300,
+        fontFamily: 'Lexend_300Light',
         fontSize: 12,
         color: '#555',
         marginLeft: 24,
     },
     notesText: {
-        fontFamily: 'Lexend',
-        fontWeight: 300,
+        fontFamily: 'Lexend_300Light',
         fontSize: 14,
         color: '#555',
         fontStyle: 'italic',
@@ -90,8 +85,7 @@ export const styles = StyleSheet.create({
         gap: 8,
     },
     timerText: {
-        fontFamily: 'Lexend',
-        fontWeight: 400,
+        fontFamily: 'Lexend_400Regular',
         fontSize: 20,
         color: '#303338',
     },
@@ -105,8 +99,7 @@ export const styles = StyleSheet.create({
     },
 
     actionButtonText: {
-        fontFamily: 'Lexend',
-        fontWeight: 400,
+        fontFamily: 'Lexend_400Regular',
         fontSize: 16,
         color: '#EAE8E5',
     },

@@ -1,5 +1,4 @@
 import { StyleSheet } from 'react-native';
-import { Platform } from 'react-native';
 
 export const styles = StyleSheet.create({
     container: {
@@ -19,6 +18,12 @@ export const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 6,
     },
+    orderContainer: {
+        flexDirection: 'row',
+        paddingHorizontal: 32,
+        paddingBottom: 16,
+        gap: 24,
+    },
     workspaceHeader: {
         width: '100%',
         flexDirection: 'row',
@@ -26,15 +31,8 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    orderContainer: {
-        flexDirection: 'row',
-        paddingHorizontal: 32,
-        paddingBottom: 16,
-        gap: 24,
-    },
     headerTitle: {
-        fontFamily: 'Lexend',
-        fontWeight: 400,
+        fontFamily: 'Lexend_400Regular',
         fontSize: 20,
         color: '#EAE8E5',
         userSelect: 'none',
@@ -53,7 +51,6 @@ export const styles = StyleSheet.create({
         gap: 4,
         padding: 8,
         borderRadius: 8,
-        userSelect: 'none',
     },
     activeToggleButton: {
         backgroundColor: '#EAE8E5',
@@ -62,9 +59,8 @@ export const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     toggleText: {
-        fontFamily: 'Lexend',
-        fontWeight: 400,
-        fontSize: 16,
+        fontFamily: 'Lexend_400Regular',
+        fontSize: 12,
     },
     activeToggleText: {
         color: '#333',
@@ -80,14 +76,12 @@ export const styles = StyleSheet.create({
         gap: 8,
     },
     emptyTitle: {
-        fontFamily: 'Lexend',
-        fontWeight: 500,
+        fontFamily: 'Lexend_500Medium',
         fontSize: 18,
         color: '#EAE8E5',
     },
     emptySubtitle: {
-        fontFamily: 'Lexend',
-        fontWeight: 300,
+        fontFamily: 'Lexend_300Light',
         fontSize: 14,
         color: 'rgba(255, 255, 255, 0.8)',
         textAlign: 'center',
@@ -104,14 +98,12 @@ export const styles = StyleSheet.create({
         gap: 4,
     },
     recipeTitleLabel: {
-        fontFamily: 'Lexend',
-        fontWeight: 500,
+        fontFamily: 'Lexend_500Medium',
         fontSize: 20,
         color: '#EAE8E5',
     },
     selectedItemName: {
-        fontFamily: 'Lexend',
-        fontWeight: 300,
+        fontFamily: 'Lexend_300Light',
         fontSize: 16,
         color: '#EAE8E5',
     },
@@ -123,30 +115,26 @@ export const styles = StyleSheet.create({
         gap: 8,
     },
     sectionSubTitle: {
-        fontFamily: 'Lexend',
-        fontWeight: 600,
         fontSize: 14,
+        fontFamily: 'Lexend_600SemiBold',
         color: '#EAE8E5',
     },
     ingredientRow: {
         gap: 8,
     },
     ingredientText: {
-        fontFamily: 'Lexend',
-        fontWeight: 300,
+        fontFamily: 'Lexend_300Light',
         fontSize: 14,
         color: '#EAE8E5',
     },
     instructionsText: {
         fontSize: 14,
-        fontFamily: 'Lexend',
-        fontWeight: 300,
+        fontFamily: 'Lexend_300Light',
         color: '#EAE8E5',
     },
     noRecipeText: {
         fontSize: 14,
-        fontFamily: 'Lexend',
-        fontWeight: 300,
+        fontFamily: 'Lexend_300Light',
         color: 'rgba(255, 255, 255, 0.7)',
         fontStyle: 'italic',
     },
@@ -162,16 +150,11 @@ export const styles = StyleSheet.create({
         gap: 8,
     },
     timerText: {
-        fontFamily: 'Lexend',
-        fontWeight: 400,
+        fontFamily: 'Lexend_400Regular',
         fontSize: 26,
         color: '#EAE8E5',
     },
-    buttonArea: {
-        flexDirection: 'row',
-        gap: 24,
-    },
-    button: {
+    completeButton: {
         backgroundColor: '#EAE8E5',
         paddingHorizontal: 16,
         paddingVertical: 12,
@@ -182,9 +165,8 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.15,
         shadowRadius: 3,
     },
-    buttonText: {
-        fontFamily: 'Lexend',
-        fontWeight: 400,
+    completeButtonText: {
+        fontFamily: 'Lexend_600SemiBold',
         color: '#F26E3B',
         fontSize: 16,
     },

@@ -9,8 +9,7 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 32,
     },
     title: {
-        fontFamily: 'Lexend',
-        fontWeight: 400,
+        fontFamily: 'Lexend_400Regular',
         fontSize: 20,
         color: '#303338',
         alignSelf: 'flex-start',

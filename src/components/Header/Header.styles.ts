@@ -15,8 +15,7 @@ export const styles = StyleSheet.create({
     title: {
         color: '#EAE8E5',
         fontSize: 24,
-        fontFamily: 'Lexend',
-        fontWeight: 600,
+        fontFamily: 'Lexend_600SemiBold',
         textAlign: 'center',
         userSelect: 'none',
     },
@@ -26,7 +25,6 @@ export const styles = StyleSheet.create({
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        userSelect: 'none',
         ...(Platform.OS === 'web' && {
             cursor: 'pointer',
             transition: 'background-color 0.2s ease',
