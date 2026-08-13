@@ -4,7 +4,9 @@ import { OrderStateEnum } from '../enums/OrderStateEnum';
 
 export class OrderService {
     private orders: Order[] = [];
-    private activeOrder: Order | null = null;
+
+    // Um pedido ativo por funcionário/bancada, não um só pro serviço inteiro.
+    private activeOrdersByEmployee: Map<string, Order> = new Map();
 
     constructor(initialOrders: Order[] = []) {
         this.orders = initialOrders;
@@ -13,7 +15,7 @@ export class OrderService {
     getAvailableOrders(): Order[] {
         return this.orders.filter(order =>
             !order.getAssignedEmployee() &&
-            order.getStatus() === OrderStateEnum.PENDING
+            order.getStatus() === OrderStateEnum.RECEIVED
         );
     }
 
@@ -23,8 +25,12 @@ export class OrderService {
         );
     }
 
+    getActiveOrderForEmployee(employee: Employee): Order | null {
+        return this.activeOrdersByEmployee.get(employee.getId()) ?? null;
+    }
+
     claimOrder(orderId: string, employee: Employee): Order | null {
-        if (this.activeOrder !== null) {
+        if (this.activeOrdersByEmployee.has(employee.getId())) {
             return null;
         }
         const order = this.orders.find(o => o.getId() === orderId);
@@ -37,7 +43,7 @@ export class OrderService {
 
         order.startKitchenTimer();
 
-        this.activeOrder = order;
+        this.activeOrdersByEmployee.set(employee.getId(), order);
 
         return order;
     }
@@ -49,35 +55,72 @@ export class OrderService {
             return false;
         }
 
+        // Marca o fim do preparo antes de avancar o estado,
+        // para guardar o tempo real gasto na cozinha.
+        order.finishKitchenTimer();
+
         order.advanceStage();
 
-        this.activeOrder = null;
+        const employeeId = order.getAssignedEmployee()?.getId();
+        if (employeeId) {
+            this.activeOrdersByEmployee.delete(employeeId);
+        }
 
         return true;
     }
 
-    cancelOrder(orderId: string): boolean {
+    /**
+     * "Desistir": o funcionário devolve o pedido pra fila, sem cancelar o
+     * pedido do cliente. Volta pro estado Recebido, solto pra outra bancada pegar.
+     */
+    releaseOrder(orderId: string): boolean {
         const order = this.orders.find(o => o.getId() === orderId);
 
         if (!order) {
             return false;
         }
 
+        const employeeId = order.getAssignedEmployee()?.getId();
+
         // Reseta funcionário e estado do pedido para ReceivedState
         order.resetOrder();
 
-        // Remove da área de trabalho
-        this.activeOrder = null;
+        if (employeeId) {
+            this.activeOrdersByEmployee.delete(employeeId);
+        }
 
         return true;
     }
 
-    getActiveOrder(): Order | null {
-        return this.activeOrder;
+    /**
+     * "Excluir": o pedido do cliente foi cancelado de verdade — some da
+     * lista, ninguém mais vê ele (diferente de releaseOrder, que só solta).
+     */
+    deleteOrder(orderId: string): boolean {
+        const index = this.orders.findIndex(o => o.getId() === orderId);
+
+        if (index === -1) {
+            return false;
+        }
+
+        const employeeId = this.orders[index].getAssignedEmployee()?.getId();
+        if (employeeId) {
+            this.activeOrdersByEmployee.delete(employeeId);
+        }
+
+        this.orders.splice(index, 1);
+
+        return true;
     }
 
     addOrder(order: Order): void {
         this.orders.push(order);
+    }
+
+    /** Apaga tudo — usado só pelo botão de reiniciar o ambiente de testes. */
+    clearAllOrders(): void {
+        this.orders = [];
+        this.activeOrdersByEmployee.clear();
     }
 
     getAllOrders(): Order[] {

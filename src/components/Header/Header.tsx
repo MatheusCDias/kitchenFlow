@@ -6,12 +6,14 @@ import { styles } from './Header.styles';
 
 interface HeaderProps {
     title?: string;
+    stationLabel?: string;
     onMenuPress?: () => void;
     onNotificationPress?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
     title = 'Kitchen Flow',
+    stationLabel,
     onMenuPress,
     onNotificationPress,
 }) => {
@@ -43,7 +45,12 @@ export const Header: React.FC<HeaderProps> = ({
                 />
             </Pressable>
 
-            <Text style={styles.title}>{title}</Text>
+            <View style={styles.titleGroup}>
+                <Text style={styles.title}>{title}</Text>
+                {stationLabel ? (
+                    <Text style={styles.stationBadge}>{stationLabel}</Text>
+                ) : null}
+            </View>
 
             <Pressable
                 style={({ pressed }) => [

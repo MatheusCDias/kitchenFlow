@@ -1,62 +1,108 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Order } from '../models/Order';
-import { Employee } from '../models/employee/Employee';
-import { OrderService } from '../services/OrderService';
-import { OrderFactory } from '../factories/OrderFactory';
+import {
+    OrderPayload,
+    NewOrderInput,
+    fetchOrders,
+    claimOrderRequest,
+    completeOrderRequest,
+    releaseOrderRequest,
+    deleteOrderRequest,
+    createOrderRequest,
+} from '../services/api';
+import { toOrder } from '../services/orderMapper';
 
-export const useOrders = (currentUser: Employee) => {
-    const [orderService] = useState(() => {
-        const initialOrders = OrderFactory.createMockOrders(currentUser);
-        return new OrderService(initialOrders);
-    });
+// De quanto em quanto tempo busca a lista de novo, pra bancadas diferentes
+// enxergarem o que as outras já pegaram/concluíram.
+const POLL_INTERVAL_MS = 4000;
 
-    const [activeOrder, setActiveOrder] = useState<Order | null>(() =>
-        orderService.getActiveOrder()
-    );
+export const useOrders = (stationNumber: number | null) => {
+    const [records, setRecords] = useState<OrderPayload[]>([]);
 
-    const [allOrders, setAllOrders] = useState<Order[]>(() =>
-        [...orderService.getAllOrders()]
-    );
+    const refreshOrders = useCallback(async () => {
+        const data = await fetchOrders();
+        setRecords(data);
+    }, []);
 
-    const claimOrder = useCallback((orderId: string) => {
-        const claimed = orderService.claimOrder(orderId, currentUser);
-        if (claimed) {
-            setActiveOrder(claimed);
-            setAllOrders([...orderService.getAllOrders()]);
+    useEffect(() => {
+        refreshOrders();
+        const interval = setInterval(refreshOrders, POLL_INTERVAL_MS);
+        return () => clearInterval(interval);
+    }, [refreshOrders]);
+
+    const allOrders = records.map(toOrder);
+
+    const activeRecord = records.find(
+        record => record.assignedStation === stationNumber && record.status === 'IN_PREPARATION'
+    ) ?? null;
+    const activeOrder = activeRecord ? toOrder(activeRecord) : null;
+
+    const claimOrder = useCallback(async (orderId: string) => {
+        if (stationNumber === null) return null;
+        try {
+            const claimed = await claimOrderRequest(orderId, stationNumber);
+            await refreshOrders();
+            return claimed;
+        } catch {
+            await refreshOrders();
+            return null;
         }
-        return claimed;
-    }, [orderService, currentUser]);
+    }, [stationNumber, refreshOrders]);
 
-    const completeOrder = useCallback((order: Order) => {
-        const success = orderService.completeOrder(order.getId());
-        if (success) {
-            setActiveOrder(null);
-            setAllOrders([...orderService.getAllOrders()]);
+    const completeOrder = useCallback(async (order: Order) => {
+        if (stationNumber === null) return false;
+        try {
+            await completeOrderRequest(order.getId(), stationNumber);
+            await refreshOrders();
+            return true;
+        } catch {
+            await refreshOrders();
+            return false;
         }
-        return success;
-    }, [orderService]);
+    }, [stationNumber, refreshOrders]);
 
-    const refreshOrders = useCallback(() => {
-        setAllOrders([...orderService.getAllOrders()]);
-    }, [orderService]);
-
-    const cancelOrder = useCallback((order: Order) => {
-        const success = orderService.cancelOrder(order.getId());
-        if (success) {
-            setActiveOrder(null);
-            setAllOrders([...orderService.getAllOrders()]);
+    // "Desistir": devolve o pedido pra fila, sem cancelar o pedido do cliente.
+    const releaseOrder = useCallback(async (order: Order) => {
+        if (stationNumber === null) return false;
+        try {
+            await releaseOrderRequest(order.getId(), stationNumber);
+            await refreshOrders();
+            return true;
+        } catch {
+            await refreshOrders();
+            return false;
         }
-        return success;
-    }, [orderService]);
+    }, [stationNumber, refreshOrders]);
+
+    // "Excluir": cancela o pedido do cliente de vez, some da lista.
+    const deleteOrder = useCallback(async (order: Order) => {
+        if (stationNumber === null) return false;
+        try {
+            await deleteOrderRequest(order.getId(), stationNumber);
+            await refreshOrders();
+            return true;
+        } catch {
+            await refreshOrders();
+            return false;
+        }
+    }, [stationNumber, refreshOrders]);
+
+    // Deixa o erro subir (ex: "pedido precisa ter item") pra quem chamou
+    // mostrar a mensagem real, em vez de engolir silenciosamente.
+    const createOrder = useCallback(async (input: NewOrderInput) => {
+        const created = await createOrderRequest(input);
+        await refreshOrders();
+        return created;
+    }, [refreshOrders]);
 
     return {
         activeOrder,
         allOrders,
         claimOrder,
         completeOrder,
-        cancelOrder,
+        releaseOrder,
+        deleteOrder,
+        createOrder,
         refreshOrders,
-        availableOrders: orderService.getAvailableOrders(),
-        employeeOrders: orderService.getOrdersByEmployee(currentUser),
     };
 };

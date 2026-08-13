@@ -89,6 +89,9 @@ export const styles = StyleSheet.create({
         fontSize: 20,
         color: '#303338',
     },
+    lateTimerText: {
+        color: '#ED4545',
+    },
     actionButton: {
         backgroundColor: '#F26E3B',
         padding: 8,

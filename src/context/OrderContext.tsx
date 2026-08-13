@@ -1,6 +1,5 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useOrders } from '../hooks/useOrders';
-import { Employee } from '../models/employee/Employee';
 
 // Gerenciador de Estado Global
 
@@ -9,6 +8,9 @@ interface OrderContextType {
     allOrders: ReturnType<typeof useOrders>['allOrders'];
     claimOrder: ReturnType<typeof useOrders>['claimOrder'];
     completeOrder: ReturnType<typeof useOrders>['completeOrder'];
+    releaseOrder: ReturnType<typeof useOrders>['releaseOrder'];
+    deleteOrder: ReturnType<typeof useOrders>['deleteOrder'];
+    createOrder: ReturnType<typeof useOrders>['createOrder'];
     refreshOrders: ReturnType<typeof useOrders>['refreshOrders'];
 }
 
@@ -16,11 +18,11 @@ const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
 interface OrderProviderProps {
     children: ReactNode;
-    currentUser: Employee;
+    stationNumber: number | null;
 }
 
-export const OrderProvider: React.FC<OrderProviderProps> = ({ children, currentUser }) => {
-    const orderState = useOrders(currentUser);
+export const OrderProvider: React.FC<OrderProviderProps> = ({ children, stationNumber }) => {
+    const orderState = useOrders(stationNumber);
 
     return (
         <OrderContext.Provider value={orderState}>

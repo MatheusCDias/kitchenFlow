@@ -16,63 +16,73 @@ import { Header } from './src/components/Header/Header';
 import { ActiveWorkspace } from './src/components/ActiveWorkspace/ActiveWorkspace';
 import { AllOrders } from './src/components/AllOrders/AllOrders';
 import { CheckeredBorder } from './src/components/Patterns/CheckeredBorder';
+import { StationPicker } from './src/components/StationPicker/StationPicker';
+import { RolePicker, Role } from './src/components/RolePicker/RolePicker';
+import { ReceptionWorkspace } from './src/components/ReceptionWorkspace/ReceptionWorkspace';
 
-// Enums
-import { OrderOriginEnum } from './src/enums/OrderOriginEnum';
-import { DrinkTypeEnum } from './src/enums/DrinkTypeEnum';
-import { CategoryEnum } from './src/enums/CategoryEnum';
+// Estado global de pedidos
+import { OrderProvider, useOrderContext } from './src/context/OrderContext';
+import { useStation } from './src/hooks/useStation';
 
-// Modelos do Domínio
-import { Order } from './src/models/Order';
-import { Customer } from './src/models/Customer';
-import { Address } from './src/models/Address';
-import { TableService } from './src/models/service/TableService';
-import { Cook } from './src/models/employee/Cook';
-import { FoodItem } from './src/models/menu/FoodItem';
-import { DrinkItem } from './src/models/menu/DrinkItem';
-import { OrderItem } from './src/models/OrderItem';
-import { Ingredient } from './src/models/kitchen/Ingredient';
-import { Recipe } from './src/models/kitchen/Recipe';
+// Tela da cozinha: só pode usar useOrderContext() porque fica dentro do OrderProvider.
+// stationNumber vem de fora (do App) porque o OrderProvider também precisa dele.
+function KitchenContent({ stationNumber }: { stationNumber: number }) {
+  const { activeOrder, allOrders, claimOrder, completeOrder, releaseOrder, deleteOrder } = useOrderContext();
 
-// Função auxiliar para montar um pedido inicial de teste
-const createMockOrder = (id: string, code: number): Order => {
-  const address = new Address('Rua Principal', 100, '13730-000', 'Apto 12');
-  const customer = new Customer('cust-101', 'João Silva', '(19) 98765-4321');
-  customer.addAddress(address);
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor='#F07342' />
+      <View style={styles.container}>
+        <Header stationLabel={`Bancada ${stationNumber}`} />
+        <ScrollView contentContainerStyle={styles.content}>
 
-  const cook = new Cook('emp-1', 'Chef Roberto', 3, 'Tarde');
-  const tableService = new TableService(new Date(), 5, 2);
+          <ActiveWorkspace
+            order={activeOrder}
+            onCompleteOrder={completeOrder}
+            onReleaseOrder={releaseOrder}
+            onDeleteOrder={deleteOrder}
+          />
 
-  const ing1 = new Ingredient('ing-1', 'Carne Artesanal 180g', 1, 1, 'unidade');
-  const ing2 = new Ingredient('ing-2', 'Queijo Cheddar', 2, 2, 'fatias');
-  const burgerRecipe = new Recipe('rec-1', 'Grelhar a carne no ponto desejado e selar o pão na manteiga.', new Date(), 1, 12.0, [ing1, ing2]);
+          <AllOrders
+            orders={allOrders}
+            onClaimOrder={claimOrder}
+          />
 
-  const ingFries = new Ingredient('ing-3', 'Batata Palito', 250, 250, 'g');
-  const friesRecipe = new Recipe('rec-2', 'Fritar a batata a 180°C por 5 minutos até dourar.', new Date(), 1, 4.0, [ingFries]);
+          <View style={styles.footerWrapper}>
+            <CheckeredBorder primaryColor='#ED4545' secondaryColor='#EAE8E5' />
+          </View>
 
-  const burger = new FoodItem('menu-1', 'Hambúrguer Artesanal', 32.00, 'Delicioso hambúrguer', 2026, 10, new Date(), CategoryEnum.MAIN_COURSE, 1);
-  const fries = new FoodItem('menu-2', 'Batata Frita Grande', 18.00, 'Porção individual', 2026, 15, new Date(), CategoryEnum.APPETIZER, 1);
-  const soda = new DrinkItem('menu-3', 'Refrigerante', 7.00, 'Lata 350ml', 2026, 5, false, DrinkTypeEnum.CAN);
-
-  const now = new Date();
-  const order = new Order(
-    id,
-    code,
-    OrderOriginEnum.PRESENTIAL,
-    new Date(now.getTime() + 20 * 60000),
-    new Date(now.getTime() + 10 * 60000),
-    new Date(now.getTime() + 25 * 60000),
-    customer,
-    tableService,
-    cook
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
+}
 
-  order.addItem(new OrderItem('item-1', burger.getName(), 2, new Date(), '1x Sem picles', burger, burgerRecipe));
-  order.addItem(new OrderItem('item-2', fries.getName(), 2, new Date(), '', fries, friesRecipe));
-  order.addItem(new OrderItem('item-3', soda.getName(), 1, new Date(), 'Com Gelo', soda));
+// Tela da recepção: sem bancada, só cria pedido e acompanha a fila.
+// Não consegue pegar nem concluir pedido — isso é só da cozinha.
+function ReceptionContent() {
+  const { allOrders, createOrder } = useOrderContext();
 
-  return order;
-};
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor='#F07342' />
+      <View style={styles.container}>
+        <Header stationLabel="Recepção" />
+        <ScrollView contentContainerStyle={styles.content}>
+
+          <ReceptionWorkspace onCreateOrder={createOrder} />
+
+          <AllOrders orders={allOrders} />
+
+          <View style={styles.footerWrapper}>
+            <CheckeredBorder primaryColor='#ED4545' secondaryColor='#EAE8E5' />
+          </View>
+
+        </ScrollView>
+      </View>
+    </SafeAreaView>
+  );
+}
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -87,57 +97,35 @@ export default function App() {
     Lexend_900Black,
   });
 
-  // Estado do pedido atualmente selecionado no workspace principal
-  const [activeOrder, setActiveOrder] = useState<Order | null>(createMockOrder('ord-101', 101));
+  // Escolha travada assim que a pessoa entra: recepção não vê cozinha, e vice-versa.
+  const [role, setRole] = useState<Role | null>(null);
+  const { stationNumber, occupiedStations, isConnecting, selectStation } = useStation();
 
-  // Estado da lista geral com 6 pedidos de exemplo para preencher a grid de 3 colunas
-  const [allOrders, setAllOrders] = useState<Order[]>([
-    createMockOrder('ord-101', 101),
-    createMockOrder('ord-102', 102),
-    createMockOrder('ord-103', 103),
-    createMockOrder('ord-104', 104),
-    createMockOrder('ord-105', 105),
-    createMockOrder('ord-106', 106),
-  ]);
+  if (role === null) {
+    return <RolePicker onSelect={setRole} />;
+  }
 
-  // Finaliza o pedido atual do ActiveWorkspace
-  const handleCompleteOrder = (completedOrder: Order) => {
-    completedOrder.advanceStage();
-    setActiveOrder(null);
-  };
+  if (role === 'recepcao') {
+    return (
+      <OrderProvider stationNumber={null}>
+        <ReceptionContent />
+      </OrderProvider>
+    );
+  }
 
-  // Pega um pedido da lista geral e o define como o pedido ativo
-  const handleClaimOrder = (orderId: string) => {
-    const selected = allOrders.find((order) => order.getId() === orderId);
-    if (selected) {
-      setActiveOrder(selected);
-    }
-  };
+  // A partir daqui, role === 'cozinha': ainda falta escolher a bancada.
+  if (isConnecting) {
+    return null;
+  }
+
+  if (stationNumber === null) {
+    return <StationPicker occupiedStations={occupiedStations} onSelect={selectStation} />;
+  }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor='#F07342' />
-      <View style={styles.container}>
-        <Header />
-        <ScrollView contentContainerStyle={styles.content}>
-
-          <ActiveWorkspace
-            order={activeOrder}
-            onCompleteOrder={handleCompleteOrder}
-          />
-
-          <AllOrders
-            orders={allOrders}
-            onClaimOrder={handleClaimOrder}
-          />
-
-          <View style={styles.footerWrapper}>
-            <CheckeredBorder primaryColor='#ED4545' secondaryColor='#EAE8E5' />
-          </View>
-
-        </ScrollView>
-      </View>
-    </SafeAreaView>
+    <OrderProvider stationNumber={stationNumber}>
+      <KitchenContent stationNumber={stationNumber} />
+    </OrderProvider>
   );
 }
 

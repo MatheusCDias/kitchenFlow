@@ -12,12 +12,26 @@ export const styles = StyleSheet.create({
         // Garante que o Header não fique escondido sob a barra de status do celular
         paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 12 : 32,
     },
+    titleGroup: {
+        alignItems: 'center',
+    },
     title: {
         color: '#EAE8E5',
         fontSize: 24,
         fontFamily: 'Lexend_600SemiBold',
         textAlign: 'center',
         userSelect: 'none',
+    },
+    stationBadge: {
+        marginTop: 2,
+        color: '#F07342',
+        backgroundColor: '#EAE8E5',
+        fontSize: 12,
+        fontFamily: 'Lexend_500Medium',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 8,
+        overflow: 'hidden',
     },
     iconButton: {
         width: 40,

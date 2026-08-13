@@ -1,12 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, FlatList, LayoutChangeEvent, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, LayoutChangeEvent } from 'react-native';
 import { Order } from '../../models/Order';
+import { OrderStateEnum } from '../../enums/OrderStateEnum';
 import { TicketCard } from '../TicketCard/TicketCard';
 import { styles } from './AllOrders.styles';
 
 interface AllOrdersProps {
     orders: Order[];
-    onClaimOrder: (orderId: string) => void;
+    // Sem essa função, os cards ficam só pra visualização (usado pela recepção).
+    onClaimOrder?: (orderId: string) => void;
 }
 
 const CARD_WIDTH = 280;
@@ -17,6 +19,19 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
     onClaimOrder,
 }) => {
     const [containerWidth, setContainerWidth] = useState<number>(0);
+
+    // Prioridade: quem tem menos tempo restante aparece primeiro; concluídos vão pro final,
+    // senão um pedido pronto (com o relógio congelado, às vezes negativo) parece mais urgente
+    // que um que ainda está sendo preparado.
+    const sortedOrders = useMemo(
+        () => [...orders].sort((a, b) => {
+            const aDone = a.getStatus() === OrderStateEnum.READY ? 1 : 0;
+            const bDone = b.getStatus() === OrderStateEnum.READY ? 1 : 0;
+            if (aDone !== bDone) return aDone - bDone;
+            return a.getRemainingSeconds() - b.getRemainingSeconds();
+        }),
+        [orders]
+    );
 
     // Atualiza a largura disponível sempre que o layout mudar
     const handleLayout = (event: LayoutChangeEvent) => {
@@ -44,7 +59,7 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
             {containerWidth > 0 && (
                 <FlatList
                     key={numColumns}
-                    data={orders}
+                    data={sortedOrders}
                     keyExtractor={(item) => item.getId()}
                     numColumns={numColumns}
                     scrollEnabled={false}
@@ -52,18 +67,14 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
                     columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined}
                     renderItem={({ item }) => (
                         <View style={styles.columnItem}>
-                            {/* Transformado em botão clicável */}
-                            <TouchableOpacity
-                                activeOpacity={0.8}
-                                onPress={() => onClaimOrder(item.getId())}
-                            >
-                                <TicketCard
-                                    order={item}
-                                    selectedItemIndex={0}
-                                    actionText='Pegar Pedido'
-                                    backgroundColor="#DEDEDE"
-                                />
-                            </TouchableOpacity>
+                            <TicketCard
+                                order={item}
+                                selectedItemIndex={0}
+                                backgroundColor="#DEDEDE"
+                                {...(onClaimOrder
+                                    ? { actionText: 'Pegar Pedido', onSelectAction: () => onClaimOrder(item.getId()) }
+                                    : {})}
+                            />
                         </View>
                     )}
                 />

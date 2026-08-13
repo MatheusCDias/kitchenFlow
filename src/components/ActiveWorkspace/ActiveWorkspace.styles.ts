@@ -37,37 +37,6 @@ export const styles = StyleSheet.create({
         color: '#EAE8E5',
         userSelect: 'none',
     },
-    toggleContainer: {
-        flexDirection: 'row',
-        backgroundColor: 'transparent',
-        borderWidth: 1,
-        borderColor: '#EAE8E5',
-        borderRadius: 12,
-        padding: 4,
-    },
-    toggleButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        padding: 8,
-        borderRadius: 8,
-    },
-    activeToggleButton: {
-        backgroundColor: '#EAE8E5',
-    },
-    inactiveToggleButton: {
-        backgroundColor: 'transparent',
-    },
-    toggleText: {
-        fontFamily: 'Lexend_400Regular',
-        fontSize: 12,
-    },
-    activeToggleText: {
-        color: '#333',
-    },
-    inactiveToggleText: {
-        color: '#EAE8E5',
-    },
     emptyContent: {
         alignItems: 'center',
         justifyContent: 'center',
@@ -154,6 +123,9 @@ export const styles = StyleSheet.create({
         fontSize: 26,
         color: '#EAE8E5',
     },
+    lateTimerText: {
+        color: '#FFD9D9',
+    },
     completeButton: {
         backgroundColor: '#EAE8E5',
         paddingHorizontal: 16,
@@ -169,5 +141,38 @@ export const styles = StyleSheet.create({
         fontFamily: 'Lexend_600SemiBold',
         color: '#F26E3B',
         fontSize: 16,
+    },
+    actionsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    secondaryButton: {
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.6)',
+    },
+    secondaryButtonText: {
+        fontFamily: 'Lexend_500Medium',
+        color: '#EAE8E5',
+        fontSize: 14,
+    },
+    dangerButton: {
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        borderRadius: 8,
+        backgroundColor: '#ED4545',
+    },
+    dangerButtonText: {
+        fontFamily: 'Lexend_600SemiBold',
+        color: '#EAE8E5',
+        fontSize: 14,
+    },
+    confirmText: {
+        fontFamily: 'Lexend_400Regular',
+        color: '#EAE8E5',
+        fontSize: 14,
     },
 });

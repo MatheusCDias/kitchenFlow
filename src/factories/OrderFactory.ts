@@ -2,7 +2,6 @@ import { Order } from '../models/Order';
 import { Customer } from '../models/Customer';
 import { Address } from '../models/Address';
 import { TableService } from '../models/service/TableService';
-import { Cook } from '../models/employee/Cook';
 import { Employee } from '../models/employee/Employee';
 import { OrderOriginEnum } from '../enums/OrderOriginEnum';
 import { CategoryEnum } from '../enums/CategoryEnum';
@@ -135,10 +134,10 @@ export class OrderFactory {
         return order;
     }
 
-    static createMockOrders(employee: Employee): Order[] {
+    static createMockOrders(): Order[] {
         return [
             this.createOrder('ord-101', 101, 5),
-            this.createOrder('ord-102', 102, 10, new Cook('emp-2', 'Funcionário #2', 3, 'Tarde')),
+            this.createOrder('ord-102', 102, 10),
             this.createOrder('ord-103', 103, 7),
             this.createOrder('ord-104', 104, 20),
             this.createOrder('ord-105', 105, 9),

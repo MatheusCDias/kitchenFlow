@@ -15,4 +15,5 @@ export abstract class Employee {
 
     public getId(): string { return this.id; }
     public getName(): string { return this.name; }
+    public getStationNumber(): number { return this.stationNumber; }
 }

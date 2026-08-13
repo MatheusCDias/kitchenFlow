@@ -4,8 +4,10 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Order } from '../../models/Order';
 import { TableService } from '../../models/service/TableService';
 import { DeliveryService } from '../../models/service/DeliveryService';
+import { OrderStateEnum } from '../../enums/OrderStateEnum';
 import { styles } from './TicketCard.styles';
 import { ScallopedBorder } from '../Patterns/ScallopedBorder';
+import { useCountdown, formatCountdown } from '../../hooks/useCountdown';
 
 interface TicketCardProps {
     order: Order;
@@ -36,6 +38,16 @@ export const TicketCard: React.FC<TicketCardProps> = ({
     }
 
     const firstObservation = order.getItems().find(item => item.getNotes())?.getNotes();
+    const { remainingSeconds, isLate } = useCountdown(order);
+
+    // Se já tem alguém responsável, o botão vira um aviso em vez de convite pra pegar o pedido.
+    // Se já foi concluído, isso tem prioridade sobre tudo o mais.
+    const assignedEmployee = order.getAssignedEmployee();
+    const isDone = order.getStatus() === OrderStateEnum.READY;
+    const effectiveActionText = isDone
+        ? 'Concluído'
+        : assignedEmployee ? `Com ${assignedEmployee.getName()}` : actionText;
+    const effectiveIsDisabled = isDone || isActionDisabled || Boolean(assignedEmployee);
 
     return (
         <View style={[styles.cardContainer, { backgroundColor }]}>
@@ -84,17 +96,19 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
                 <View style={styles.footer}>
                     <View style={styles.timerContainer}>
-                        <MaterialIcons name="timer" size={20} color="#303338" />
-                        <Text style={styles.timerText}>05:00</Text>
+                        <MaterialIcons name="timer" size={20} color={isLate ? '#ED4545' : '#303338'} />
+                        <Text style={[styles.timerText, isLate && styles.lateTimerText]}>
+                            {formatCountdown(remainingSeconds)}
+                        </Text>
                     </View>
 
-                    {actionText ? (
+                    {effectiveActionText ? (
                         <TouchableOpacity
-                            style={[styles.actionButton, isActionDisabled && styles.disabledButton]}
+                            style={[styles.actionButton, effectiveIsDisabled && styles.disabledButton]}
                             onPress={onSelectAction}
-                            disabled={isActionDisabled}
+                            disabled={effectiveIsDisabled}
                         >
-                            <Text style={styles.actionButtonText}>{actionText}</Text>
+                            <Text style={styles.actionButtonText}>{effectiveActionText}</Text>
                         </TouchableOpacity>
                     ) : null}
                 </View>
