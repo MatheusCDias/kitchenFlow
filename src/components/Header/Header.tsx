@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Pressable } from 'react-native';
+import FloatingMenu from '../FloatingMenu/FloatingMenu';
 import Icon from '../Icon';
 import { styles } from './Header.styles';
 
@@ -20,6 +21,8 @@ export const Header: React.FC<HeaderProps> = ({
     onMenuPress,
     onNotificationPress,
 }) => {
+    const [menuAberto, setMenuAberto] = useState(false);
+
     return (
         <View style={styles.container}>
             <View style={styles.topContainer}>
@@ -28,7 +31,10 @@ export const Header: React.FC<HeaderProps> = ({
                         styles.iconButton,
                         pressed && { backgroundColor: 'rgba(234,232,229, 0.15)' }
                     ]}
-                    onPress={onMenuPress}
+                    onPress={() => {
+                        setMenuAberto(valorAtual => !valorAtual);
+                        onMenuPress?.();
+                    }}
                     android_ripple={{ color: 'rgba(234,232,229, 0.15)', borderless: true, radius: 20 }}
                 >
                     <Icon name="menu" />
@@ -46,6 +52,11 @@ export const Header: React.FC<HeaderProps> = ({
                 >
                     <Icon name="notifications" fill={false} />
                 </Pressable>
+
+                <FloatingMenu
+                    visible={menuAberto}
+                    onClose={() => setMenuAberto(false)}
+                />
             </View>
 
             <View style={styles.workspaceHeader}>
