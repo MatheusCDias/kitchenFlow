@@ -5,5 +5,6 @@ export enum OrderStateEnum {
     READY = 'READY',
     ON_THE_WAY = 'ON_THE_WAY',
     DELIVERED = 'DELIVERED',
-    CANCELLED = 'CANCELLED'
+    CANCELLED = 'CANCELLED',
+    COMPLETED = 'COMPLETED'
 }

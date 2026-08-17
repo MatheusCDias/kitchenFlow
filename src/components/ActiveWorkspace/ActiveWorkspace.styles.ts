@@ -167,7 +167,11 @@ export const styles = StyleSheet.create({
         fontSize: 26,
         color: '#EAE8E5',
     },
-    completeButton: {
+    buttonArea: {
+        flexDirection: 'row',
+        gap: 32,
+    },
+    button: {
         backgroundColor: '#EAE8E5',
         paddingHorizontal: 16,
         paddingVertical: 12,
@@ -178,7 +182,7 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.15,
         shadowRadius: 3,
     },
-    completeButtonText: {
+    buttonText: {
         fontFamily: 'Lexend',
         fontWeight: 400,
         color: '#F26E3B',

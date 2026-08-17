@@ -79,6 +79,11 @@ export class Order {
         return `${paddedMinutes}:${paddedSeconds}`;
     }
 
+    public resetOrder(): void {
+        this.assignedEmployee = undefined;
+        this.state = new ReceivedState();
+    }
+
     // --- Métodos do Domínio / Getters & Setters ---
 
     public addItem(item: OrderItem): void {

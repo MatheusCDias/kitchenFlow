@@ -40,11 +40,32 @@ export const useOrders = (currentUser: Employee) => {
         setAllOrders([...orderService.getAllOrders()]);
     }, [orderService]);
 
+    // Em useOrders.ts
+
+    const releaseOrder = useCallback((order: Order) => {
+        const success = orderService.releaseOrder(order.getId());
+        if (success) {
+            setActiveOrder(null);
+            setAllOrders([...orderService.getAllOrders()]);
+        }
+        return success;
+    }, [orderService]);
+
+    const cancelOrder = useCallback((order: Order) => {
+        const success = orderService.cancelOrder(order.getId());
+        if (success) {
+            setActiveOrder(null);
+            setAllOrders([...orderService.getAllOrders()]);
+        }
+        return success;
+    }, [orderService]);
+
     return {
         activeOrder,
         allOrders,
         claimOrder,
         completeOrder,
+        cancelOrder, // 👈 Adicione aqui no retorno
         refreshOrders,
         availableOrders: orderService.getAvailableOrders(),
         employeeOrders: orderService.getOrdersByEmployee(currentUser),

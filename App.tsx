@@ -21,7 +21,8 @@ export default function App() {
     activeOrder,
     allOrders,
     claimOrder,
-    completeOrder
+    completeOrder,
+    cancelOrder,
   } = useOrders(currentUser);
 
   if (!fontsLoaded) {
@@ -38,6 +39,7 @@ export default function App() {
             key={activeOrder ? activeOrder.getId() : 'no-active-order'}
             order={activeOrder}
             onCompleteOrder={completeOrder}
+            onCancelOrder={cancelOrder}
           />
 
           <AllOrders

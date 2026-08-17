@@ -43,11 +43,13 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
 
         if (
             status === OrderStateEnum.READY ||
-            status === OrderStateEnum.DELIVERED
+            status === OrderStateEnum.DELIVERED ||
+            status === OrderStateEnum.COMPLETED
         ) {
             return {
                 actionText: 'Concluído',
                 isActionDisabled: true,
+                variant: 'completed' as const,
             };
         }
 
@@ -59,6 +61,7 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
             return {
                 actionText: 'Em Andamento',
                 isActionDisabled: true,
+                variant: 'in_progress' as const,
             };
         }
 
@@ -66,12 +69,16 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
             return {
                 actionText: assignedEmployee.getName(),
                 isActionDisabled: true,
+                variant: 'assigned' as const,
             };
         }
 
+        const hasActiveWorkspaceOrder = Boolean(activeOrder);
+
         return {
             actionText: 'Pegar Pedido',
-            isActionDisabled: false,
+            isActionDisabled: hasActiveWorkspaceOrder, // Fica true se já houver pedido ativo
+            variant: 'default' as const,
         };
     };
 
