@@ -101,50 +101,6 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
 
     return (
         <View style={styles.container}>
-            <View style={styles.workspaceHeader}>
-                <Text style={styles.headerTitle}>Área de Trabalho</Text>
-                <View style={styles.toggleContainer}>
-                    {/* Botão Recepção */}
-                    <TouchableOpacity
-                        activeOpacity={0.8}
-                        style={[
-                            styles.toggleButton,
-                            activeMode === 'recepcao' ? styles.activeToggleButton : styles.inactiveToggleButton,
-                        ]}
-                        onPress={() => setActiveMode('recepcao')}
-                    >
-                        <Icon name="desktop_windows" fill={activeMode === 'recepcao' ? true : false} color={activeMode === 'recepcao' ? '#303338' : '#EAE8E5'} />
-                        <Text
-                            style={[
-                                styles.toggleText,
-                                activeMode === 'recepcao' ? styles.activeToggleText : styles.inactiveToggleText,
-                            ]}
-                        >
-                            Recepção
-                        </Text>
-                    </TouchableOpacity>
-
-                    {/* Botão Cozinha */}
-                    <TouchableOpacity
-                        activeOpacity={0.8}
-                        style={[
-                            styles.toggleButton,
-                            activeMode === 'cozinha' ? styles.activeToggleButton : styles.inactiveToggleButton,
-                        ]}
-                        onPress={() => setActiveMode('cozinha')}
-                    >
-                        <Icon name="chef_hat" fill={activeMode === 'cozinha' ? true : false} color={activeMode === 'cozinha' ? '#303338' : '#EAE8E5'} />
-                        <Text
-                            style={[
-                                styles.toggleText,
-                                activeMode === 'cozinha' ? styles.activeToggleText : styles.inactiveToggleText,
-                            ]}
-                        >
-                            Cozinha
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
 
             {!order ? (
                 /* Estado Vazio */

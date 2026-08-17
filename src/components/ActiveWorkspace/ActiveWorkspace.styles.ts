@@ -18,59 +18,12 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 8,
         elevation: 6,
-    }, 
-    workspaceHeader: {
-        width: '100%',
-        flexDirection: 'row',
-        paddingHorizontal: 32,
-        justifyContent: 'space-between',
-        alignItems: 'center',
     },
     orderContainer: {
         flexDirection: 'row',
         paddingHorizontal: 32,
         paddingBottom: 16,
         gap: 24,
-    },
-    headerTitle: {
-        fontFamily: 'Lexend',
-        fontWeight: 400,
-        fontSize: 20,
-        color: '#EAE8E5',
-        userSelect: 'none',
-    },
-    toggleContainer: {
-        flexDirection: 'row',
-        backgroundColor: 'transparent',
-        borderWidth: 1,
-        borderColor: '#EAE8E5',
-        borderRadius: 12,
-        padding: 4,
-    },
-    toggleButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        padding: 8,
-        borderRadius: 8,
-        userSelect: 'none',
-    },
-    activeToggleButton: {
-        backgroundColor: '#EAE8E5',
-    },
-    inactiveToggleButton: {
-        backgroundColor: 'transparent',
-    },
-    toggleText: {
-        fontFamily: 'Lexend',
-        fontWeight: 400,
-        fontSize: 16,
-    },
-    activeToggleText: {
-        color: '#333',
-    },
-    inactiveToggleText: {
-        color: '#EAE8E5',
     },
     emptyContent: {
         alignItems: 'center',

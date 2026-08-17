@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFonts } from 'expo-font';
 import { StyleSheet, View, SafeAreaView, StatusBar, ScrollView } from 'react-native';
-import { Header } from './src/components/Header/Header';
-import { ActiveWorkspace } from './src/components/ActiveWorkspace/ActiveWorkspace';
-import { AllOrders } from './src/components/AllOrders/AllOrders';
+import { Header, ViewMode } from './src/components/Header/Header';
+import { Kitchen } from './src/pages/Kitchen';
+import { Reception } from './src/pages/Reception';
 import { CheckeredBorder } from './src/components/Patterns/CheckeredBorder';
 import { Cook } from './src/models/employee/Cook';
 import { useOrders } from './src/hooks/useOrders';
@@ -25,6 +25,9 @@ export default function App() {
     cancelOrder,
   } = useOrders(currentUser);
 
+
+  const [viewMode, setViewMode] = useState<ViewMode>('cozinha');
+
   if (!fontsLoaded) {
     return null;
   }
@@ -33,28 +36,30 @@ export default function App() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor='#F07342' />
       <View style={styles.container}>
-        <Header />
+        <Header
+          activeMode={viewMode}
+          onModeChange={setViewMode}
+        />
         <ScrollView contentContainerStyle={styles.content}>
-          <ActiveWorkspace
-            key={activeOrder ? activeOrder.getId() : 'no-active-order'}
-            order={activeOrder}
-            onCompleteOrder={completeOrder}
-            onCancelOrder={cancelOrder}
-          />
-
-          <AllOrders
-            orders={allOrders}
-            activeOrder={activeOrder}
-            currentUser={currentUser}
-            onClaimOrder={claimOrder}
-          />
+          {viewMode === 'cozinha' ? (
+            <Kitchen
+              orders={allOrders}
+              activeOrder={activeOrder}
+              currentUser={currentUser}
+              onClaimOrder={claimOrder}
+              onCompleteOrder={completeOrder}
+              onCancelOrder={cancelOrder}
+            />
+          ) : (
+            <Reception orders={allOrders} />
+          )}
 
           <View style={styles.footerWrapper}>
             <CheckeredBorder primaryColor='#ED4545' />
           </View>
         </ScrollView>
-      </View>
-    </SafeAreaView>
+      </View >
+    </SafeAreaView >
   );
 }
 
