@@ -74,9 +74,8 @@ export const OrderTicketPreview: React.FC<OrderTicketPreviewProps> = ({
                         ))
                     )}
                 </View>
-
-                <View style={styles.dividerLine} />
-                {(!!generalObs || items.length > 0) && <View style={styles.divider} />}
+                
+                {(!!generalObs || items.length > 0) && <View style={styles.dividerLine} />}
 
                 {!!generalObs && (
                     <View style={styles.generalObsContainer}>

@@ -38,7 +38,6 @@ export const styles = StyleSheet.create({
         borderWidth: 0.8,
         borderColor: '#F07342',
         borderStyle: 'dashed',
-        //marginVertical: 8,
     },
     itemsList: {
         flex: 1,
@@ -46,7 +45,8 @@ export const styles = StyleSheet.create({
     },
     emptyState: {
         color: '#A09C9D',
-        fontFamily: 'Lexend_400Regular',
+        fontFamily: 'Lexend',
+        fontWeight: 400,
         fontSize: 14,
     },
     itemRow: {
