@@ -46,11 +46,11 @@ export const ReceptionWorkspace = () => {
                 prev.map((item) =>
                     item.id === editingItemId
                         ? {
-                              ...item,
-                              quantity: Number(itemQuantity) || 1,
-                              name: itemName,
-                              observation: itemObs,
-                          }
+                            ...item,
+                            quantity: Number(itemQuantity) || 1,
+                            name: itemName,
+                            observation: itemObs,
+                        }
                         : item
                 )
             );
@@ -73,6 +73,12 @@ export const ReceptionWorkspace = () => {
         if (!editingItemId) return;
         setItems((prev) => prev.filter((item) => item.id !== editingItemId));
         resetItemForm();
+    };
+
+    // Função helper para aceitar APENAS dígitos de 0 a 9
+    const handleNumericInput = (text: string, setter: (val: string) => void) => {
+        const cleanedText = text.replace(/[^0-9]/g, ''); // Remove tudo que não for número
+        setter(cleanedText);
     };
 
     return (
@@ -113,9 +119,9 @@ export const ReceptionWorkspace = () => {
                                 style={[styles.input, styles.qtyInput]}
                                 placeholder="000"
                                 placeholderTextColor="#A09C9D"
-                                keyboardType="numeric"
+                                keyboardType="number-pad" // Força teclado numérico no mobile
                                 value={itemQuantity}
-                                onChangeText={setItemQuantity}
+                                onChangeText={(text) => handleNumericInput(text, setItemQuantity)}
                             />
                             <TextInput
                                 style={[styles.input, styles.flexInput]}
@@ -165,9 +171,9 @@ export const ReceptionWorkspace = () => {
                                     style={styles.input}
                                     placeholder="(Em minutos)"
                                     placeholderTextColor="#A09C9D"
-                                    keyboardType="numeric"
+                                    keyboardType="number-pad" // Força teclado numérico no mobile
                                     value={prepTime}
-                                    onChangeText={setPrepTime}
+                                    onChangeText={(text) => handleNumericInput(text, setPrepTime)}
                                 />
                             </View>
 
