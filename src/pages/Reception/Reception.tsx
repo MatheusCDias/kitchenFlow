@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { ActiveWorkspace } from '../../components/ActiveWorkspace/ActiveWorkspace';
 import { Order } from '../../models/Order';
 import { OrderStateEnum } from '../../enums/OrderStateEnum';
+import { ReceptionWorkspace } from '../../components/ReceptionWorkspace/ReceptionWorkspace';
 
 interface ReceptionProps {
     orders: Order[];
@@ -18,6 +19,7 @@ export const Reception: React.FC<ReceptionProps> = ({ orders }) => {
 
     return (
         <ScrollView>
+            <ReceptionWorkspace/>
         </ScrollView>
     );
 };
