@@ -81,10 +81,8 @@ export const styles = StyleSheet.create({
         height: 1,
         backgroundColor: '#303338',
         opacity: 0.3,
-        marginVertical: 8,
     },
     generalObsContainer: {
-        marginBottom: 12,
     },
     generalObsText: {
         fontFamily: 'Lexend',
@@ -97,7 +95,6 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: 8,
     },
     timerContainer: {
         flexDirection: 'row',

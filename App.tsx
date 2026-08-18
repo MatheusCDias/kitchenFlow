@@ -7,7 +7,7 @@ import { Reception } from './src/pages/Reception/Reception';
 import { CheckeredBorder } from './src/components/Patterns/CheckeredBorder';
 import { Cook } from './src/models/employee/Cook';
 import { useOrders } from './src/hooks/useOrders';
-import { RolePicker, Role } from './src/pages/RolePicker/RolePicker'; // Importe o RolePicker
+import { RolePicker, Role } from './src/pages/RolePicker/RolePicker';
 
 const currentUser = new Cook('emp-99', 'Funcionário #1', 5, 'Manhã');
 
@@ -18,10 +18,8 @@ export default function App() {
     'MaterialSymbolsRoundedFilled': require('./src/assets/fonts/MaterialSymbolsRounded_Filled-Regular.ttf'),
   });
 
-  // Estado para controlar a bancada selecionada no início
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
-  // Mapeia Role para o formato esperado pelo Header (ViewMode)
   const [viewMode, setViewMode] = useState<ViewMode>('cozinha');
 
   const {
@@ -36,13 +34,11 @@ export default function App() {
     return null;
   }
 
-  // Ao selecionar no RolePicker, define a bancada inicial e o viewMode correspondente
   const handleSelectRole = (role: Role) => {
     setSelectedRole(role);
-    setViewMode(role); // Passa 'cozinha' ou 'recepcao' diretamente!
+    setViewMode(role);
   };
 
-  // Se nenhuma bancada foi escolhida ainda, exibe a tela inicial de seleção
   if (!selectedRole) {
     return (
       <SafeAreaView style={styles.safeArea}>

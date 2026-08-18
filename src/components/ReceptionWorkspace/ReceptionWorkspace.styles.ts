@@ -85,20 +85,20 @@ export const styles = StyleSheet.create({
         borderColor: 'rgba(255, 255, 255, 0.4)',
     },
     addButtonText: {
-        color: '#FFFFFF',
+        color: '#EAE8E5',
         fontSize: 16,
         fontFamily: 'Lexend',
         fontWeight: 400,
     },
     submitButton: {
-        backgroundColor: 'rgba(255, 255, 255, 0.4)',
+        backgroundColor: '#303338',
         height: 48,
         borderRadius: 16,
         alignItems: 'center',
         justifyContent: 'center',
     },
     submitButtonText: {
-        color: '#F07342',
+        color: '#EAE8E5',
         fontSize: 16,
         fontFamily: 'Lexend',
         fontWeight: 400,

@@ -13,8 +13,9 @@ interface RolePickerProps {
 export const RolePicker: React.FC<RolePickerProps> = ({ onSelect }) => {
     return (
         <View style={styles.container}>
+            <Text style={styles.title}>Kitchen Flow</Text>
             <View style={styles.content}>
-                <Text style={styles.title}>Você é da Recepção ou da Cozinha?</Text>
+                <Text style={styles.optionTitle}>Você é da Recepção ou da Cozinha?</Text>
 
                 <View style={styles.optionsRow}>
                     <TouchableOpacity
@@ -40,5 +41,4 @@ export const RolePicker: React.FC<RolePickerProps> = ({ onSelect }) => {
         </View>
     );
 };
-
 export default RolePicker;

@@ -4,18 +4,25 @@ export const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F07342',
-        justifyContent: 'space-between',
     },
     content: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 24,
+        gap: 16,
     },
     title: {
         fontFamily: 'Lexend',
         fontWeight: 400,
         fontSize: 24,
+        color: '#EAE8E5',
+        textAlign: 'center',
+        paddingTop: 24,
+    },
+    optionTitle: {
+        fontFamily: 'Lexend',
+        fontWeight: 400,
+        fontSize: 18,
         color: '#EAE8E5',
         textAlign: 'center',
     },

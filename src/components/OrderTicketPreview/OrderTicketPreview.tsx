@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import Icon from '../Icon';
-import { CheckeredBorder } from '../Patterns/CheckeredBorder';
 import { styles } from './OrderTicketPreview.styles';
 import { ScallopedBorder } from '../Patterns/ScallopedBorder';
 
@@ -19,6 +18,7 @@ interface OrderTicketPreviewProps {
     generalObs?: string;
     prepTime?: string;
     backgroundColor?: string;
+    onSelectItem?: (item: OrderItem) => void; // Callback para clique no item
 }
 
 export const OrderTicketPreview: React.FC<OrderTicketPreviewProps> = ({
@@ -28,8 +28,10 @@ export const OrderTicketPreview: React.FC<OrderTicketPreviewProps> = ({
     generalObs,
     prepTime,
     backgroundColor = '#EAE8E5',
+    onSelectItem,
 }) => {
     const bottomColor = backgroundColor === '#DEDEDE' ? '#EAE8E5' : '#F07342';
+
     const formattedPrepTime = React.useMemo(() => {
         if (!prepTime) return '00:00';
         const mins = parseInt(prepTime, 10);
@@ -60,7 +62,12 @@ export const OrderTicketPreview: React.FC<OrderTicketPreviewProps> = ({
                         <Text style={styles.emptyState}>Adicione itens ao pedido...</Text>
                     ) : (
                         items.map((item) => (
-                            <View key={item.id} style={styles.itemRow}>
+                            <TouchableOpacity
+                                key={item.id}
+                                style={styles.itemRow}
+                                activeOpacity={0.6}
+                                onPress={() => onSelectItem?.(item)}
+                            >
                                 <View style={styles.itemHeader}>
                                     <Text style={styles.itemQuantity}>{item.quantity}x</Text>
                                     <Text style={styles.itemName}>{item.name}</Text>
@@ -70,20 +77,18 @@ export const OrderTicketPreview: React.FC<OrderTicketPreviewProps> = ({
                                         {item.observation}
                                     </Text>
                                 )}
-                            </View>
+                            </TouchableOpacity>
                         ))
                     )}
+                    {(!!generalObs || items.length > 0) && <View style={styles.dividerLine} />}
+                    {!!generalObs && (
+                        <View style={styles.generalObsContainer}>
+                            <Text style={styles.generalObsText}>
+                                Obs: {generalObs}
+                            </Text>
+                        </View>
+                    )}
                 </View>
-                
-                {(!!generalObs || items.length > 0) && <View style={styles.dividerLine} />}
-
-                {!!generalObs && (
-                    <View style={styles.generalObsContainer}>
-                        <Text style={styles.generalObsText}>
-                            Obs: {generalObs}
-                        </Text>
-                    </View>
-                )}
 
                 <View style={styles.footer}>
                     <View style={styles.timerContainer}>

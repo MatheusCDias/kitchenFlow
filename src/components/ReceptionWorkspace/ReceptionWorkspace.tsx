@@ -6,29 +6,73 @@ import { CheckeredBorder } from '../Patterns/CheckeredBorder';
 import Icon from '../Icon';
 
 export const ReceptionWorkspace = () => {
+    // Campos do Pedido
     const [table, setTable] = useState('');
     const [prepTime, setPrepTime] = useState('');
     const [generalObs, setGeneralObs] = useState('');
     const [items, setItems] = useState<OrderItem[]>([]);
 
+    // Campos do Formulário de Item
     const [itemQuantity, setItemQuantity] = useState('1');
     const [itemName, setItemName] = useState('');
     const [itemObs, setItemObs] = useState('');
 
-    const handleAddItem = () => {
-        if (!itemName.trim()) return;
+    // Estado para saber qual item está sendo editado (null = criando novo)
+    const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
-        const newItem: OrderItem = {
-            id: Date.now().toString(),
-            quantity: Number(itemQuantity) || 1,
-            name: itemName,
-            observation: itemObs,
-        };
+    // Quando clica num item do ticket para editar
+    const handleSelectItemToEdit = (item: OrderItem) => {
+        setEditingItemId(item.id);
+        setItemQuantity(String(item.quantity));
+        setItemName(item.name);
+        setItemObs(item.observation || '');
+    };
 
-        setItems((prev) => [...prev, newItem]);
+    // Limpa o formulário de itens e sai do modo edição
+    const resetItemForm = () => {
+        setEditingItemId(null);
+        setItemQuantity('1');
         setItemName('');
         setItemObs('');
-        setItemQuantity('1');
+    };
+
+    // Adiciona ou Salva Alteração
+    const handleSaveItem = () => {
+        if (!itemName.trim()) return;
+
+        if (editingItemId) {
+            // Atualizando um item existente
+            setItems((prev) =>
+                prev.map((item) =>
+                    item.id === editingItemId
+                        ? {
+                              ...item,
+                              quantity: Number(itemQuantity) || 1,
+                              name: itemName,
+                              observation: itemObs,
+                          }
+                        : item
+                )
+            );
+        } else {
+            // Criando um novo item
+            const newItem: OrderItem = {
+                id: Date.now().toString(),
+                quantity: Number(itemQuantity) || 1,
+                name: itemName,
+                observation: itemObs,
+            };
+            setItems((prev) => [...prev, newItem]);
+        }
+
+        resetItemForm();
+    };
+
+    // Exclui o item em edição
+    const handleDeleteItem = () => {
+        if (!editingItemId) return;
+        setItems((prev) => prev.filter((item) => item.id !== editingItemId));
+        resetItemForm();
     };
 
     return (
@@ -36,6 +80,7 @@ export const ReceptionWorkspace = () => {
             <View style={styles.content}>
                 <Text style={styles.sectionTitle}>Novo Pedido</Text>
                 <View style={styles.sectionContent}>
+                    {/* Lado Esquerdo: Ticket Preview */}
                     <View style={styles.ticketSection}>
                         <OrderTicketPreview
                             orderNumber="101"
@@ -43,8 +88,11 @@ export const ReceptionWorkspace = () => {
                             items={items}
                             generalObs={generalObs}
                             prepTime={prepTime}
+                            onSelectItem={handleSelectItemToEdit}
                         />
                     </View>
+
+                    {/* Lado Direito: Formulário */}
                     <View style={styles.formContainer}>
                         {/* Mesa */}
                         <Text style={styles.label}>Mesa</Text>
@@ -56,8 +104,10 @@ export const ReceptionWorkspace = () => {
                             onChangeText={setTable}
                         />
 
-                        {/* Adicionar Item */}
-                        <Text style={styles.label}>Adicionar item</Text>
+                        {/* Adicionar / Editar Item */}
+                        <Text style={styles.label}>
+                            {editingItemId ? 'Editar item' : 'Adicionar item'}
+                        </Text>
                         <View style={styles.row}>
                             <TextInput
                                 style={[styles.input, styles.qtyInput]}
@@ -84,10 +134,27 @@ export const ReceptionWorkspace = () => {
                                 value={itemObs}
                                 onChangeText={setItemObs}
                             />
-                            <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
-                                <Icon name="add" size={16} color="#EAE8E5" />
-                                <Text style={styles.addButtonText}>Adicionar item</Text>
-                            </TouchableOpacity>
+
+                            {/* Botoes de Ação do Item (Condicionais) */}
+                            {editingItemId ? (
+                                <>
+                                    <TouchableOpacity
+                                        style={[styles.addButton, { backgroundColor: '#E53935' }]}
+                                        onPress={handleDeleteItem}
+                                    >
+                                        <Icon name="delete" size={16} color="#EAE8E5" />
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity style={[styles.addButton, { backgroundColor: '#3EB26A' }]} onPress={handleSaveItem}>
+                                        <Icon name="check" size={16} color="#EAE8E5" />
+                                    </TouchableOpacity>
+                                </>
+                            ) : (
+                                <TouchableOpacity style={styles.addButton} onPress={handleSaveItem}>
+                                    <Icon name="add" size={16} color="#EAE8E5" />
+                                    <Text style={styles.addButtonText}>Adicionar item</Text>
+                                </TouchableOpacity>
+                            )}
                         </View>
 
                         {/* Prazo e Obs Geral */}
@@ -116,7 +183,7 @@ export const ReceptionWorkspace = () => {
                             </View>
                         </View>
 
-                        {/* Submit */}
+                        {/* Submit do Pedido */}
                         <TouchableOpacity style={styles.submitButton}>
                             <Text style={styles.submitButtonText}>Criar Pedido</Text>
                         </TouchableOpacity>
