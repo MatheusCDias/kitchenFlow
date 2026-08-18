@@ -29,6 +29,10 @@ export const styles = StyleSheet.create({
         fontSize: 16,
         color: '#303338',
     },
+    placeholderText: {
+        color: '#A09C9D',
+        fontStyle: 'italic',
+    },
     divider: {
         height: 1,
         borderWidth: 0.8,
@@ -36,14 +40,14 @@ export const styles = StyleSheet.create({
         borderStyle: 'dashed',
         //marginVertical: 8,
     },
-    dividerLine: {
-        height: 1,
-        borderWidth: 0.8,
-        borderColor: '#CECECE',
-    },
-    itemsContainer: {
+    itemsList: {
         flex: 1,
         gap: 16,
+    },
+    emptyState: {
+        color: '#A09C9D',
+        fontFamily: 'Lexend_400Regular',
+        fontSize: 14,
     },
     itemRow: {
         paddingVertical: 2,
@@ -51,27 +55,38 @@ export const styles = StyleSheet.create({
         borderRadius: 4,
         gap: 8,
     },
-    selectedItemRow: {
-        backgroundColor: 'rgba(242, 110, 59, 0.2)',
-    },
-    itemText: {
-        fontFamily: 'Lexend',
-        fontWeight: 300,
-        fontSize: 16,
-        color: '#303338',
+    itemHeader: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: 8,
     },
     itemQuantity: {
         fontFamily: 'Lexend',
         fontWeight: 400,
     },
-    itemSubObs: {
+    itemName: {
+        fontFamily: 'Lexend',
+        fontWeight: 300,
+        fontSize: 16,
+        color: '#303338',
+    },
+    itemObservation: {
         fontFamily: 'Lexend',
         fontWeight: 300,
         fontSize: 12,
         color: '#555',
         marginLeft: 24,
     },
-    notesText: {
+    dividerLine: {
+        height: 1,
+        backgroundColor: '#303338',
+        opacity: 0.3,
+        marginVertical: 8,
+    },
+    generalObsContainer: {
+        marginBottom: 12,
+    },
+    generalObsText: {
         fontFamily: 'Lexend',
         fontWeight: 300,
         fontSize: 14,
@@ -94,20 +109,5 @@ export const styles = StyleSheet.create({
         fontWeight: 400,
         fontSize: 20,
         color: '#303338',
-    },
-    actionButton: {
-        backgroundColor: '#F26E3B',
-        padding: 8,
-        borderRadius: 8,
-    },
-    disabledButton: {
-        backgroundColor: '#B2B2B2',
-    },
-
-    actionButtonText: {
-        fontFamily: 'Lexend',
-        fontWeight: 400,
-        fontSize: 16,
-        color: '#EAE8E5',
-    },
+    }
 });

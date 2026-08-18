@@ -7,6 +7,7 @@ export const styles = StyleSheet.create({
         borderBottomRightRadius: 32,
         flexDirection: 'column',
         gap: 16,
+        alignItems: 'stretch',
         overflow: 'hidden',
         shadowColor: '#000000',
         shadowOffset: {
@@ -17,34 +18,89 @@ export const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 6,
     },
-    header: {
+    content: {
+        flexDirection: 'column',
         paddingHorizontal: 32,
+        gap: 16,
     },
-    headerTitle: {
-        fontFamily: 'Lexend',
-        fontWeight: 500,
-        fontSize: 18,
-        color: '#EAE8E5',
-        userSelect: 'none',
-    },
-    optionsRow: {
+    sectionContent: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        gap: 24,
+        gap: 16,
+        paddingBottom: 16,
     },
-    option: {
-        padding: 40,
-        borderRadius: 16,
-        backgroundColor: '#EAE8E5',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
+    ticketSection: {
+        alignItems: 'flex-start',
     },
-    optionText: {
+    sectionTitle: {
+        fontSize: 20,
         fontFamily: 'Lexend',
         fontWeight: 400,
-        fontSize: 18,
+        color: '#EAE8E5',
+    },
+    formContainer: {
+        flex: 1,
+        justifyContent: 'flex-start',
+        gap: 12,
+    },
+    label: {
+        fontSize: 16,
+        fontFamily: 'Lexend',
+        fontWeight: 400,
+        color: '#EAE8E5',
+    },
+    input: {
+        backgroundColor: '#EAE8E5',
+        borderRadius: 16,
+        height: 48,
+        paddingHorizontal: 16,
+        fontSize: 16,
+        fontFamily: 'Lexend',
+        fontWeight: 400,
+        color: '#303338',
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
+    },
+    flexInput: {
+        flex: 1,
+        gap: 8,
+    },
+    qtyInput: {
+        maxWidth: 80,
+        paddingHorizontal: 24,
+        textAlign: 'center',
+    },
+    addButton: {
+        flexDirection: 'row',
+        backgroundColor: 'rgba(255, 255, 255, 0.25)',
+        height: 48,
+        paddingHorizontal: 16,
+        borderRadius: 16,
+        gap: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.4)',
+    },
+    addButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontFamily: 'Lexend',
+        fontWeight: 400,
+    },
+    submitButton: {
+        backgroundColor: 'rgba(255, 255, 255, 0.4)',
+        height: 48,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    submitButtonText: {
         color: '#F07342',
+        fontSize: 16,
+        fontFamily: 'Lexend',
+        fontWeight: 400,
     },
 });
