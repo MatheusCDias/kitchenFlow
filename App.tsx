@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFonts } from 'expo-font';
 import { StyleSheet, View, SafeAreaView, StatusBar, ScrollView } from 'react-native';
 import { Header, ViewMode } from './src/components/Header/Header';
@@ -8,6 +8,9 @@ import { CheckeredBorder } from './src/components/Patterns/CheckeredBorder';
 import { Cook } from './src/models/employee/Cook';
 import { useOrders } from './src/hooks/useOrders';
 import { RolePicker, Role } from './src/pages/RolePicker/RolePicker';
+import { initDatabase } from './src/services/db';
+import { AddEmployeeModal } from './src/components/Modals/AddEmployeeModal';
+import { AddMenuItemModal } from './src/components/Modals/AddMenuItemModal';
 
 const currentUser = new Cook('emp-99', 'Funcionário #1', 5, 'Manhã');
 
@@ -17,6 +20,22 @@ export default function App() {
     'MaterialSymbolsRounded': require('./src/assets/fonts/MaterialSymbolsRounded-Regular.ttf'),
     'MaterialSymbolsRoundedFilled': require('./src/assets/fonts/MaterialSymbolsRounded_Filled-Regular.ttf'),
   });
+
+  useEffect(() => {
+    initDatabase();
+  }, []);
+
+  const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
+  const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
+
+  // Função que responde ao clique do FloatingMenu
+  const handleSelectMenuOption = (option: string) => {
+    if (option === 'Adicionar Funcionário') {
+      setIsEmployeeModalOpen(true);
+    } else if (option === 'Adicionar Item ao Cardápio') {
+      setIsMenuModalOpen(true);
+    }
+  };
 
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
@@ -55,6 +74,7 @@ export default function App() {
         <Header
           activeMode={viewMode}
           onModeChange={setViewMode}
+          onSelectMenuOption={handleSelectMenuOption}
         />
         <ScrollView contentContainerStyle={styles.content}>
           {viewMode === 'cozinha' ? (
@@ -75,6 +95,15 @@ export default function App() {
           </View>
         </ScrollView>
       </View>
+      <AddEmployeeModal
+        visible={isEmployeeModalOpen}
+        onClose={() => setIsEmployeeModalOpen(false)}
+      />
+
+      <AddMenuItemModal
+        visible={isMenuModalOpen}
+        onClose={() => setIsMenuModalOpen(false)}
+      />
     </SafeAreaView>
   );
 }

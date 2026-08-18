@@ -12,6 +12,7 @@ interface HeaderProps {
     onModeChange: (mode: ViewMode) => void;
     onMenuPress?: () => void;
     onNotificationPress?: () => void;
+    onSelectMenuOption?: (option: string) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -20,6 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
     onModeChange,
     onMenuPress,
     onNotificationPress,
+    onSelectMenuOption,
 }) => {
     const [menuAberto, setMenuAberto] = useState(false);
 
@@ -29,13 +31,17 @@ export const Header: React.FC<HeaderProps> = ({
                 <Pressable
                     style={({ pressed }) => [
                         styles.iconButton,
-                        pressed && { backgroundColor: 'rgba(234,232,229, 0.15)' }
+                        pressed && { backgroundColor: 'rgba(234,232,229, 0.15)' },
                     ]}
                     onPress={() => {
-                        setMenuAberto(valorAtual => !valorAtual);
+                        setMenuAberto((valorAtual) => !valorAtual);
                         onMenuPress?.();
                     }}
-                    android_ripple={{ color: 'rgba(234,232,229, 0.15)', borderless: true, radius: 20 }}
+                    android_ripple={{
+                        color: 'rgba(234,232,229, 0.15)',
+                        borderless: true,
+                        radius: 20,
+                    }}
                 >
                     <Icon name="menu" />
                 </Pressable>
@@ -45,10 +51,14 @@ export const Header: React.FC<HeaderProps> = ({
                 <Pressable
                     style={({ pressed }) => [
                         styles.iconButton,
-                        pressed && { backgroundColor: 'rgba(234,232,229, 0.15)' }
+                        pressed && { backgroundColor: 'rgba(234,232,229, 0.15)' },
                     ]}
                     onPress={onNotificationPress}
-                    android_ripple={{ color: 'rgba(234,232,229, 0.15)', borderless: true, radius: 20 }}
+                    android_ripple={{
+                        color: 'rgba(234,232,229, 0.15)',
+                        borderless: true,
+                        radius: 20,
+                    }}
                 >
                     <Icon name="notifications" fill={false} />
                 </Pressable>
@@ -56,6 +66,10 @@ export const Header: React.FC<HeaderProps> = ({
                 <FloatingMenu
                     visible={menuAberto}
                     onClose={() => setMenuAberto(false)}
+                    onSelectOption={(option) => {
+                        onSelectMenuOption?.(option);
+                        setMenuAberto(false);
+                    }}
                 />
             </View>
 
@@ -67,7 +81,9 @@ export const Header: React.FC<HeaderProps> = ({
                         activeOpacity={0.8}
                         style={[
                             styles.toggleButton,
-                            activeMode === 'recepcao' ? styles.activeToggleButton : styles.inactiveToggleButton,
+                            activeMode === 'recepcao'
+                                ? styles.activeToggleButton
+                                : styles.inactiveToggleButton,
                         ]}
                         onPress={() => onModeChange('recepcao')}
                     >
@@ -79,7 +95,9 @@ export const Header: React.FC<HeaderProps> = ({
                         <Text
                             style={[
                                 styles.toggleText,
-                                activeMode === 'recepcao' ? styles.activeToggleText : styles.inactiveToggleText,
+                                activeMode === 'recepcao'
+                                    ? styles.activeToggleText
+                                    : styles.inactiveToggleText,
                             ]}
                         >
                             Recepção
@@ -91,7 +109,9 @@ export const Header: React.FC<HeaderProps> = ({
                         activeOpacity={0.8}
                         style={[
                             styles.toggleButton,
-                            activeMode === 'cozinha' ? styles.activeToggleButton : styles.inactiveToggleButton,
+                            activeMode === 'cozinha'
+                                ? styles.activeToggleButton
+                                : styles.inactiveToggleButton,
                         ]}
                         onPress={() => onModeChange('cozinha')}
                     >
@@ -103,7 +123,9 @@ export const Header: React.FC<HeaderProps> = ({
                         <Text
                             style={[
                                 styles.toggleText,
-                                activeMode === 'cozinha' ? styles.activeToggleText : styles.inactiveToggleText,
+                                activeMode === 'cozinha'
+                                    ? styles.activeToggleText
+                                    : styles.inactiveToggleText,
                             ]}
                         >
                             Cozinha
