@@ -100,17 +100,16 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                                 <Text style={styles.optionText}>Área de Trabalho</Text>
                             </Pressable>
 
+                            {/* Atualizado para acionar a opção 'Cardápio' */}
                             <Pressable
-                                onPress={() => handleOptionPress('Adicionar Item ao Cardápio')}
+                                onPress={() => handleOptionPress('Cardápio')}
                                 style={({ pressed }) => [
                                     styles.optionButton,
                                     pressed && styles.pressedOptionButton,
                                 ]}
                             >
                                 <Icon name="receipt_long" />
-                                <Text style={styles.optionText}>
-                                    Adicionar Item ao{'\n'}Cardápio
-                                </Text>
+                                <Text style={styles.optionText}>Cardápio</Text>
                             </Pressable>
 
                             <Pressable
@@ -121,7 +120,7 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                                 ]}
                             >
                                 <Icon name="person_add" />
-                                <Text style={styles.optionText}>Adicionar Funcionário</Text>
+                                <Text style={styles.optionText}>Funcionários</Text>
                             </Pressable>
 
                             <Pressable

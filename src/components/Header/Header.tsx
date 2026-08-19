@@ -88,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
                         onPress={() => onModeChange('recepcao')}
                     >
                         <Icon
-                            name="desktop_windows"
+                            name="badge"
                             fill={activeMode === 'recepcao'}
                             color={activeMode === 'recepcao' ? '#303338' : '#EAE8E5'}
                         />
@@ -116,7 +116,7 @@ export const Header: React.FC<HeaderProps> = ({
                         onPress={() => onModeChange('cozinha')}
                     >
                         <Icon
-                            name="chef_hat"
+                            name="soup_kitchen"
                             fill={activeMode === 'cozinha'}
                             color={activeMode === 'cozinha' ? '#303338' : '#EAE8E5'}
                         />

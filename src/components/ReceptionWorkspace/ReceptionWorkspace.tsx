@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { OrderTicketPreview, OrderItem } from '../OrderTicketPreview/OrderTicketPreview';
 import { styles } from './ReceptionWorkspace.styles';
 import { CheckeredBorder } from '../Patterns/CheckeredBorder';
 import Icon from '../Icon';
+import { getMenuItems, MenuItemData } from '../../services/MenuService';
 
 export const ReceptionWorkspace = () => {
     // Campos do Pedido
@@ -17,8 +18,40 @@ export const ReceptionWorkspace = () => {
     const [itemName, setItemName] = useState('');
     const [itemObs, setItemObs] = useState('');
 
+    // Estado do Dropdown do Cardápio
+    const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
+    const [filteredMenu, setFilteredMenu] = useState<MenuItemData[]>([]);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
     // Estado para saber qual item está sendo editado (null = criando novo)
     const [editingItemId, setEditingItemId] = useState<string | null>(null);
+
+    // Carrega os itens salvos do banco de dados na montagem do componente
+    useEffect(() => {
+        const loadedMenu = getMenuItems();
+        setMenuItems(loadedMenu);
+        setFilteredMenu(loadedMenu);
+    }, []);
+
+    // Filtra o dropdown à medida que a recepção digita o nome do item
+    const handleItemNameChange = (text: string) => {
+        setItemName(text);
+        if (text.trim() === '') {
+            setFilteredMenu(menuItems);
+        } else {
+            const filtered = menuItems.filter((item) =>
+                item.name.toLowerCase().includes(text.toLowerCase())
+            );
+            setFilteredMenu(filtered);
+        }
+        setIsDropdownOpen(true);
+    };
+
+    // Seleciona um item do dropdown
+    const handleSelectMenuItem = (selectedItem: MenuItemData) => {
+        setItemName(selectedItem.name);
+        setIsDropdownOpen(false);
+    };
 
     // Quando clica num item do ticket para editar
     const handleSelectItemToEdit = (item: OrderItem) => {
@@ -26,6 +59,7 @@ export const ReceptionWorkspace = () => {
         setItemQuantity(String(item.quantity));
         setItemName(item.name);
         setItemObs(item.observation || '');
+        setIsDropdownOpen(false);
     };
 
     // Limpa o formulário de itens e sai do modo edição
@@ -34,6 +68,7 @@ export const ReceptionWorkspace = () => {
         setItemQuantity('1');
         setItemName('');
         setItemObs('');
+        setIsDropdownOpen(false);
     };
 
     // Adiciona ou Salva Alteração
@@ -41,7 +76,6 @@ export const ReceptionWorkspace = () => {
         if (!itemName.trim()) return;
 
         if (editingItemId) {
-            // Atualizando um item existente
             setItems((prev) =>
                 prev.map((item) =>
                     item.id === editingItemId
@@ -55,7 +89,6 @@ export const ReceptionWorkspace = () => {
                 )
             );
         } else {
-            // Criando um novo item
             const newItem: OrderItem = {
                 id: Date.now().toString(),
                 quantity: Number(itemQuantity) || 1,
@@ -75,9 +108,9 @@ export const ReceptionWorkspace = () => {
         resetItemForm();
     };
 
-    // Função helper para aceitar APENAS dígitos de 0 a 9
+    // Helper para aceitar APENAS números
     const handleNumericInput = (text: string, setter: (val: string) => void) => {
-        const cleanedText = text.replace(/[^0-9]/g, ''); // Remove tudo que não for número
+        const cleanedText = text.replace(/[^0-9]/g, '');
         setter(cleanedText);
     };
 
@@ -114,22 +147,49 @@ export const ReceptionWorkspace = () => {
                         <Text style={styles.label}>
                             {editingItemId ? 'Editar item' : 'Adicionar item'}
                         </Text>
-                        <View style={styles.row}>
+                        <View style={[styles.row, { zIndex: 10 }]}>
                             <TextInput
                                 style={[styles.input, styles.qtyInput]}
                                 placeholder="000"
                                 placeholderTextColor="#A09C9D"
-                                keyboardType="number-pad" // Força teclado numérico no mobile
+                                keyboardType="number-pad"
                                 value={itemQuantity}
                                 onChangeText={(text) => handleNumericInput(text, setItemQuantity)}
                             />
-                            <TextInput
-                                style={[styles.input, styles.flexInput]}
-                                placeholder="Nome do item"
-                                placeholderTextColor="#A09C9D"
-                                value={itemName}
-                                onChangeText={setItemName}
-                            />
+
+                            {/* Campo com Dropdown */}
+                            <View style={[styles.flexInput, { position: 'relative' }]}>
+                                <TextInput
+                                    style={[styles.input]}
+                                    placeholder="Selecione ou digite o item"
+                                    placeholderTextColor="#A09C9D"
+                                    value={itemName}
+                                    onFocus={() => setIsDropdownOpen(true)}
+                                    onChangeText={handleItemNameChange}
+                                />
+
+                                {/* Lista Flutuante do Dropdown */}
+                                {isDropdownOpen && filteredMenu.length > 0 && (
+                                    <View style={styles.dropdownContainer}>
+                                        <ScrollView nestedScrollEnabled keyboardShouldPersistTaps="handled">
+                                            {filteredMenu.map((menuItem) => (
+                                                <TouchableOpacity
+                                                    key={menuItem.id}
+                                                    style={styles.dropdownItem}
+                                                    onPress={() => handleSelectMenuItem(menuItem)}
+                                                >
+                                                    <Text style={styles.dropdownItemText}>{menuItem.name}</Text>
+                                                    {menuItem.category ? (
+                                                        <Text style={styles.dropdownCategoryText}>
+                                                            {menuItem.category}
+                                                        </Text>
+                                                    ) : null}
+                                                </TouchableOpacity>
+                                            ))}
+                                        </ScrollView>
+                                    </View>
+                                )}
+                            </View>
                         </View>
 
                         <View style={styles.row}>
@@ -141,7 +201,7 @@ export const ReceptionWorkspace = () => {
                                 onChangeText={setItemObs}
                             />
 
-                            {/* Botoes de Ação do Item (Condicionais) */}
+                            {/* Botoes de Ação do Item */}
                             {editingItemId ? (
                                 <>
                                     <TouchableOpacity
@@ -151,7 +211,10 @@ export const ReceptionWorkspace = () => {
                                         <Icon name="delete" size={16} color="#EAE8E5" />
                                     </TouchableOpacity>
 
-                                    <TouchableOpacity style={[styles.addButton, { backgroundColor: '#3EB26A' }]} onPress={handleSaveItem}>
+                                    <TouchableOpacity
+                                        style={[styles.addButton, { backgroundColor: '#3EB26A' }]}
+                                        onPress={handleSaveItem}
+                                    >
                                         <Icon name="check" size={16} color="#EAE8E5" />
                                     </TouchableOpacity>
                                 </>
@@ -171,7 +234,7 @@ export const ReceptionWorkspace = () => {
                                     style={styles.input}
                                     placeholder="(Em minutos)"
                                     placeholderTextColor="#A09C9D"
-                                    keyboardType="number-pad" // Força teclado numérico no mobile
+                                    keyboardType="number-pad"
                                     value={prepTime}
                                     onChangeText={(text) => handleNumericInput(text, setPrepTime)}
                                 />

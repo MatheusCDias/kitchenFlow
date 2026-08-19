@@ -9,8 +9,8 @@ import { Cook } from './src/models/employee/Cook';
 import { useOrders } from './src/hooks/useOrders';
 import { RolePicker, Role } from './src/pages/RolePicker/RolePicker';
 import { initDatabase } from './src/services/db';
-import { AddEmployeeModal } from './src/components/Modals/AddEmployeeModal';
-import { AddMenuItemModal } from './src/components/Modals/AddMenuItemModal';
+import { EmployeeManagerModal } from './src/components/Modals/EmployeeManagerModal';
+import { MenuManagerModal } from './src/components/Modals/MenuManagerModal';
 
 const currentUser = new Cook('emp-99', 'Funcionário #1', 5, 'Manhã');
 
@@ -26,14 +26,14 @@ export default function App() {
   }, []);
 
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
-  const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
+  const [isMenuManagerOpen, setIsMenuManagerOpen] = useState(false);
 
   // Função que responde ao clique do FloatingMenu
   const handleSelectMenuOption = (option: string) => {
-    if (option === 'Adicionar Funcionário') {
+    if (option === 'Adicionar Funcionário' || option === 'Gerenciar Funcionários' || option === 'Funcionários') {
       setIsEmployeeModalOpen(true);
-    } else if (option === 'Adicionar Item ao Cardápio') {
-      setIsMenuModalOpen(true);
+    } else if (option === 'Cardápio') {
+      setIsMenuManagerOpen(true);
     }
   };
 
@@ -95,14 +95,15 @@ export default function App() {
           </View>
         </ScrollView>
       </View>
-      <AddEmployeeModal
+
+      <EmployeeManagerModal
         visible={isEmployeeModalOpen}
         onClose={() => setIsEmployeeModalOpen(false)}
       />
 
-      <AddMenuItemModal
-        visible={isMenuModalOpen}
-        onClose={() => setIsMenuModalOpen(false)}
+      <MenuManagerModal
+        visible={isMenuManagerOpen}
+        onClose={() => setIsMenuManagerOpen(false)}
       />
     </SafeAreaView>
   );

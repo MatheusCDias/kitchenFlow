@@ -9,6 +9,7 @@ export const styles = StyleSheet.create({
         gap: 16,
         alignItems: 'stretch',
         overflow: 'hidden',
+        userSelect: 'none',
         shadowColor: '#000000',
         shadowOffset: {
             width: 0,
@@ -39,8 +40,7 @@ export const styles = StyleSheet.create({
     },
     formContainer: {
         flex: 1,
-        justifyContent: 'flex-start',
-        gap: 12,
+        justifyContent: 'space-between',
     },
     label: {
         fontSize: 16,
@@ -102,5 +102,41 @@ export const styles = StyleSheet.create({
         fontSize: 16,
         fontFamily: 'Lexend',
         fontWeight: 400,
+    },
+    dropdownContainer: {
+        position: 'absolute',
+        top: 48, // Logo abaixo do input
+        left: 0,
+        right: 0,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+        maxHeight: 180,
+        borderWidth: 1,
+        borderColor: '#D1CDCE',
+        elevation: 5, // Sombra no Android
+        shadowColor: '#000', // Sombra no iOS / Web
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        zIndex: 999, // Fica por cima dos outros elementos
+    },
+    dropdownItem: {
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0ECE9',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    dropdownItemText: {
+        fontSize: 14,
+        fontFamily: 'Lexend',
+        color: '#303338',
+    },
+    dropdownCategoryText: {
+        fontSize: 12,
+        fontFamily: 'Lexend',
+        color: '#A09C9D',
     },
 });
