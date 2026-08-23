@@ -148,7 +148,7 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({ orders, onSele
                             fontWeight: '500',
                         }}
                     >
-                        Site/App ({counts[OrderOriginEnum.APP]})
+                        App ({counts[OrderOriginEnum.APP]})
                     </Text>
                 </TouchableOpacity>
             </View>

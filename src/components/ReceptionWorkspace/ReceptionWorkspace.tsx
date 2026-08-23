@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { OrderTicketPreview, OrderItem } from '../OrderTicketPreview/OrderTicketPreview';
 import { styles } from './ReceptionWorkspace.styles';
 import { CheckeredBorder } from '../Patterns/CheckeredBorder';
 import Icon from '../Icon';
 import { getMenuItems, MenuItemData } from '../../services/MenuService';
+import { Order } from '../../models/Order';
+import { OrderOriginEnum } from '../../enums/OrderOriginEnum';
+import { OrderItem as OrderItemModel } from '../../models/OrderItem';
+import { TableService } from '../../models/service/TableService';
 
-export const ReceptionWorkspace = () => {
+interface ReceptionWorkspaceProps {
+    onAddOrder?: (newOrder: Order) => void;
+}
+
+export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({ onAddOrder }) => {
     // Campos do Pedido
     const [table, setTable] = useState('');
     const [prepTime, setPrepTime] = useState('');
@@ -71,7 +79,16 @@ export const ReceptionWorkspace = () => {
         setIsDropdownOpen(false);
     };
 
-    // Adiciona ou Salva Alteração
+    // Reseta todo o formulário do pedido após a criação
+    const resetOrderForm = () => {
+        setTable('');
+        setPrepTime('');
+        setGeneralObs('');
+        setItems([]);
+        resetItemForm();
+    };
+
+    // Adiciona ou Salva Alteração do Item
     const handleSaveItem = () => {
         if (!itemName.trim()) return;
 
@@ -112,6 +129,51 @@ export const ReceptionWorkspace = () => {
     const handleNumericInput = (text: string, setter: (val: string) => void) => {
         const cleanedText = text.replace(/[^0-9]/g, '');
         setter(cleanedText);
+    };
+
+    const handleCreateOrder = () => {
+        if (items.length === 0) return;
+
+        const generatedCode = Math.floor(100 + Math.random() * 900);
+        const estimatedMinutes = Number(prepTime) || 15;
+        const now = new Date();
+        const kitchenDeadline = new Date(now.getTime() + estimatedMinutes * 60000);
+        const receptionDeadline = new Date(now.getTime() + (estimatedMinutes + 5) * 60000);
+        const deliveryDeadline = new Date(now.getTime() + (estimatedMinutes + 15) * 60000);
+
+        // Instanciação da mesa (caso informada no formulário)
+        const tableNumber = Number(table) || 1;
+        const tableService = new TableService(now, tableNumber, 1);
+
+        // Instanciação correta da classe Order
+        const newOrder = new Order(
+            Date.now().toString(),
+            generatedCode,
+            OrderOriginEnum.PRESENTIAL,
+            kitchenDeadline,
+            receptionDeadline,
+            deliveryDeadline,
+            estimatedMinutes,
+            undefined, // customer
+            tableService,
+            undefined, // assignedEmployee
+            now
+        );
+
+        // Adiciona cada item do formulário ao objeto Order
+        items.forEach((item) => {
+            const orderItem = new OrderItemModel(
+                item.id,
+                item.name,
+                item.quantity,
+                new Date(),
+                item.observation || ''
+            );
+            newOrder.addItem(orderItem);
+        });
+
+        onAddOrder?.(newOrder);
+        resetOrderForm();
     };
 
     return (
@@ -200,7 +262,7 @@ export const ReceptionWorkspace = () => {
                                 onChangeText={setItemObs}
                             />
 
-                            {/* Botoes de Ação do Item */}
+                            {/* Botões de Ação do Item */}
                             {editingItemId ? (
                                 <>
                                     <TouchableOpacity
@@ -252,7 +314,14 @@ export const ReceptionWorkspace = () => {
                         </View>
 
                         {/* Submit do Pedido */}
-                        <TouchableOpacity style={styles.submitButton}>
+                        <TouchableOpacity
+                            style={[
+                                styles.submitButton,
+                                items.length === 0 && { opacity: 0.5 },
+                            ]}
+                            onPress={handleCreateOrder}
+                            disabled={items.length === 0}
+                        >
                             <Text style={styles.submitButtonText}>Criar Pedido</Text>
                         </TouchableOpacity>
                     </View>

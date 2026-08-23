@@ -1,73 +1,93 @@
-import { useState, useCallback } from 'react';
-import { Order } from '../models/Order';
-import { Employee } from '../models/employee/Employee';
-import { OrderService } from '../services/OrderService';
-import { OrderFactory } from '../factories/OrderFactory';
+import { useState, useCallback } from "react";
+import { Order } from "../models/Order";
+import { Employee } from "../models/employee/Employee";
+import { OrderService } from "../services/OrderService";
 
 export const useOrders = (currentUser: Employee) => {
-    const [orderService] = useState(() => {
-        const initialOrders = OrderFactory.createMockOrders(currentUser);
-        return new OrderService(initialOrders);
-    });
+  // Inicializa o OrderService sem pedidos mockados
+  const [orderService] = useState(() => {
+    return new OrderService([]);
+  });
 
-    const [activeOrder, setActiveOrder] = useState<Order | null>(() =>
-        orderService.getActiveOrder()
-    );
+  const [activeOrder, setActiveOrder] = useState<Order | null>(() =>
+    orderService.getActiveOrder(),
+  );
 
-    const [allOrders, setAllOrders] = useState<Order[]>(() =>
-        [...orderService.getAllOrders()]
-    );
+  const [allOrders, setAllOrders] = useState<Order[]>(() => [
+    ...orderService.getAllOrders(),
+  ]);
 
-    const claimOrder = useCallback((orderId: string) => {
-        const claimed = orderService.claimOrder(orderId, currentUser);
-        if (claimed) {
-            setActiveOrder(claimed);
-            setAllOrders([...orderService.getAllOrders()]);
-        }
-        return claimed;
-    }, [orderService, currentUser]);
+  // Adiciona um novo pedido à lista do serviço e atualiza o estado
+  const addOrder = useCallback(
+    (newOrder: Order) => {
+      orderService.addOrder(newOrder); // Caso o OrderService possua o método addOrder
+      setAllOrders([...orderService.getAllOrders()]);
+    },
+    [orderService],
+  );
 
-    const completeOrder = useCallback((order: Order) => {
-        const success = orderService.completeOrder(order.getId());
-        if (success) {
-            setActiveOrder(null);
-            setAllOrders([...orderService.getAllOrders()]);
-        }
-        return success;
-    }, [orderService]);
-
-    const refreshOrders = useCallback(() => {
+  const claimOrder = useCallback(
+    (orderId: string) => {
+      const claimed = orderService.claimOrder(orderId, currentUser);
+      if (claimed) {
+        setActiveOrder(claimed);
         setAllOrders([...orderService.getAllOrders()]);
-    }, [orderService]);
+      }
+      return claimed;
+    },
+    [orderService, currentUser],
+  );
 
-    // Em useOrders.ts
+  const completeOrder = useCallback(
+    (order: Order) => {
+      const success = orderService.completeOrder(order.getId());
+      if (success) {
+        setActiveOrder(null);
+        setAllOrders([...orderService.getAllOrders()]);
+      }
+      return success;
+    },
+    [orderService],
+  );
 
-    const releaseOrder = useCallback((order: Order) => {
-        const success = orderService.releaseOrder(order.getId());
-        if (success) {
-            setActiveOrder(null);
-            setAllOrders([...orderService.getAllOrders()]);
-        }
-        return success;
-    }, [orderService]);
+  const refreshOrders = useCallback(() => {
+    setAllOrders([...orderService.getAllOrders()]);
+  }, [orderService]);
 
-    const cancelOrder = useCallback((order: Order) => {
-        const success = orderService.cancelOrder(order.getId());
-        if (success) {
-            setActiveOrder(null);
-            setAllOrders([...orderService.getAllOrders()]);
-        }
-        return success;
-    }, [orderService]);
+  const releaseOrder = useCallback(
+    (order: Order) => {
+      const success = orderService.releaseOrder(order.getId());
+      if (success) {
+        setActiveOrder(null);
+        setAllOrders([...orderService.getAllOrders()]);
+      }
+      return success;
+    },
+    [orderService],
+  );
 
-    return {
-        activeOrder,
-        allOrders,
-        claimOrder,
-        completeOrder,
-        cancelOrder, // 👈 Adicione aqui no retorno
-        refreshOrders,
-        availableOrders: orderService.getAvailableOrders(),
-        employeeOrders: orderService.getOrdersByEmployee(currentUser),
-    };
+  const cancelOrder = useCallback(
+    (order: Order) => {
+      const success = orderService.cancelOrder(order.getId());
+      if (success) {
+        setActiveOrder(null);
+        setAllOrders([...orderService.getAllOrders()]);
+      }
+      return success;
+    },
+    [orderService],
+  );
+
+  return {
+    activeOrder,
+    allOrders,
+    addOrder,
+    claimOrder,
+    completeOrder,
+    releaseOrder,
+    cancelOrder,
+    refreshOrders,
+    availableOrders: orderService.getAvailableOrders(),
+    employeeOrders: orderService.getOrdersByEmployee(currentUser),
+  };
 };
