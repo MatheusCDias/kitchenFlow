@@ -74,7 +74,11 @@ export const Header: React.FC<HeaderProps> = ({
             </View>
 
             <View style={styles.workspaceHeader}>
-                <Text style={styles.headerTitle}>Área de Trabalho</Text>
+                {/* Título dinâmico conforme o modo ativo */}
+                <Text style={styles.headerTitle}>
+                    {activeMode === 'recepcao' ? 'Novo Pedido' : 'Área de Trabalho'}
+                </Text>
+
                 <View style={styles.toggleContainer}>
                     {/* Botão Recepção */}
                     <TouchableOpacity

@@ -117,7 +117,6 @@ export const ReceptionWorkspace = () => {
     return (
         <View style={styles.container}>
             <View style={styles.content}>
-                <Text style={styles.sectionTitle}>Novo Pedido</Text>
                 <View style={styles.sectionContent}>
                     {/* Lado Esquerdo: Ticket Preview */}
                     <View style={styles.ticketSection}>
