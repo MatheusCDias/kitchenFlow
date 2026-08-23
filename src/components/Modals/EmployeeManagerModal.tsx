@@ -265,7 +265,7 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
                                         onChangeText={setSearch}
                                     />
 
-                                    <ScrollView nestedScrollEnabled style={styles.scrollFlex}>
+                                    <View style={styles.scrollGroup}>
                                         {currentRoleEmployees.length === 0 ? (
                                             <Text style={styles.emptyText}>
                                                 Nenhum funcionário cadastrado neste setor.
@@ -296,7 +296,7 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
                                                 </View>
                                             ))
                                         )}
-                                    </ScrollView>
+                                    </View>
                                 </View>
                             )}
                         </View>

@@ -74,6 +74,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     gap: 16,
+    backgroundColor: 'red',
   },
   row: {
     flexDirection: "row",

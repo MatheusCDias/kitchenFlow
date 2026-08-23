@@ -141,7 +141,7 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                     {/* MODO 1: FORMULÁRIO DE ADIÇÃO/EDIÇÃO */}
                     {isFormOpen ? (
                         <View style={styles.formContainer}>
-                            <View>
+                            <View style={styles.scrollFlex}>
                                 <Text style={styles.label}>Nome do Item *</Text>
                                 <TextInput
                                     style={styles.input}
@@ -156,7 +156,7 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                                         <Text style={styles.label}>Categoria</Text>
                                         <TextInput
                                             style={styles.input}
-                                            placeholder="Ex: Entradas, Prato Principal..."
+                                            placeholder="Ex: Entradas"
                                             placeholderTextColor="#A09C9D"
                                             value={category}
                                             onChangeText={setCategory}
@@ -201,7 +201,7 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                         </View>
                     ) : (
                         /* MODO 2: LISTAGEM DE CATEGORIAS E ITENS */
-                        <>
+                        <View style={styles.formContainer}>
                             <TouchableOpacity
                                 style={styles.addBtn}
                                 onPress={() => {
@@ -217,7 +217,7 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
 
                             {/* LISTA DE CATEGORIAS */}
                             {!selectedCategory ? (
-                                <ScrollView nestedScrollEnabled style={styles.scrollFlex}>
+                                <View style={styles.scrollGroup}>
                                     {categoriesList.length === 0 ? (
                                         <Text style={styles.emptyText}>
                                             Nenhum item cadastrado no cardápio.
@@ -249,10 +249,10 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                                             );
                                         })
                                     )}
-                                </ScrollView>
+                                </View>
                             ) : (
                                 /* ITENS DA CATEGORIA SELECIONADA */
-                                <View style={styles.flex1}>
+                                <View style={styles.scrollGroup}>
                                     <TextInput
                                         style={[styles.input]}
                                         placeholder={`Buscar em ${selectedCategory}...`}
@@ -320,7 +320,7 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                                     </ScrollView>
                                 </View>
                             )}
-                        </>
+                        </ View>
                     )}
                 </View>
             </View>
