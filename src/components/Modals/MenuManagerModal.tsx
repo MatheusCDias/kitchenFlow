@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { getMenuItems, addMenuItem, deleteMenuItem, updateMenuItem, MenuItemData } from '../../services/MenuService';
-import { styles } from './Modal.styles';
+import { styles } from './ManagerModal.styles';
 import Icon from '../Icon';
 
 interface MenuManagerModalProps {
@@ -12,7 +12,7 @@ interface MenuManagerModalProps {
 export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onClose }) => {
     const [items, setItems] = useState<MenuItemData[]>([]);
     const [search, setSearch] = useState('');
-    
+
     // Controle de Navegação Interna
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -105,7 +105,7 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
     // Itens filtrados para exibição
     const currentCategoryItems = useMemo(() => {
         if (!selectedCategory) return [];
-        
+
         const list = categoriesMap[selectedCategory] || [];
         if (!search.trim()) return list;
 
@@ -117,11 +117,10 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
             <View style={styles.overlay}>
-                <View style={[styles.card, { maxWidth: 540, width: '90%', maxHeight: '90%', position: 'relative' }]}>
-                    
+                <View style={[styles.card]}>
                     {/* Cabeçalho */}
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <View style={styles.header}>
+                        <View style={styles.headerTitleGroup}>
                             {selectedCategory && !isFormOpen && (
                                 <TouchableOpacity onPress={() => { setSelectedCategory(null); setSearch(''); }}>
                                     <Icon name="arrow_back" size={22} color="#303338" />
@@ -139,9 +138,9 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                         </TouchableOpacity>
                     </View>
 
-                    {/* MODO 1: FORMULÁRIO DE ADIÇÃO/EDIÇÃO (Espaço Expandido e Sem Scroll Interno) */}
+                    {/* MODO 1: FORMULÁRIO DE ADIÇÃO/EDIÇÃO */}
                     {isFormOpen ? (
-                        <View style={{ flex: 1, justifyContent: 'space-between' }}>
+                        <View style={styles.formContainer}>
                             <View>
                                 <Text style={styles.label}>Nome do Item *</Text>
                                 <TextInput
@@ -153,7 +152,7 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                                 />
 
                                 <View style={styles.row}>
-                                    <View style={{ flex: 1 }}>
+                                    <View style={styles.flex1}>
                                         <Text style={styles.label}>Categoria</Text>
                                         <TextInput
                                             style={styles.input}
@@ -163,7 +162,7 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                                             onChangeText={setCategory}
                                         />
                                     </View>
-                                    <View style={{ flex: 1 }}>
+                                    <View style={styles.flex1}>
                                         <Text style={styles.label}>Preço (R$)</Text>
                                         <TextInput
                                             style={styles.input}
@@ -178,7 +177,7 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
 
                                 <Text style={styles.label}>Receita / Modo de Preparo</Text>
                                 <TextInput
-                                    style={[styles.input, { height: 120, textAlignVertical: 'top', paddingTop: 10 }]}
+                                    style={styles.textArea}
                                     placeholder="Ingredientes e modo de preparo..."
                                     placeholderTextColor="#A09C9D"
                                     multiline
@@ -188,13 +187,15 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                                 />
                             </View>
 
-                            {/* Ações/Aviso no Rodapé do Formulário */}
-                            <View style={[styles.actions, { marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#E0DDD9' }]}>
+                            {/* Ações no Rodapé do Formulário */}
+                            <View style={styles.formActions}>
                                 <TouchableOpacity style={styles.cancelBtn} onPress={resetForm}>
                                     <Text style={styles.cancelText}>Cancelar</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-                                    <Text style={styles.saveText}>{editingId ? 'Salvar Alteração' : 'Adicionar Item'}</Text>
+                                    <Text style={styles.saveText}>
+                                        {editingId ? 'Salvar Alteração' : 'Adicionar Item'}
+                                    </Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -202,7 +203,7 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                         /* MODO 2: LISTAGEM DE CATEGORIAS E ITENS */
                         <>
                             <TouchableOpacity
-                                style={[styles.saveBtn, { marginBottom: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }]}
+                                style={styles.addBtn}
                                 onPress={() => {
                                     if (selectedCategory) {
                                         setCategory(selectedCategory === 'Outros' ? '' : selectedCategory);
@@ -214,11 +215,11 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                                 <Text style={styles.saveText}>Adicionar Novo Item</Text>
                             </TouchableOpacity>
 
-                            {/* LISTA DE CATEGORIAS (HOME DO CARDÁPIO) */}
+                            {/* LISTA DE CATEGORIAS */}
                             {!selectedCategory ? (
-                                <ScrollView nestedScrollEnabled style={{ flex: 1 }}>
+                                <ScrollView nestedScrollEnabled style={styles.scrollFlex}>
                                     {categoriesList.length === 0 ? (
-                                        <Text style={{ textAlign: 'center', color: '#A09C9D', marginVertical: 20, fontFamily: 'Lexend' }}>
+                                        <Text style={styles.emptyText}>
                                             Nenhum item cadastrado no cardápio.
                                         </Text>
                                     ) : (
@@ -229,26 +230,15 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                                                 <TouchableOpacity
                                                     key={catName}
                                                     onPress={() => setSelectedCategory(catName)}
-                                                    style={{
-                                                        backgroundColor: '#FFFFFF',
-                                                        padding: 16,
-                                                        borderRadius: 10,
-                                                        marginBottom: 10,
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'space-between',
-                                                        elevation: 1,
-                                                    }}
+                                                    style={styles.categoryCard}
                                                 >
-                                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                                                        <View style={{ backgroundColor: '#F0734215', padding: 8, borderRadius: 8 }}>
+                                                    <View style={styles.categoryInfo}>
+                                                        <View style={styles.categoryIconContainer}>
                                                             <Icon name="restaurant_menu" size={20} color="#F07342" />
                                                         </View>
                                                         <View>
-                                                            <Text style={{ fontFamily: 'Lexend', fontWeight: '600', color: '#303338', fontSize: 16 }}>
-                                                                {catName}
-                                                            </Text>
-                                                            <Text style={{ fontFamily: 'Lexend', color: '#686B70', fontSize: 12, marginTop: 2 }}>
+                                                            <Text style={styles.categoryTitle}>{catName}</Text>
+                                                            <Text style={styles.categoryCount}>
                                                                 {itemCount} {itemCount === 1 ? 'item' : 'itens'}
                                                             </Text>
                                                         </View>
@@ -262,67 +252,64 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                                 </ScrollView>
                             ) : (
                                 /* ITENS DA CATEGORIA SELECIONADA */
-                                <View style={{ flex: 1 }}>
+                                <View style={styles.flex1}>
                                     <TextInput
-                                        style={[styles.input, { marginBottom: 12 }]}
+                                        style={[styles.input]}
                                         placeholder={`Buscar em ${selectedCategory}...`}
                                         placeholderTextColor="#A09C9D"
                                         value={search}
                                         onChangeText={setSearch}
                                     />
 
-                                    <ScrollView nestedScrollEnabled style={{ flex: 1 }}>
+                                    <ScrollView nestedScrollEnabled style={styles.scrollFlex}>
                                         {currentCategoryItems.length === 0 ? (
-                                            <Text style={{ textAlign: 'center', color: '#A09C9D', marginVertical: 20, fontFamily: 'Lexend' }}>
+                                            <Text style={styles.emptyText}>
                                                 Nenhum item nesta categoria.
                                             </Text>
                                         ) : (
                                             currentCategoryItems.map((item) => (
-                                                <View
-                                                    key={item.id}
-                                                    style={{
-                                                        backgroundColor: '#FFFFFF',
-                                                        padding: 12,
-                                                        borderRadius: 8,
-                                                        marginBottom: 8,
-                                                    }}
-                                                >
-                                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                        <View style={{ flex: 1 }}>
-                                                            <Text style={{ fontFamily: 'Lexend', fontWeight: '500', color: '#303338', fontSize: 15 }}>
-                                                                {item.name}
-                                                            </Text>
-                                                            <Text style={{ fontFamily: 'Lexend', color: '#686B70', fontSize: 12, marginTop: 2 }}>
+                                                <View key={item.id} style={styles.itemCard}>
+                                                    <View style={styles.itemHeader}>
+                                                        <View style={styles.flex1}>
+                                                            <Text style={styles.itemTitle}>{item.name}</Text>
+                                                            <Text style={styles.itemPrice}>
                                                                 R$ {item.price ? item.price.toFixed(2) : '0.00'}
                                                             </Text>
                                                         </View>
 
-                                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                                        <View style={styles.itemActions}>
                                                             {item.recipe ? (
                                                                 <TouchableOpacity
                                                                     onPress={() => toggleRecipe(item.id)}
-                                                                    style={{ padding: 6, backgroundColor: expandedRecipeId === item.id ? '#F0734220' : 'transparent', borderRadius: 6 }}
+                                                                    style={[
+                                                                        styles.iconBtn,
+                                                                        expandedRecipeId === item.id && styles.activeIconBtn
+                                                                    ]}
                                                                 >
-                                                                    <Icon name="menu_book" size={18} color={expandedRecipeId === item.id ? '#F07342' : '#686B70'} />
+                                                                    <Icon
+                                                                        name="menu_book"
+                                                                        size={18}
+                                                                        color={expandedRecipeId === item.id ? '#F07342' : '#686B70'}
+                                                                    />
                                                                 </TouchableOpacity>
                                                             ) : null}
 
-                                                            <TouchableOpacity onPress={() => handleEditInit(item)} style={{ padding: 6 }}>
+                                                            <TouchableOpacity onPress={() => handleEditInit(item)} style={styles.iconBtn}>
                                                                 <Icon name="edit" size={18} color="#F07342" />
                                                             </TouchableOpacity>
 
-                                                            <TouchableOpacity onPress={() => handleDelete(item.id)} style={{ padding: 6 }}>
+                                                            <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.iconBtn}>
                                                                 <Icon name="delete" size={18} color="#E53935" />
                                                             </TouchableOpacity>
                                                         </View>
                                                     </View>
 
                                                     {expandedRecipeId === item.id && item.recipe ? (
-                                                        <View style={{ marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#F0ECE9' }}>
-                                                            <Text style={{ fontFamily: 'Lexend', fontSize: 11, fontWeight: '600', color: '#F07342', marginBottom: 4 }}>
+                                                        <View style={styles.recipeContainer}>
+                                                            <Text style={styles.recipeTitle}>
                                                                 RECEITA / MODO DE PREPARO:
                                                             </Text>
-                                                            <Text style={{ fontFamily: 'Lexend', fontSize: 13, color: '#303338', lineHeight: 18 }}>
+                                                            <Text style={styles.recipeText}>
                                                                 {item.recipe}
                                                             </Text>
                                                         </View>

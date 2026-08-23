@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { Modal, View, Text, TextInput, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
 import { getEmployees, addEmployee, updateEmployee, deleteEmployee, EmployeeData } from '../../services/EmployeeService';
-import { styles } from './Modal.styles';
+import { styles } from './ManagerModal.styles';
 import Icon from '../Icon';
 
 interface EmployeeManagerModalProps {
@@ -66,6 +66,21 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
     };
 
     const handleDelete = (id: string) => {
+        const confirmDelete = () => {
+            deleteEmployee(id);
+            loadEmployees();
+        };
+
+        // Caso esteja rodando na Web, usa o confirm nativo do navegador
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm('Tem certeza que deseja remover este funcionário?');
+            if (confirmed) {
+                confirmDelete();
+            }
+            return;
+        }
+
+        // Caso esteja no iOS ou Android nativo
         Alert.alert(
             'Excluir Funcionário',
             'Tem certeza que deseja remover este funcionário?',
@@ -74,10 +89,7 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
                 {
                     text: 'Excluir',
                     style: 'destructive',
-                    onPress: () => {
-                        deleteEmployee(id);
-                        loadEmployees();
-                    },
+                    onPress: confirmDelete,
                 },
             ]
         );
@@ -112,14 +124,13 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
             <View style={styles.overlay}>
-                <View style={[styles.card, { maxWidth: 540, width: '90%', maxHeight: '90%', position: 'relative' }]}>
-
+                <View style={styles.card}>
                     {/* Cabeçalho */}
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <View style={styles.header}>
+                        <View style={styles.headerTitleGroup}>
                             {selectedRole && !isFormOpen && (
                                 <TouchableOpacity onPress={() => { setSelectedRole(null); setSearch(''); }}>
-                                    <Icon name="arrow_back" size={22} color="#303338" />
+                                    <Icon name="arrow_back" size={20} color="#303338" />
                                 </TouchableOpacity>
                             )}
                             <Text style={styles.title}>
@@ -130,14 +141,14 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
                         </View>
 
                         <TouchableOpacity onPress={onClose}>
-                            <Icon name="close" size={22} color="#686B70" />
+                            <Icon name="close" size={20} color="#686B70" />
                         </TouchableOpacity>
                     </View>
 
                     {/* MODO 1: FORMULÁRIO DE CRIAÇÃO / EDIÇÃO */}
                     {isFormOpen ? (
-                        <View style={{ flex: 1, justifyContent: 'space-between' }}>
-                            <View>
+                        <View style={styles.formContainer}>
+                            <View style={styles.scrollFlex}>
                                 <Text style={styles.label}>Nome do Funcionário *</Text>
                                 <TextInput
                                     style={styles.input}
@@ -149,24 +160,22 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
 
                                 {/* Seleção de Setor */}
                                 <Text style={styles.label}>Setor / Cargo</Text>
-                                <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
+                                <View style={styles.roleSelectorGroup}>
                                     {(['recepcao', 'cozinha'] as const).map((itemRole) => {
                                         const isSelected = role === itemRole;
                                         return (
                                             <TouchableOpacity
                                                 key={itemRole}
                                                 onPress={() => setRole(itemRole)}
-                                                style={{
-                                                    flex: 1,
-                                                    paddingVertical: 10,
-                                                    borderRadius: 8,
-                                                    borderWidth: 1,
-                                                    borderColor: isSelected ? '#F07342' : '#E0DDD9',
-                                                    backgroundColor: isSelected ? '#F0734215' : '#FFFFFF',
-                                                    alignItems: 'center',
-                                                }}
+                                                style={[
+                                                    styles.roleOptionBtn,
+                                                    isSelected ? styles.roleOptionSelected : styles.roleOptionUnselected
+                                                ]}
                                             >
-                                                <Text style={{ fontFamily: 'Lexend', fontWeight: isSelected ? '600' : '400', color: isSelected ? '#F07342' : '#303338' }}>
+                                                <Text style={[
+                                                    styles.roleOptionText,
+                                                    isSelected ? styles.roleOptionTextSelected : styles.roleOptionTextUnselected
+                                                ]}>
                                                     {itemRole}
                                                 </Text>
                                             </TouchableOpacity>
@@ -174,10 +183,10 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
                                     })}
                                 </View>
 
-                                <Text style={styles.label}>Turno / Horário</Text>
+                                <Text style={styles.label}>Turno</Text>
                                 <TextInput
                                     style={styles.input}
-                                    placeholder="Ex: Manhã (08h às 16h)"
+                                    placeholder="Ex: Manhã, Tarde, Noite"
                                     placeholderTextColor="#A09C9D"
                                     value={shift}
                                     onChangeText={setShift}
@@ -185,7 +194,7 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
                             </View>
 
                             {/* Botões do Rodapé */}
-                            <View style={[styles.actions, { marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#E0DDD9' }]}>
+                            <View style={styles.actions}>
                                 <TouchableOpacity style={styles.cancelBtn} onPress={resetForm}>
                                     <Text style={styles.cancelText}>Cancelar</Text>
                                 </TouchableOpacity>
@@ -196,9 +205,9 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
                         </View>
                     ) : (
                         /* MODO 2: LISTAGEM */
-                        <>
+                        <View style={styles.formContainer}>
                             <TouchableOpacity
-                                style={[styles.saveBtn, { marginBottom: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }]}
+                                style={styles.addBtn}
                                 onPress={() => {
                                     if (selectedRole === 'cozinha' || selectedRole === 'recepcao') {
                                         setRole(selectedRole);
@@ -212,7 +221,7 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
 
                             {/* NAVEGAÇÃO DE SETORES (HOME) */}
                             {!selectedRole ? (
-                                <ScrollView nestedScrollEnabled style={{ flex: 1 }}>
+                                <View style={styles.scrollGroup}>
                                     {(['recepcao', 'cozinha'] as const).map((roleName) => {
                                         const count = rolesMap[roleName].length;
 
@@ -220,19 +229,10 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
                                             <TouchableOpacity
                                                 key={roleName}
                                                 onPress={() => setSelectedRole(roleName)}
-                                                style={{
-                                                    backgroundColor: '#FFFFFF',
-                                                    padding: 16,
-                                                    borderRadius: 10,
-                                                    marginBottom: 10,
-                                                    flexDirection: 'row',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'space-between',
-                                                    elevation: 1,
-                                                }}
+                                                style={styles.sectorCard}
                                             >
-                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                                                    <View style={{ backgroundColor: '#F0734215', padding: 8, borderRadius: 8 }}>
+                                                <View style={styles.sectorCardInfo}>
+                                                    <View style={styles.sectorIconContainer}>
                                                         <Icon
                                                             name={roleName === 'cozinha' ? 'soup_kitchen' : 'badge'}
                                                             size={20}
@@ -240,10 +240,10 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
                                                         />
                                                     </View>
                                                     <View>
-                                                        <Text style={{ fontFamily: 'Lexend', fontWeight: '600', color: '#303338', fontSize: 16 }}>
+                                                        <Text style={styles.sectorTitle}>
                                                             {roleName}
                                                         </Text>
-                                                        <Text style={{ fontFamily: 'Lexend', color: '#686B70', fontSize: 12, marginTop: 2 }}>
+                                                        <Text style={styles.sectorSubTitle}>
                                                             {count} {count === 1 ? 'funcionário' : 'funcionários'}
                                                         </Text>
                                                     </View>
@@ -253,54 +253,43 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
                                             </TouchableOpacity>
                                         );
                                     })}
-                                </ScrollView>
+                                </View>
                             ) : (
                                 /* LISTA DE FUNCIONÁRIOS DO SETOR SELECIONADO */
-                                <View style={{ flex: 1 }}>
+                                <View style={styles.scrollGroup}>
                                     <TextInput
-                                        style={[styles.input, { marginBottom: 12 }]}
+                                        style={styles.searchInput}
                                         placeholder={`Buscar em ${selectedRole}...`}
                                         placeholderTextColor="#A09C9D"
                                         value={search}
                                         onChangeText={setSearch}
                                     />
 
-                                    <ScrollView nestedScrollEnabled style={{ flex: 1 }}>
+                                    <ScrollView nestedScrollEnabled style={styles.scrollFlex}>
                                         {currentRoleEmployees.length === 0 ? (
-                                            <Text style={{ textAlign: 'center', color: '#A09C9D', marginVertical: 20, fontFamily: 'Lexend' }}>
+                                            <Text style={styles.emptyText}>
                                                 Nenhum funcionário cadastrado neste setor.
                                             </Text>
                                         ) : (
                                             currentRoleEmployees.map((emp) => (
-                                                <View
-                                                    key={emp.id}
-                                                    style={{
-                                                        backgroundColor: '#FFFFFF',
-                                                        padding: 12,
-                                                        borderRadius: 8,
-                                                        marginBottom: 8,
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'space-between',
-                                                    }}
-                                                >
-                                                    <View style={{ flex: 1 }}>
-                                                        <Text style={{ fontFamily: 'Lexend', fontWeight: '500', color: '#303338', fontSize: 15 }}>
+                                                <View key={emp.id} style={styles.employeeCard}>
+                                                    <View style={styles.scrollFlex}>
+                                                        <Text style={styles.employeeName}>
                                                             {emp.name}
                                                         </Text>
                                                         {emp.shift ? (
-                                                            <Text style={{ fontFamily: 'Lexend', color: '#686B70', fontSize: 12, marginTop: 2 }}>
+                                                            <Text style={styles.employeeShift}>
                                                                 Turno: {emp.shift}
                                                             </Text>
                                                         ) : null}
                                                     </View>
 
-                                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                                                        <TouchableOpacity onPress={() => handleEditInit(emp)} style={{ padding: 6 }}>
+                                                    <View style={styles.employeeActionsGroup}>
+                                                        <TouchableOpacity onPress={() => handleEditInit(emp)} style={styles.iconBtn}>
                                                             <Icon name="edit" size={18} color="#F07342" />
                                                         </TouchableOpacity>
 
-                                                        <TouchableOpacity onPress={() => handleDelete(emp.id)} style={{ padding: 6 }}>
+                                                        <TouchableOpacity onPress={() => handleDelete(emp.id)} style={styles.iconBtn}>
                                                             <Icon name="delete" size={18} color="#E53935" />
                                                         </TouchableOpacity>
                                                     </View>
@@ -310,7 +299,7 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
                                     </ScrollView>
                                 </View>
                             )}
-                        </>
+                        </View>
                     )}
                 </View>
             </View>
