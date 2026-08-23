@@ -3,8 +3,7 @@ import { Order } from "../models/Order";
 import { Employee } from "../models/employee/Employee";
 import { OrderService } from "../services/OrderService";
 
-export const useOrders = (currentUser: Employee) => {
-  // Inicializa o OrderService sem pedidos mockados
+export const useOrders = (currentUser?: Employee) => {
   const [orderService] = useState(() => {
     return new OrderService([]);
   });
@@ -17,10 +16,13 @@ export const useOrders = (currentUser: Employee) => {
     ...orderService.getAllOrders(),
   ]);
 
-  // Adiciona um novo pedido à lista do serviço e atualiza o estado
+  const getNextOrderCode = useCallback(() => {
+    return orderService.getNextAvailableCode();
+  }, [orderService]);
+
   const addOrder = useCallback(
     (newOrder: Order) => {
-      orderService.addOrder(newOrder); // Caso o OrderService possua o método addOrder
+      orderService.addOrder(newOrder);
       setAllOrders([...orderService.getAllOrders()]);
     },
     [orderService],
@@ -28,6 +30,10 @@ export const useOrders = (currentUser: Employee) => {
 
   const claimOrder = useCallback(
     (orderId: string) => {
+      if (!currentUser) {
+        return null;
+      }
+
       const claimed = orderService.claimOrder(orderId, currentUser);
       if (claimed) {
         setActiveOrder(claimed);
@@ -87,7 +93,10 @@ export const useOrders = (currentUser: Employee) => {
     releaseOrder,
     cancelOrder,
     refreshOrders,
+    getNextOrderCode,
     availableOrders: orderService.getAvailableOrders(),
-    employeeOrders: orderService.getOrdersByEmployee(currentUser),
+    employeeOrders: currentUser
+      ? orderService.getOrdersByEmployee(currentUser)
+      : [],
   };
 };

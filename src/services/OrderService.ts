@@ -11,16 +11,41 @@ export class OrderService {
         this.orders = initialOrders;
     }
 
+    public getNextAvailableCode(startCode: number = 101, maxCode: number = 999): number {
+        const busyCodes = new Set(
+            this.orders
+                .filter(
+                    (order) =>
+                        order.getStatus() !== OrderStateEnum.COMPLETED &&
+                        order.getStatus() !== OrderStateEnum.CANCELLED
+                )
+                .map((order) => order.getOrderCode())
+        );
+
+        for (let code = startCode; code <= maxCode; code++) {
+            if (!busyCodes.has(code)) {
+                return code;
+            }
+        }
+
+        throw new Error('Todas as comandas disponíveis estão ocupadas no momento.');
+    }
+
+    addOrder(order: Order): void {
+        this.orders.push(order);
+    }
+
     getAvailableOrders(): Order[] {
-        return this.orders.filter(order =>
-            !order.getAssignedEmployee() &&
-            order.getStatus() === OrderStateEnum.PENDING
+        return this.orders.filter(
+            (order) =>
+                !order.getAssignedEmployee() &&
+                order.getStatus() === OrderStateEnum.PENDING
         );
     }
 
     getOrdersByEmployee(employee: Employee): Order[] {
-        return this.orders.filter(order =>
-            order.getAssignedEmployee()?.getId() === employee.getId()
+        return this.orders.filter(
+            (order) => order.getAssignedEmployee()?.getId() === employee.getId()
         );
     }
 
@@ -29,27 +54,21 @@ export class OrderService {
             return null;
         }
 
-        const order = this.orders.find(o => o.getId() === orderId);
+        const order = this.orders.find((o) => o.getId() === orderId);
 
         if (!order || order.getAssignedEmployee()) return null;
 
-        // 1. Atribui o funcionário
         order.setAssignedEmployee(employee);
-
-        // 2. Avança o estado (RECEIVED -> IN_PREPARATION)
         order.advanceStage();
-
-        // 3. Inicia a contagem de tempo
         order.startKitchenTimer();
 
-        // 4. Define o pedido na workspace
         this.activeOrder = order;
 
         return order;
     }
 
     completeOrder(orderId: string): boolean {
-        const order = this.orders.find(o => o.getId() === orderId);
+        const order = this.orders.find((o) => o.getId() === orderId);
 
         if (!order) {
             return false;
@@ -57,7 +76,9 @@ export class OrderService {
 
         order.advanceStage();
 
-        this.activeOrder = null;
+        if (this.activeOrder?.getId() === orderId) {
+            this.activeOrder = null;
+        }
 
         return true;
     }
@@ -66,42 +87,36 @@ export class OrderService {
         return this.activeOrder;
     }
 
-    addOrder(order: Order): void {
-        this.orders.push(order);
-    }
-
     getAllOrders(): Order[] {
         return [...this.orders];
     }
 
     releaseOrder(orderId: string): boolean {
-        const order = this.orders.find(o => o.getId() === orderId);
+        const order = this.orders.find((o) => o.getId() === orderId);
         if (!order) return false;
 
         order.setAssignedEmployee(undefined as any);
-
         order.setState(new ReceivedState());
 
-        // Limpa a Área de Trabalho
-        this.activeOrder = null;
+        if (this.activeOrder?.getId() === orderId) {
+            this.activeOrder = null;
+        }
 
         return true;
     }
 
-    // Adicione dentro da classe OrderService:
-
     cancelOrder(orderId: string): boolean {
-        const order = this.orders.find(o => o.getId() === orderId);
+        const order = this.orders.find((o) => o.getId() === orderId);
 
         if (!order) {
             return false;
         }
 
-        // Reseta funcionário e estado do pedido para ReceivedState
         order.resetOrder();
 
-        // Remove da área de trabalho
-        this.activeOrder = null;
+        if (this.activeOrder?.getId() === orderId) {
+            this.activeOrder = null;
+        }
 
         return true;
     }
