@@ -1,27 +1,28 @@
-import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
-import { Order } from '../../models/Order';
-import { OrderStateEnum } from '../../enums/OrderStateEnum';
-import { ReceptionWorkspace } from '../../components/ReceptionWorkspace/ReceptionWorkspace';
-import { ReceptionOrders } from '../../components/ReceptionOrders/ReceptionOrders';
+// src/screens/Reception/Reception.tsx
+
+import React, { useState } from "react";
+import { ScrollView, StyleSheet } from "react-native";
+import { Order } from "../../models/Order";
+import { ReceptionWorkspace } from "../../components/ReceptionWorkspace/ReceptionWorkspace";
+import { ReceptionOrders } from "../../components/ReceptionOrders/ReceptionOrders";
 
 interface ReceptionProps {
-    orders: Order[];
-    onSelectOrder?: (orderId: string) => void;
+  orders?: Order[];
 }
 
-export const Reception: React.FC<ReceptionProps> = ({ orders, onSelectOrder }) => {
-    // Filtra pedidos concluídos/prontos para entrega na recepção
-    const readyOrders = orders.filter(
-        (o) =>
-            o.getStatus() === OrderStateEnum.READY ||
-            o.getStatus() === OrderStateEnum.DELIVERED
-    );
+export const Reception: React.FC<ReceptionProps> = ({
+  orders: initialOrders = [],
+}) => {
+  const [ordersList, setOrdersList] = useState<Order[]>(initialOrders);
 
-    return (
-        <ScrollView>
-            <ReceptionWorkspace/>
-            <ReceptionOrders orders={orders} onSelectOrder={onSelectOrder} />
-        </ScrollView>
-    );
+  const handleAddOrder = (newOrder: Order) => {
+    setOrdersList((prevOrders) => [newOrder, ...prevOrders]);
+  };
+
+  return (
+    <ScrollView>
+      <ReceptionWorkspace onAddOrder={handleAddOrder} />
+      <ReceptionOrders orders={ordersList} />
+    </ScrollView>
+  );
 };
