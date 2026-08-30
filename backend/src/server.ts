@@ -1,18 +1,18 @@
 import cors from 'cors';
 import express from 'express';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
 import {
     getAllOrders,
     claimOrderForStation,
     completeOrderForStation,
-    releaseOrderForStation,
-    deleteOrderForStation,
+    cancelOrderForStation,
     createOrder,
-    resetAllOrders,
 } from './state/orders';
-import { getOccupiedStations, claimStation, releaseStationBySocket } from './state/stationPresence';
-import { getMenu } from './state/menu';
+import {
+    getOccupiedStations,
+    claimStation,
+    heartbeatStation,
+    releaseStation,
+} from './state/stations';
 import { HttpError } from './errors/HttpError';
 
 const app = express();
@@ -23,10 +23,6 @@ app.use(express.json());
 
 app.get('/orders', (_req, res) => {
     res.json(getAllOrders());
-});
-
-app.get('/menu', (_req, res) => {
-    res.json(getMenu());
 });
 
 app.post('/orders', (req, res) => {
@@ -56,33 +52,60 @@ app.post('/orders/:id/complete', (req, res) => {
     }
 });
 
-// "Desistir": devolve o pedido pra fila.
-app.post('/orders/:id/release', (req, res) => {
+// "Cancelar" aqui é o mesmo "devolver pra fila" que já existia no app.
+app.post('/orders/:id/cancel', (req, res) => {
     try {
-        const order = releaseOrderForStation(req.params.id, req.body.stationNumber);
+        const order = cancelOrderForStation(req.params.id, req.body.stationNumber);
         res.json(order);
     } catch (err) {
         handleError(err, res);
     }
 });
 
-// "Excluir": cancela o pedido do cliente de vez.
-app.delete('/orders/:id', (req, res) => {
+app.get('/stations', (_req, res) => {
+    res.json({ occupied: getOccupiedStations() });
+});
+
+app.post('/stations/:number/claim', (req, res) => {
     try {
-        deleteOrderForStation(req.params.id, req.body.stationNumber);
-        // Corpo simples (não 204) porque o cliente sempre tenta ler JSON da resposta.
-        res.status(200).json({ success: true });
+        const stationNumber = parseStationNumber(req.params.number);
+        claimStation(stationNumber, req.body.holderId);
+        res.json({ occupied: getOccupiedStations() });
     } catch (err) {
         handleError(err, res);
     }
 });
 
-// Apaga tudo (inclusive os pedidos mockados) e volta a contar do #1.
-// É um botão de "reiniciar o ambiente de testes", não uma função de restaurante de verdade.
-app.post('/admin/reset', (_req, res) => {
-    resetAllOrders();
-    res.status(200).json({ success: true });
+app.post('/stations/:number/heartbeat', (req, res) => {
+    try {
+        const stationNumber = parseStationNumber(req.params.number);
+        heartbeatStation(stationNumber, req.body.holderId);
+        res.json({ ok: true });
+    } catch (err) {
+        handleError(err, res);
+    }
 });
+
+// Liberar nunca falha pro cliente — mesmo que a bancada já não seja mais
+// dessa pessoa (perdeu a corrida, ou já expirou), o resultado desejado
+// (bancada livre) já é verdade.
+app.post('/stations/:number/release', (req, res) => {
+    try {
+        const stationNumber = parseStationNumber(req.params.number);
+        releaseStation(stationNumber, req.body.holderId);
+        res.json({ ok: true });
+    } catch (err) {
+        handleError(err, res);
+    }
+});
+
+function parseStationNumber(raw: string): number {
+    const stationNumber = Number(raw);
+    if (!Number.isInteger(stationNumber) || stationNumber <= 0) {
+        throw new HttpError(400, 'Número de bancada inválido.');
+    }
+    return stationNumber;
+}
 
 function handleError(err: unknown, res: express.Response): void {
     if (err instanceof HttpError) {
@@ -93,31 +116,6 @@ function handleError(err: unknown, res: express.Response): void {
     res.status(500).json({ message: 'Erro interno do servidor.' });
 }
 
-// Servidor HTTP "cru" por baixo do Express, porque o WebSocket (socket.io)
-// precisa se pendurar nele — não dá pra só usar app.listen().
-const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: '*' } });
-
-io.on('connection', (socket) => {
-    // Assim que conecta, já manda quem está ocupado agora.
-    socket.emit('stations:update', getOccupiedStations());
-
-    socket.on('station:claim', (stationNumber: number, callback: (ok: boolean) => void) => {
-        const ok = claimStation(stationNumber, socket.id);
-        if (ok) {
-            io.emit('stations:update', getOccupiedStations());
-        }
-        callback(ok);
-    });
-
-    // Dispara sozinho quando a conexão cai: fechou a aba, fechou o navegador,
-    // caiu a rede. É assim que a bancada libera sem precisar de aviso manual.
-    socket.on('disconnect', () => {
-        releaseStationBySocket(socket.id);
-        io.emit('stations:update', getOccupiedStations());
-    });
-});
-
-httpServer.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`Servidor do KitchenFlow rodando em http://localhost:${PORT}`);
 });

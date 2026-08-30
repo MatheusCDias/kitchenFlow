@@ -1,259 +1,160 @@
-import React from 'react';
-import { MaterialIcons } from '@expo/vector-icons';
-import {
-    Image,
-    Modal,
-    Pressable,
-    Text,
-    View,
-} from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Modal, Pressable, Text, View, Animated, Easing } from 'react-native';
+import Icon from '../Icon';
+import { styles } from './FloatingMenu.styles';
+import { CheckeredBorder } from '../Patterns/CheckeredBorder';
+import { version } from '../../../package.json';
 
 interface FloatingMenuProps {
     visible: boolean;
     onClose: () => void;
+    onSelectOption?: (option: string) => void;
 }
 
-const FloatingMenu: React.FC<FloatingMenuProps> = ({
+export const FloatingMenu: React.FC<FloatingMenuProps> = ({
     visible,
     onClose,
+    onSelectOption,
 }) => {
+    const slideAnim = useRef(new Animated.Value(-300)).current;
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        if (visible) {
+            Animated.parallel([
+                Animated.timing(slideAnim, {
+                    toValue: 0,
+                    duration: 250,
+                    easing: Easing.out(Easing.ease),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(fadeAnim, {
+                    toValue: 1,
+                    duration: 250,
+                    useNativeDriver: true,
+                }),
+            ]).start();
+        } else {
+            slideAnim.setValue(-300);
+            fadeAnim.setValue(0);
+        }
+    }, [visible]);
+
+    const handleClose = () => {
+        Animated.parallel([
+            Animated.timing(slideAnim, {
+                toValue: -300,
+                duration: 200,
+                easing: Easing.in(Easing.ease),
+                useNativeDriver: true,
+            }),
+            Animated.timing(fadeAnim, {
+                toValue: 0,
+                duration: 200,
+                useNativeDriver: true,
+            }),
+        ]).start(() => {
+            onClose();
+        });
+    };
+
     const handleOptionPress = (option: string) => {
-    console.log(`Opção selecionada: ${option}`);
-    onClose();
-};
+        if (onSelectOption) {
+            onSelectOption(option);
+        } else {
+            console.log(`Opção selecionada: ${option}`);
+        }
+        handleClose();
+    };
+
     return (
         <Modal
             visible={visible}
             transparent={true}
-            animationType="fade"
-            onRequestClose={onClose}
+            animationType="none"
+            onRequestClose={handleClose}
         >
-            <View style={{ flex: 1 }}>
-                {/* Área fora do menu */}
-                <Pressable
-                    onPress={onClose}
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        right: 0,
-                        bottom: 0,
-                        left: 0,
-                    }}
-                />
+            <View style={styles.overlay}>
+                <Animated.View style={[styles.backdropContainer, { opacity: fadeAnim }]}>
+                    <Pressable style={styles.backdrop} onPress={handleClose} />
+                </Animated.View>
 
-                {/* Caixa do menu */}
-                <View
-                    style={{
-                        position: 'absolute',
-                        top: 30,
-                        left: 10,
-                        width: 300,
-                        height: 300,
-                        padding: 12,
-                        backgroundColor: '#EAE8E5',
-                        borderTopLeftRadius: 16,
-                        borderTopRightRadius: 16,
-                        borderBottomRightRadius: 16,
-                        borderBottomLeftRadius: 16,
-                        boxShadow: '0px 8px 24px rgba(0,0,0,0.20)',
-    }}
-    
->
-                    <Pressable
-                        onPress={onClose}
-                        style={({ pressed }) => ({
-                        width: 40,
-                        height: 40,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderRadius: 8,
-                        backgroundColor: pressed
-                            ? 'rgba(48,51,56,0.10)'
-                            : 'transparent',
-                        })}
-                    >
-                        <MaterialIcons
-                            name="menu"
-                            size={24}
-                            color="#303338"
-    />
-                    </Pressable>
-
-            <View style={{ marginTop: 4 }}>
-                <Pressable
-                    onPress={() => handleOptionPress('Área de Trabalho')}
-                    style={({ pressed }) => ({
-                        minHeight: 44,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingHorizontal: 8,
-                        borderRadius: 8,
-                        backgroundColor: pressed
-                            ? 'rgba(240,115,66,0.15)'
-                            : 'transparent',
-                    })}
+                <Animated.View
+                    style={[
+                        styles.menuContainer,
+                        { transform: [{ translateX: slideAnim }] },
+                    ]}
                 >
-                    <Image
-                        source={require('../../assets/spatula.png')}
-                        style={{
-                            width: 22,
-                            height: 22,
-                            tintColor: '#303338',
-                        }}
-                        resizeMode="contain"
-                    />
+                    <View style={styles.menuContent}>
+                        <Text style={styles.title}>Kitchen Flow</Text>
 
-        <Text
-            style={{
-                marginLeft: 14,
-                color: '#303338',
-                fontFamily: 'Lexend_400Regular',
-                fontSize: 16,
-                lineHeight: 20,
-                flexShrink: 1,
-            }}
-        >
-            Área de Trabalho
-        </Text>
-    </Pressable>
+                        <View style={styles.optionsList}>
+                            <Pressable
+                                onPress={() => handleOptionPress('Área de Trabalho')}
+                                style={({ pressed }) => [
+                                    styles.optionButton,
+                                    pressed && styles.pressedOptionButton,
+                                ]}
+                            >
+                                <Icon name="skillet_cooktop" />
+                                <Text style={styles.optionText}>Área de Trabalho</Text>
+                            </Pressable>
 
-    <Pressable
-        onPress={() =>
-            handleOptionPress('Adicionar Item ao Cardápio')
-        }
-        style={({ pressed }) => ({
-            minHeight: 44,
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: 8,
-            borderRadius: 8,
-            backgroundColor: pressed
-                ? 'rgba(240,115,66,0.15)'
-                : 'transparent',
-        })}
-    >
-        <MaterialIcons
-            name="menu-book"
-            size={22}
-            color="#303338"
-        />
+                            {/* Atualizado para acionar a opção 'Cardápio' */}
+                            <Pressable
+                                onPress={() => handleOptionPress('Cardápio')}
+                                style={({ pressed }) => [
+                                    styles.optionButton,
+                                    pressed && styles.pressedOptionButton,
+                                ]}
+                            >
+                                <Icon name="receipt_long" />
+                                <Text style={styles.optionText}>Cardápio</Text>
+                            </Pressable>
 
-        <Text
-            style={{
-                marginLeft: 14,
-                color: '#303338',
-                fontFamily: 'Lexend_400Regular',
-                fontSize: 16,
-                lineHeight: 20,
-                flexShrink: 1,
-            }}
-        >
-            Adicionar Item ao{'\n'}Cardápio
-        </Text>
-    </Pressable>
+                            <Pressable
+                                onPress={() => handleOptionPress('Adicionar Funcionário')}
+                                style={({ pressed }) => [
+                                    styles.optionButton,
+                                    pressed && styles.pressedOptionButton,
+                                ]}
+                            >
+                                <Icon name="person_add" />
+                                <Text style={styles.optionText}>Funcionários</Text>
+                            </Pressable>
 
-    <Pressable
-        onPress={() =>
-            handleOptionPress('Adicionar Funcionário')
-        }
-        style={({ pressed }) => ({
-            minHeight: 44,
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: 8,
-            borderRadius: 8,
-            backgroundColor: pressed
-                ? 'rgba(240,115,66,0.15)'
-                : 'transparent',
-        })}
-    >
-        <MaterialIcons
-            name="person-add"
-            size={22}
-            color="#303338"
-        />
+                            <Pressable
+                                onPress={() => handleOptionPress('Relatórios')}
+                                style={({ pressed }) => [
+                                    styles.optionButton,
+                                    pressed && styles.pressedOptionButton,
+                                ]}
+                            >
+                                <Icon name="assessment" />
+                                <Text style={styles.optionText}>Relatórios</Text>
+                            </Pressable>
 
-        <Text
-            style={{
-                marginLeft: 14,
-                color: '#303338',
-                fontFamily: 'Lexend_400Regular',
-                fontSize: 16,
-                lineHeight: 20,
-                flexShrink: 1,
-            }}
-        >
-            Adicionar Funcionário
-        </Text>
-    </Pressable>
+                            <Pressable
+                                onPress={() => handleOptionPress('Configurações')}
+                                style={({ pressed }) => [
+                                    styles.optionButton,
+                                    pressed && styles.pressedOptionButton,
+                                ]}
+                            >
+                                <Icon name="settings" />
+                                <Text style={styles.optionText}>Configurações</Text>
+                            </Pressable>
+                        </View>
+                    </View>
 
-    <Pressable
-        onPress={() => handleOptionPress('Relatórios')}
-        style={({ pressed }) => ({
-            minHeight: 44,
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: 8,
-            borderRadius: 8,
-            backgroundColor: pressed
-                ? 'rgba(240,115,66,0.15)'
-                : 'transparent',
-        })}
-    >
-        <MaterialIcons
-            name="assessment"
-            size={22}
-            color="#303338"
-        />
+                    <View>
+                        <Text style={styles.footerVersion}>
+                            Versão {version}
+                        </Text>
 
-        <Text
-            style={{
-                marginLeft: 14,
-                color: '#303338',
-                fontFamily: 'Lexend_400Regular',
-                fontSize: 16,
-                lineHeight: 20,
-                flexShrink: 1,
-            }}
-        >
-            Relatórios
-        </Text>
-    </Pressable>
-
-    <Pressable
-        onPress={() => handleOptionPress('Configurações')}
-        style={({ pressed }) => ({
-            minHeight: 44,
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: 8,
-            borderRadius: 8,
-            backgroundColor: pressed
-                ? 'rgba(240,115,66,0.15)'
-                : 'transparent',
-        })}
-    >
-        <MaterialIcons
-            name="settings"
-            size={22}
-            color="#303338"
-        />
-
-        <Text
-            style={{
-                marginLeft: 14,
-                color: '#303338',
-                fontFamily: 'Lexend_400Regular',
-                fontSize: 16,
-                lineHeight: 20,
-                flexShrink: 1,
-            }}
-        >
-            Configurações
-        </Text>
-    </Pressable>
-</View>
-                </View>
+                        <CheckeredBorder primaryColor="#ED4545" />
+                    </View>
+                </Animated.View>
             </View>
         </Modal>
     );

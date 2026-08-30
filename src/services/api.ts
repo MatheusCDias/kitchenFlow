@@ -1,7 +1,5 @@
 import { SERVER_URL } from './config';
 
-const API_BASE_URL = SERVER_URL;
-
 export interface OrderItemPayload {
     id: string;
     productName: string;
@@ -12,15 +10,14 @@ export interface OrderItemPayload {
 export interface OrderPayload {
     id: string;
     orderCode: number;
+    origin: string;
     items: OrderItemPayload[];
-    deadlineMinutes: number;
-    createdAt: string;
+    prepMinutes: number;
     kitchenDeadline: string;
+    completedAt?: string;
     assignedStation: number | null;
     status: string;
     tableNumber?: number;
-    preparationStartedAt?: string;
-    preparationFinishedAt?: string;
 }
 
 export interface NewOrderItemInput {
@@ -31,21 +28,14 @@ export interface NewOrderItemInput {
 
 export interface NewOrderInput {
     items: NewOrderItemInput[];
-    deadlineMinutes: number;
+    prepMinutes: number;
     tableNumber?: number;
-}
-
-export interface MenuItemPayload {
-    id: string;
-    name: string;
-    description: string;
-    category: string;
 }
 
 export class ApiError extends Error {}
 
 const request = async <T>(path: string, options?: RequestInit): Promise<T> => {
-    const response = await fetch(`${API_BASE_URL}${path}`, {
+    const response = await fetch(`${SERVER_URL}${path}`, {
         ...options,
         headers: { 'Content-Type': 'application/json', ...options?.headers },
     });
@@ -58,9 +48,6 @@ const request = async <T>(path: string, options?: RequestInit): Promise<T> => {
 
 export const fetchOrders = (): Promise<OrderPayload[]> =>
     request<OrderPayload[]>('/orders');
-
-export const fetchMenu = (): Promise<MenuItemPayload[]> =>
-    request<MenuItemPayload[]>('/menu');
 
 export const createOrderRequest = (input: NewOrderInput): Promise<OrderPayload> =>
     request<OrderPayload>('/orders', {
@@ -80,19 +67,33 @@ export const completeOrderRequest = (orderId: string, stationNumber: number): Pr
         body: JSON.stringify({ stationNumber }),
     });
 
-export const releaseOrderRequest = (orderId: string, stationNumber: number): Promise<OrderPayload> =>
-    request<OrderPayload>(`/orders/${orderId}/release`, {
+export const cancelOrderRequest = (orderId: string, stationNumber: number): Promise<OrderPayload> =>
+    request<OrderPayload>(`/orders/${orderId}/cancel`, {
         method: 'POST',
         body: JSON.stringify({ stationNumber }),
     });
 
-export const deleteOrderRequest = (orderId: string, stationNumber: number): Promise<void> =>
-    request<void>(`/orders/${orderId}`, {
-        method: 'DELETE',
-        body: JSON.stringify({ stationNumber }),
+export interface StationsPayload {
+    occupied: number[];
+}
+
+export const fetchOccupiedStations = (): Promise<StationsPayload> =>
+    request<StationsPayload>('/stations');
+
+export const claimStationRequest = (stationNumber: number, holderId: string): Promise<StationsPayload> =>
+    request<StationsPayload>(`/stations/${stationNumber}/claim`, {
+        method: 'POST',
+        body: JSON.stringify({ holderId }),
     });
 
-// Apaga todos os pedidos (inclusive os mockados) e reinicia a contagem do #1.
-// Ferramenta de ambiente de testes, não é uma função pro dia a dia do restaurante.
-export const resetAllOrdersRequest = (): Promise<void> =>
-    request<void>('/admin/reset', { method: 'POST' });
+export const heartbeatStationRequest = (stationNumber: number, holderId: string): Promise<{ ok: boolean }> =>
+    request<{ ok: boolean }>(`/stations/${stationNumber}/heartbeat`, {
+        method: 'POST',
+        body: JSON.stringify({ holderId }),
+    });
+
+export const releaseStationRequest = (stationNumber: number, holderId: string): Promise<{ ok: boolean }> =>
+    request<{ ok: boolean }>(`/stations/${stationNumber}/release`, {
+        method: 'POST',
+        body: JSON.stringify({ holderId }),
+    });

@@ -3,7 +3,6 @@
 import { Order } from '../../../src/models/Order';
 import { OrderItem } from '../../../src/models/OrderItem';
 import { OrderService } from '../../../src/services/OrderService';
-import { OrderFactory } from '../../../src/factories/OrderFactory';
 import { Cook } from '../../../src/models/employee/Cook';
 import { TableService } from '../../../src/models/service/TableService';
 import { OrderOriginEnum } from '../../../src/enums/OrderOriginEnum';
@@ -19,15 +18,14 @@ export interface OrderItemPayload {
 export interface OrderPayload {
     id: string;
     orderCode: number;
+    origin: string;
     items: OrderItemPayload[];
-    deadlineMinutes: number;
-    createdAt: string;
+    prepMinutes: number;
     kitchenDeadline: string;
+    completedAt?: string;
     assignedStation: number | null;
     status: string;
     tableNumber?: number;
-    preparationStartedAt?: string;
-    preparationFinishedAt?: string;
 }
 
 export interface NewOrderItemInput {
@@ -38,19 +36,16 @@ export interface NewOrderItemInput {
 
 export interface NewOrderInput {
     items: NewOrderItemInput[];
-    deadlineMinutes: number;
+    prepMinutes: number;
     tableNumber?: number;
 }
-
-// A partir daqui pra não colidir com os códigos 101-106 dos pedidos mockados.
-let nextOrderCode = 200;
 
 // "Funcionário" dessa bancada, só pra reaproveitar OrderService.claimOrder,
 // que já sabe recusar conflito por employee.getId().
 const stationCook = (stationNumber: number): Cook =>
     new Cook(`station-${stationNumber}`, `Bancada ${stationNumber}`, stationNumber, 'N/A');
 
-const orderService = new OrderService(OrderFactory.createMockOrders());
+const orderService = new OrderService();
 
 const serializeOrder = (order: Order): OrderPayload => {
     const assignedEmployee = order.getAssignedEmployee();
@@ -58,20 +53,19 @@ const serializeOrder = (order: Order): OrderPayload => {
     return {
         id: order.getId(),
         orderCode: order.getOrderCode(),
+        origin: order.getOrigin(),
         items: order.getItems().map(item => ({
             id: item.getId(),
             productName: item.getProductName(),
             quantity: item.getQuantity(),
             notes: item.getNotes(),
         })),
-        deadlineMinutes: order.getDeadlineMinutes(),
-        createdAt: order.getCreatedAt().toISOString(),
+        prepMinutes: order.getPrepMinutes(),
         kitchenDeadline: order.getKitchenDeadline().toISOString(),
+        completedAt: order.getCompletedAt()?.toISOString(),
         assignedStation: assignedEmployee ? assignedEmployee.getStationNumber() : null,
         status: order.getStatus(),
         tableNumber: service instanceof TableService ? service.getTableNumber() : undefined,
-        preparationStartedAt: order.getPreparationStartedAt()?.toISOString(),
-        preparationFinishedAt: order.getPreparationFinishedAt()?.toISOString(),
     };
 };
 
@@ -116,8 +110,10 @@ export const completeOrderForStation = (orderId: string, stationNumber: number):
     return serializeOrder(order);
 };
 
-// "Desistir": devolve o pedido pra fila, disponível pra qualquer bancada pegar de novo.
-export const releaseOrderForStation = (orderId: string, stationNumber: number): OrderPayload => {
+// "Cancelar" nessa tela hoje significa devolver o pedido pra fila
+// (OrderService.cancelOrder chama order.resetOrder por baixo) — mantive
+// o mesmo comportamento que já existia, só movido pro servidor.
+export const cancelOrderForStation = (orderId: string, stationNumber: number): OrderPayload => {
     const order = findOrderOrThrow(orderId);
     const employee = stationCook(stationNumber);
 
@@ -125,43 +121,26 @@ export const releaseOrderForStation = (orderId: string, stationNumber: number): 
         throw new HttpError(409, 'Esse pedido não está com essa bancada.');
     }
 
-    orderService.releaseOrder(orderId);
+    orderService.cancelOrder(orderId);
     return serializeOrder(order);
 };
 
-// "Excluir": pedido do cliente foi cancelado — remove de vez, ninguém mais ve.
-export const deleteOrderForStation = (orderId: string, stationNumber: number): void => {
-    const order = findOrderOrThrow(orderId);
-    const employee = stationCook(stationNumber);
-
-    if (order.getAssignedEmployee()?.getId() !== employee.getId()) {
-        throw new HttpError(409, 'Esse pedido não está com essa bancada.');
-    }
-
-    orderService.deleteOrder(orderId);
-};
-
-// Apaga os pedidos mockados e qualquer coisa criada até agora. Depois disso,
-// só existem pedidos criados pela recepção, contando de novo a partir do 1.
-export const resetAllOrders = (): void => {
-    orderService.clearAllOrders();
-    nextOrderCode = 1;
-};
-
-// Cria um pedido novo — usado pela recepção agora, e futuramente pela
-// integração do iFood também (mesmo caminho, fonte diferente).
+// Cria um pedido novo — usado pela recepção. O prazo é fixado a partir de
+// agora (na criação), e não muda mais depois disso.
 export const createOrder = (input: NewOrderInput): OrderPayload => {
     if (!input.items || input.items.length === 0) {
         throw new HttpError(400, 'O pedido precisa ter pelo menos um item.');
     }
-    if (!input.deadlineMinutes || input.deadlineMinutes <= 0) {
+    if (!input.prepMinutes || input.prepMinutes <= 0) {
         throw new HttpError(400, 'Prazo de preparo inválido.');
     }
 
-    const orderCode = nextOrderCode++;
-    const id = `ord-${orderCode}`;
+    const orderCode = orderService.getNextAvailableCode();
+    const id = `ord-${orderCode}-${Date.now()}`;
     const now = new Date();
-    const kitchenDeadline = new Date(now.getTime() + input.deadlineMinutes * 60000);
+    const kitchenDeadline = new Date(now.getTime() + input.prepMinutes * 60000);
+    const promisedTime = new Date(now.getTime() + (input.prepMinutes + 5) * 60000);
+    const estimatedDeliveryDate = new Date(now.getTime() + (input.prepMinutes + 15) * 60000);
     const service = input.tableNumber
         ? new TableService(now, input.tableNumber, 1)
         : undefined;
@@ -170,13 +149,13 @@ export const createOrder = (input: NewOrderInput): OrderPayload => {
         id,
         orderCode,
         OrderOriginEnum.PRESENTIAL,
+        promisedTime,
         kitchenDeadline,
-        kitchenDeadline,
-        kitchenDeadline,
-        input.deadlineMinutes,
-        undefined,
+        estimatedDeliveryDate,
+        input.prepMinutes,
+        undefined, // customer
         service,
-        undefined,
+        undefined, // assignedEmployee
         now
     );
 

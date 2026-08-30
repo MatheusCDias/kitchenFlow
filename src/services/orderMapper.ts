@@ -28,7 +28,7 @@ const STATE_FACTORY: Record<string, () => OrderState> = {
 
 export const toOrder = (payload: OrderPayload): Order => {
     const kitchenDeadline = new Date(payload.kitchenDeadline);
-    const createdAt = new Date(payload.createdAt);
+    const now = new Date();
 
     const assignedEmployee = payload.assignedStation !== null
         ? new Cook(
@@ -40,37 +40,34 @@ export const toOrder = (payload: OrderPayload): Order => {
         : undefined;
 
     const service = payload.tableNumber !== undefined
-        ? new TableService(createdAt, payload.tableNumber, 1)
+        ? new TableService(now, payload.tableNumber, 1)
         : undefined;
 
     const order = new Order(
         payload.id,
         payload.orderCode,
-        OrderOriginEnum.PRESENTIAL,
+        payload.origin as OrderOriginEnum,
         kitchenDeadline,
         kitchenDeadline,
         kitchenDeadline,
-        payload.deadlineMinutes,
+        payload.prepMinutes,
         undefined,
         service,
         assignedEmployee,
-        createdAt
+        now
     );
 
     payload.items.forEach(item => {
-        order.addItem(new OrderItem(item.id, item.productName, item.quantity, createdAt, item.notes));
+        order.addItem(new OrderItem(item.id, item.productName, item.quantity, now, item.notes));
     });
 
     // Sem isso, order.getStatus() sempre voltaria "RECEIVED" (valor do
     // construtor), não importa o que o servidor realmente informou.
     order.setState((STATE_FACTORY[payload.status] ?? STATE_FACTORY[OrderStateEnum.RECEIVED])());
 
-    // Reconstrói os marcos de tempo do preparo — é isso que faz o cronômetro
-    // congelar certinho quando o pedido já foi concluído.
-    order.setPreparationTimestamps(
-        payload.preparationStartedAt ? new Date(payload.preparationStartedAt) : undefined,
-        payload.preparationFinishedAt ? new Date(payload.preparationFinishedAt) : undefined
-    );
+    // Reconstrói o instante de conclusão — é isso que faz o cronômetro
+    // continuar congelado depois de recarregar a lista vinda do backend.
+    order.setCompletedAt(payload.completedAt ? new Date(payload.completedAt) : undefined);
 
     return order;
 };

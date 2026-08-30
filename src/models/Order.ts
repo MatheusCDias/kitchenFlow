@@ -17,14 +17,8 @@ export class Order {
     private kitchenDeadline: Date;
     private orderDate: Date;
     private estimatedDeliveryDate: Date;
-
-    // Quantos minutos a cozinha tem para preparar este pedido.
-    // Serve de base para recalcular o prazo quando o preparo comeca de fato.
-    private deadlineMinutes: number;
-
-    // Marcos de tempo do preparo (ficam vazios ate o preparo comecar/terminar).
-    private preparationStartedAt?: Date;
-    private preparationFinishedAt?: Date;
+    private prepMinutes: number;
+    private completedAt?: Date;
 
     private state: OrderState;
     private payments: Payment[];
@@ -40,11 +34,11 @@ export class Order {
         promisedTime: Date,
         kitchenDeadline: Date,
         estimatedDeliveryDate: Date,
-        deadlineMinutes: number,
+        prepMinutes: number,
         customer?: Customer,
         service?: Service,
         assignedEmployee?: Employee,
-        orderDate: Date = new Date()
+        orderDate: Date = new Date(),
     ) {
         this.id = id;
         this.orderCode = orderCode;
@@ -52,9 +46,9 @@ export class Order {
         this.promisedTime = promisedTime;
         this.kitchenDeadline = kitchenDeadline;
         this.estimatedDeliveryDate = estimatedDeliveryDate;
-        this.deadlineMinutes = deadlineMinutes;
         this.orderDate = orderDate;
         this.createdAt = new Date();
+        this.prepMinutes = prepMinutes;
 
         this.state = new ReceivedState();
         this.payments = [];
@@ -64,110 +58,123 @@ export class Order {
         this.assignedEmployee = assignedEmployee;
     }
 
-    // ----- Itens e pagamentos -----
-    public addItem(item: OrderItem): void { this.items.push(item); }
-    public getItems(): OrderItem[] { return this.items; }
-    public addPayment(payment: Payment): void { this.payments.push(payment); }
-    public getPayments(): Payment[] { return this.payments; }
+    // --- Métodos de Manipulação do Timer ---
+    public getPrepMinutes(): number {
+        return this.prepMinutes;
+    }
 
-    // ----- Estado do pedido -----
-    public advanceStage(): void { this.state.advance(this); }
-    public cancelOrder(): void { this.state.cancel(this); }
-    public setState(state: OrderState): void { this.state = state; }
-    public getStatus(): OrderStateEnum { return this.state.getStatus(); }
-
-    // ----- Cronometro da cozinha -----
-
-    /**
-     * Marca o inicio do preparo. O prazo da cozinha (kitchenDeadline) nao
-     * e recalculado aqui: ele comeca a contar desde a criacao do pedido,
-     * entao pegar o pedido mais tarde nao pode dar um prazo novo de brinde.
-     * Se o preparo ja tiver comecado, nao faz nada (evita reiniciar o marco).
-     */
+    // O prazo (kitchenDeadline) já vem definido desde a criação do pedido
+    // (na recepção) e não é recalculado aqui — pegar o pedido mais tarde
+    // não pode dar um prazo novo, descartando o tempo que ele já esperou.
     public startKitchenTimer(): void {
-        if (this.preparationStartedAt) {
-            return;
-        }
-        this.preparationStartedAt = new Date();
+        // Mantido por compatibilidade com quem já chama esse método;
+        // hoje não precisa fazer nada além de existir.
     }
 
-    /**
-     * Marca o fim do preparo. So funciona se o preparo tiver comecado
-     * e ainda nao tiver sido finalizado.
-     */
+    // Marca o momento exato da conclusão. A partir daqui, o cronômetro
+    // (useCountdown) para de contar "agora" e passa a congelar nesse
+    // instante — mostrando com quanto tempo sobrou (ou quanto atrasou).
     public finishKitchenTimer(): void {
-        if (!this.preparationStartedAt || this.preparationFinishedAt) {
-            return;
+        if (!this.completedAt) {
+            this.completedAt = new Date();
         }
-        this.preparationFinishedAt = new Date();
     }
 
-    /**
-     * Quantos segundos faltam para o prazo da cozinha.
-     * Negativo significa que o pedido ja passou do prazo.
-     * Depois que o preparo termina, o valor congela no resultado final.
-     */
-    public getRemainingSeconds(reference: Date = new Date()): number {
-        const moment = this.preparationFinishedAt ?? reference;
-        return Math.round((this.kitchenDeadline.getTime() - moment.getTime()) / 1000);
+    public getCompletedAt(): Date | undefined {
+        return this.completedAt;
     }
 
-    /** True quando o prazo da cozinha ja estourou. */
-    public isLate(reference: Date = new Date()): boolean {
-        return this.getRemainingSeconds(reference) < 0;
+    // Só usado pra reconstruir um pedido a partir de dados que já vieram de
+    // outro lugar (ex: JSON do servidor) — diferente de finishKitchenTimer,
+    // que sempre marca "agora". Sem isso, o cronômetro nunca congelaria
+    // corretamente depois de recarregar a lista vinda do backend.
+    public setCompletedAt(completedAt: Date | undefined): void {
+        this.completedAt = completedAt;
+    }
+    public getFormattedTotalPrepTime(): string {
+        const totalSeconds = this.prepMinutes * 60;
+
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+
+        const paddedMinutes = String(minutes).padStart(2, '0');
+        const paddedSeconds = String(seconds).padStart(2, '0');
+
+        return `${paddedMinutes}:${paddedSeconds}`;
     }
 
-    /**
-     * Tempo real de preparo em segundos (do inicio ate a conclusao).
-     * Retorna undefined enquanto o preparo nao terminou.
-     * Esse numero e a base das futuras analises de produtividade.
-     */
-    public getPreparationSeconds(): number | undefined {
-        if (!this.preparationStartedAt || !this.preparationFinishedAt) {
-            return undefined;
-        }
-        return Math.round(
-            (this.preparationFinishedAt.getTime() - this.preparationStartedAt.getTime()) / 1000
-        );
-    }
-
-    /**
-     * Devolve o pedido para a lista de disponiveis: volta ao estado Recebido,
-     * solta o funcionario responsavel e zera os marcos de tempo do preparo.
-     */
     public resetOrder(): void {
-        this.state = new ReceivedState();
         this.assignedEmployee = undefined;
-        this.preparationStartedAt = undefined;
-        this.preparationFinishedAt = undefined;
+        this.state = new ReceivedState();
     }
 
-    // ----- Funcionario responsavel -----
-    public setAssignedEmployee(employee: Employee): void { this.assignedEmployee = employee; }
-    public getAssignedEmployee(): Employee | undefined { return this.assignedEmployee; }
+    // --- Métodos do Domínio / Getters & Setters ---
 
-    // ----- Getters -----
-    public getId(): string { return this.id; }
-    public getOrderCode(): number { return this.orderCode; }
-    public getOrigin(): OrderOriginEnum { return this.origin; }
-    public getCustomer(): Customer | undefined { return this.customer; }
-    public getService(): Service | undefined { return this.service; }
-    public getPromisedTime(): Date { return this.promisedTime; }
-    public getKitchenDeadline(): Date { return this.kitchenDeadline; }
-    public getEstimatedDeliveryDate(): Date { return this.estimatedDeliveryDate; }
-    public getDeadlineMinutes(): number { return this.deadlineMinutes; }
-    public getOrderDate(): Date { return this.orderDate; }
-    public getCreatedAt(): Date { return this.createdAt; }
-    public getPreparationStartedAt(): Date | undefined { return this.preparationStartedAt; }
-    public getPreparationFinishedAt(): Date | undefined { return this.preparationFinishedAt; }
+    public addItem(item: OrderItem): void {
+        this.items.push(item);
+    }
 
-    /**
-     * Só usado pra reconstruir um pedido a partir de dados que já vieram
-     * de outro lugar (ex: JSON do servidor) — não é uma acao do dia a dia,
-     * é diferente de startKitchenTimer/finishKitchenTimer, que marcam "agora".
-     */
-    public setPreparationTimestamps(startedAt?: Date, finishedAt?: Date): void {
-        this.preparationStartedAt = startedAt;
-        this.preparationFinishedAt = finishedAt;
+    public getItems(): OrderItem[] {
+        return this.items;
+    }
+
+    public advanceStage(): void {
+        this.state.advance(this);
+    }
+
+    public cancelOrder(): void {
+        this.state.cancel(this);
+    }
+
+    public setState(state: OrderState): void {
+        this.state = state;
+    }
+
+    public getStatus(): OrderStateEnum {
+        return this.state.getStatus();
+    }
+
+    public addPayment(payment: Payment): void {
+        this.payments.push(payment);
+    }
+
+    public getPayments(): Payment[] {
+        return this.payments;
+    }
+
+    public setAssignedEmployee(employee: Employee): void {
+        this.assignedEmployee = employee;
+    }
+
+    public getAssignedEmployee(): Employee | undefined {
+        return this.assignedEmployee;
+    }
+
+    public getCustomer(): Customer | undefined {
+        return this.customer;
+    }
+
+    public getService(): Service | undefined {
+        return this.service;
+    }
+
+    public getId(): string {
+        return this.id;
+    }
+
+    public getOrderCode(): number {
+        return this.orderCode;
+    }
+
+    public getOrigin(): OrderOriginEnum {
+        return this.origin;
+    }
+
+    public getKitchenDeadline(): Date {
+        return this.kitchenDeadline;
+    }
+
+    public getPromisedTime(): Date {
+        return this.promisedTime;
     }
 }

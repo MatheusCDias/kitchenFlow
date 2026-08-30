@@ -1,14 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, FlatList, LayoutChangeEvent } from 'react-native';
 import { Order } from '../../models/Order';
-import { OrderStateEnum } from '../../enums/OrderStateEnum';
+import { Employee } from '../../models/employee/Employee';
 import { TicketCard } from '../TicketCard/TicketCard';
+import { OrderStateEnum } from '../../enums/OrderStateEnum';
 import { styles } from './AllOrders.styles';
 
 interface AllOrdersProps {
     orders: Order[];
-    // Sem essa função, os cards ficam só pra visualização (usado pela recepção).
-    onClaimOrder?: (orderId: string) => void;
+    activeOrder: Order | null;
+    currentUser: Employee;
+    onClaimOrder: (orderId: string) => void;
 }
 
 const CARD_WIDTH = 280;
@@ -16,22 +18,11 @@ const GAP = 32;
 
 export const AllOrders: React.FC<AllOrdersProps> = ({
     orders,
+    activeOrder,
+    currentUser,
     onClaimOrder,
 }) => {
     const [containerWidth, setContainerWidth] = useState<number>(0);
-
-    // Prioridade: quem tem menos tempo restante aparece primeiro; concluídos vão pro final,
-    // senão um pedido pronto (com o relógio congelado, às vezes negativo) parece mais urgente
-    // que um que ainda está sendo preparado.
-    const sortedOrders = useMemo(
-        () => [...orders].sort((a, b) => {
-            const aDone = a.getStatus() === OrderStateEnum.READY ? 1 : 0;
-            const bDone = b.getStatus() === OrderStateEnum.READY ? 1 : 0;
-            if (aDone !== bDone) return aDone - bDone;
-            return a.getRemainingSeconds() - b.getRemainingSeconds();
-        }),
-        [orders]
-    );
 
     // Atualiza a largura disponível sempre que o layout mudar
     const handleLayout = (event: LayoutChangeEvent) => {
@@ -42,13 +33,54 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
     // Calcula dinamicamente quantas colunas cabem no espaço disponível
     const numColumns = useMemo(() => {
         if (!containerWidth) return 1;
-
-        // Exemplo: Se couberem 3 cards + 2 gaps, coloca 3 colunas
         const calculated = Math.floor((containerWidth + GAP) / (CARD_WIDTH + GAP));
-
-        // Garante no mínimo 1 coluna
         return Math.max(1, calculated);
     }, [containerWidth]);
+
+    // Função para definir o texto e estado do botão de ação de acordo com as regras de negócio
+    const getActionButtonConfig = (order: Order) => {
+        const status = order.getStatus();
+
+        if (
+            status === OrderStateEnum.READY ||
+            status === OrderStateEnum.DELIVERED ||
+            status === OrderStateEnum.COMPLETED
+        ) {
+            return {
+                actionText: 'Concluído',
+                isActionDisabled: true,
+                variant: 'completed' as const,
+            };
+        }
+
+        const assignedEmployee = order.getAssignedEmployee();
+        const isActiveOrder = activeOrder?.getId() === order.getId();
+        const isAssignedToCurrentUser = assignedEmployee?.getId() === currentUser.getId();
+
+        if (isActiveOrder || isAssignedToCurrentUser) {
+            return {
+                actionText: 'Em Andamento',
+                isActionDisabled: true,
+                variant: 'in_progress' as const,
+            };
+        }
+
+        if (assignedEmployee) {
+            return {
+                actionText: assignedEmployee.getName(),
+                isActionDisabled: true,
+                variant: 'assigned' as const,
+            };
+        }
+
+        const hasActiveWorkspaceOrder = Boolean(activeOrder);
+
+        return {
+            actionText: 'Pegar Pedido',
+            isActionDisabled: hasActiveWorkspaceOrder, // Fica true se já houver pedido ativo
+            variant: 'default' as const,
+        };
+    };
 
     return (
         <View style={styles.container} onLayout={handleLayout}>
@@ -59,24 +91,27 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
             {containerWidth > 0 && (
                 <FlatList
                     key={numColumns}
-                    data={sortedOrders}
+                    data={orders}
                     keyExtractor={(item) => item.getId()}
                     numColumns={numColumns}
                     scrollEnabled={false}
                     contentContainerStyle={styles.listContent}
                     columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined}
-                    renderItem={({ item }) => (
-                        <View style={styles.columnItem}>
-                            <TicketCard
-                                order={item}
-                                selectedItemIndex={0}
-                                backgroundColor="#DEDEDE"
-                                {...(onClaimOrder
-                                    ? { actionText: 'Pegar Pedido', onSelectAction: () => onClaimOrder(item.getId()) }
-                                    : {})}
-                            />
-                        </View>
-                    )}
+                    renderItem={({ item }) => {
+                        const { actionText, isActionDisabled } = getActionButtonConfig(item);
+
+                        return (
+                            <View style={styles.columnItem}>
+                                <TicketCard
+                                    order={item}
+                                    actionText={actionText}
+                                    isActionDisabled={isActionDisabled}
+                                    onSelectAction={() => onClaimOrder(item.getId())}
+                                    backgroundColor="#DEDEDE"
+                                />
+                            </View>
+                        );
+                    }}
                 />
             )}
         </View>

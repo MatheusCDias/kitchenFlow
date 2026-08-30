@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
 
 export const styles = StyleSheet.create({
     container: {
@@ -24,19 +25,6 @@ export const styles = StyleSheet.create({
         paddingBottom: 16,
         gap: 24,
     },
-    workspaceHeader: {
-        width: '100%',
-        flexDirection: 'row',
-        paddingHorizontal: 32,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    headerTitle: {
-        fontFamily: 'Lexend_400Regular',
-        fontSize: 20,
-        color: '#EAE8E5',
-        userSelect: 'none',
-    },
     emptyContent: {
         alignItems: 'center',
         justifyContent: 'center',
@@ -45,12 +33,14 @@ export const styles = StyleSheet.create({
         gap: 8,
     },
     emptyTitle: {
-        fontFamily: 'Lexend_500Medium',
+        fontFamily: 'Lexend',
+        fontWeight: 500,
         fontSize: 18,
         color: '#EAE8E5',
     },
     emptySubtitle: {
-        fontFamily: 'Lexend_300Light',
+        fontFamily: 'Lexend',
+        fontWeight: 300,
         fontSize: 14,
         color: 'rgba(255, 255, 255, 0.8)',
         textAlign: 'center',
@@ -67,12 +57,14 @@ export const styles = StyleSheet.create({
         gap: 4,
     },
     recipeTitleLabel: {
-        fontFamily: 'Lexend_500Medium',
+        fontFamily: 'Lexend',
+        fontWeight: 500,
         fontSize: 20,
         color: '#EAE8E5',
     },
     selectedItemName: {
-        fontFamily: 'Lexend_300Light',
+        fontFamily: 'Lexend',
+        fontWeight: 300,
         fontSize: 16,
         color: '#EAE8E5',
     },
@@ -84,26 +76,30 @@ export const styles = StyleSheet.create({
         gap: 8,
     },
     sectionSubTitle: {
+        fontFamily: 'Lexend',
+        fontWeight: 600,
         fontSize: 14,
-        fontFamily: 'Lexend_600SemiBold',
         color: '#EAE8E5',
     },
     ingredientRow: {
         gap: 8,
     },
     ingredientText: {
-        fontFamily: 'Lexend_300Light',
+        fontFamily: 'Lexend',
+        fontWeight: 300,
         fontSize: 14,
         color: '#EAE8E5',
     },
     instructionsText: {
         fontSize: 14,
-        fontFamily: 'Lexend_300Light',
+        fontFamily: 'Lexend',
+        fontWeight: 300,
         color: '#EAE8E5',
     },
     noRecipeText: {
         fontSize: 14,
-        fontFamily: 'Lexend_300Light',
+        fontFamily: 'Lexend',
+        fontWeight: 300,
         color: 'rgba(255, 255, 255, 0.7)',
         fontStyle: 'italic',
     },
@@ -119,14 +115,16 @@ export const styles = StyleSheet.create({
         gap: 8,
     },
     timerText: {
-        fontFamily: 'Lexend_400Regular',
+        fontFamily: 'Lexend',
+        fontWeight: 400,
         fontSize: 26,
         color: '#EAE8E5',
     },
-    lateTimerText: {
-        color: '#FFD9D9',
+    buttonArea: {
+        flexDirection: 'row',
+        gap: 32,
     },
-    completeButton: {
+    button: {
         backgroundColor: '#EAE8E5',
         paddingHorizontal: 16,
         paddingVertical: 12,
@@ -137,42 +135,10 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.15,
         shadowRadius: 3,
     },
-    completeButtonText: {
-        fontFamily: 'Lexend_600SemiBold',
+    buttonText: {
+        fontFamily: 'Lexend',
+        fontWeight: 400,
         color: '#F26E3B',
         fontSize: 16,
-    },
-    actionsRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    secondaryButton: {
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.6)',
-    },
-    secondaryButtonText: {
-        fontFamily: 'Lexend_500Medium',
-        color: '#EAE8E5',
-        fontSize: 14,
-    },
-    dangerButton: {
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        borderRadius: 8,
-        backgroundColor: '#ED4545',
-    },
-    dangerButtonText: {
-        fontFamily: 'Lexend_600SemiBold',
-        color: '#EAE8E5',
-        fontSize: 14,
-    },
-    confirmText: {
-        fontFamily: 'Lexend_400Regular',
-        color: '#EAE8E5',
-        fontSize: 14,
     },
 });

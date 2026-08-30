@@ -1,12 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
 import { Order } from '../../models/Order';
 import { TableService } from '../../models/service/TableService';
 import { DeliveryService } from '../../models/service/DeliveryService';
-import { OrderStateEnum } from '../../enums/OrderStateEnum';
 import { styles } from './TicketCard.styles';
 import { ScallopedBorder } from '../Patterns/ScallopedBorder';
+import Icon from '../Icon'
 import { useCountdown, formatCountdown } from '../../hooks/useCountdown';
 
 interface TicketCardProps {
@@ -17,6 +16,9 @@ interface TicketCardProps {
     onItemPress?: (itemIndex: number) => void;
     selectedItemIndex?: number;
     backgroundColor?: string;
+    // Mostra qual bancada está com o pedido — usado na visão da Recepção,
+    // que não sabe disso de outro jeito (a Cozinha já sabe pelo próprio contexto).
+    showAssignedEmployee?: boolean;
 }
 
 export const TicketCard: React.FC<TicketCardProps> = ({
@@ -27,6 +29,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
     onItemPress,
     selectedItemIndex,
     backgroundColor = '#EAE8E5',
+    showAssignedEmployee = false,
 }) => {
     const bottomColor = backgroundColor === '#DEDEDE' ? '#EAE8E5' : '#F07342';
     const service = order.getService();
@@ -38,16 +41,8 @@ export const TicketCard: React.FC<TicketCardProps> = ({
     }
 
     const firstObservation = order.getItems().find(item => item.getNotes())?.getNotes();
-    const { remainingSeconds, isLate } = useCountdown(order);
-
-    // Se já tem alguém responsável, o botão vira um aviso em vez de convite pra pegar o pedido.
-    // Se já foi concluído, isso tem prioridade sobre tudo o mais.
+    const { secondsLeft, isOverdue } = useCountdown(order);
     const assignedEmployee = order.getAssignedEmployee();
-    const isDone = order.getStatus() === OrderStateEnum.READY;
-    const effectiveActionText = isDone
-        ? 'Concluído'
-        : assignedEmployee ? `Com ${assignedEmployee.getName()}` : actionText;
-    const effectiveIsDisabled = isDone || isActionDisabled || Boolean(assignedEmployee);
 
     return (
         <View style={[styles.cardContainer, { backgroundColor }]}>
@@ -62,6 +57,12 @@ export const TicketCard: React.FC<TicketCardProps> = ({
                     <Text style={styles.orderCode}>#{order.getOrderCode()}</Text>
                     <Text style={styles.serviceText}>{serviceInfo}</Text>
                 </View>
+
+                {showAssignedEmployee ? (
+                    <Text style={styles.assignedEmployeeText}>
+                        {assignedEmployee ? `Preparando: ${assignedEmployee.getName()}` : 'Aguardando bancada'}
+                    </Text>
+                ) : null}
 
                 <View style={styles.divider} />
                 <View style={styles.itemsContainer}>
@@ -96,19 +97,19 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
                 <View style={styles.footer}>
                     <View style={styles.timerContainer}>
-                        <MaterialIcons name="timer" size={20} color={isLate ? '#ED4545' : '#303338'} />
-                        <Text style={[styles.timerText, isLate && styles.lateTimerText]}>
-                            {formatCountdown(remainingSeconds)}
+                        <Icon name="timer" size={20} color={isOverdue ? '#E53935' : undefined} />
+                        <Text style={[styles.timerText, isOverdue && styles.timerTextOverdue]}>
+                            {formatCountdown(secondsLeft)}
                         </Text>
                     </View>
 
-                    {effectiveActionText ? (
+                    {actionText ? (
                         <TouchableOpacity
-                            style={[styles.actionButton, effectiveIsDisabled && styles.disabledButton]}
+                            style={[styles.actionButton, isActionDisabled && styles.disabledButton]}
                             onPress={onSelectAction}
-                            disabled={effectiveIsDisabled}
+                            disabled={isActionDisabled}
                         >
-                            <Text style={styles.actionButtonText}>{effectiveActionText}</Text>
+                            <Text style={styles.actionButtonText}>{actionText}</Text>
                         </TouchableOpacity>
                     ) : null}
                 </View>

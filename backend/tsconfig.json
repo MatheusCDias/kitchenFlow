@@ -8,5 +8,5 @@
     "skipLibCheck": true,
     "outDir": "dist"
   },
-  "include": ["src", "../src/models", "../src/services", "../src/factories", "../src/enums", "../src/data"]
+  "include": ["src", "../src/models", "../src/services", "../src/enums"]
 }

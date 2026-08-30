@@ -25,5 +25,4 @@ export abstract class MenuItem {
     public getId(): string { return this.id; }
     public getName(): string { return this.name; }
     public getPrice(): number { return this.price; }
-    public getDescription(): string { return this.description; }
 }
