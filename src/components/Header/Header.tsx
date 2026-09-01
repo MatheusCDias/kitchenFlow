@@ -4,6 +4,7 @@ import FloatingMenu from '../FloatingMenu/FloatingMenu';
 import Icon from '../Icon';
 import { styles } from './Header.styles';
 import { Employee } from '../../models/employee/Employee';
+import { Admin } from '../../models/employee/Admin'; // Importe a classe Admin se necessário
 
 export type ViewMode = 'recepcao' | 'cozinha';
 
@@ -27,6 +28,11 @@ export const Header: React.FC<HeaderProps> = ({
     currentUser,
 }) => {
     const [menuAberto, setMenuAberto] = useState(false);
+
+    // Checagem se o usuário atual é o Admin
+    const isAdmin =
+        currentUser instanceof Admin ||
+        currentUser?.getRole()?.toLowerCase() === 'admin';
 
     return (
         <View style={styles.container}>
@@ -69,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <FloatingMenu
                     visible={menuAberto}
                     onClose={() => setMenuAberto(false)}
-                    currentUser={currentUser} // 2. REPASSE AQUI
+                    currentUser={currentUser}
                     onSelectOption={(option) => {
                         onSelectMenuOption?.(option);
                         setMenuAberto(false);
@@ -83,63 +89,66 @@ export const Header: React.FC<HeaderProps> = ({
                     {activeMode === 'recepcao' ? 'Novo Pedido' : 'Área de Trabalho'}
                 </Text>
 
-                <View style={styles.toggleContainer}>
-                    {/* Botão Recepção */}
-                    <TouchableOpacity
-                        activeOpacity={0.8}
-                        style={[
-                            styles.toggleButton,
-                            activeMode === 'recepcao'
-                                ? styles.activeToggleButton
-                                : styles.inactiveToggleButton,
-                        ]}
-                        onPress={() => onModeChange('recepcao')}
-                    >
-                        <Icon
-                            name="badge"
-                            fill={activeMode === 'recepcao'}
-                            color={activeMode === 'recepcao' ? '#303338' : '#EAE8E5'}
-                        />
-                        <Text
+                {/* Exibe os botões de alternância apenas se for Admin */}
+                {isAdmin && (
+                    <View style={styles.toggleContainer}>
+                        {/* Botão Recepção */}
+                        <TouchableOpacity
+                            activeOpacity={0.8}
                             style={[
-                                styles.toggleText,
+                                styles.toggleButton,
                                 activeMode === 'recepcao'
-                                    ? styles.activeToggleText
-                                    : styles.inactiveToggleText,
+                                    ? styles.activeToggleButton
+                                    : styles.inactiveToggleButton,
                             ]}
+                            onPress={() => onModeChange('recepcao')}
                         >
-                            Recepção
-                        </Text>
-                    </TouchableOpacity>
+                            <Icon
+                                name="badge"
+                                fill={activeMode === 'recepcao'}
+                                color={activeMode === 'recepcao' ? '#303338' : '#EAE8E5'}
+                            />
+                            <Text
+                                style={[
+                                    styles.toggleText,
+                                    activeMode === 'recepcao'
+                                        ? styles.activeToggleText
+                                        : styles.inactiveToggleText,
+                                ]}
+                            >
+                                Recepção
+                            </Text>
+                        </TouchableOpacity>
 
-                    {/* Botão Cozinha */}
-                    <TouchableOpacity
-                        activeOpacity={0.8}
-                        style={[
-                            styles.toggleButton,
-                            activeMode === 'cozinha'
-                                ? styles.activeToggleButton
-                                : styles.inactiveToggleButton,
-                        ]}
-                        onPress={() => onModeChange('cozinha')}
-                    >
-                        <Icon
-                            name="soup_kitchen"
-                            fill={activeMode === 'cozinha'}
-                            color={activeMode === 'cozinha' ? '#303338' : '#EAE8E5'}
-                        />
-                        <Text
+                        {/* Botão Cozinha */}
+                        <TouchableOpacity
+                            activeOpacity={0.8}
                             style={[
-                                styles.toggleText,
+                                styles.toggleButton,
                                 activeMode === 'cozinha'
-                                    ? styles.activeToggleText
-                                    : styles.inactiveToggleText,
+                                    ? styles.activeToggleButton
+                                    : styles.inactiveToggleButton,
                             ]}
+                            onPress={() => onModeChange('cozinha')}
                         >
-                            Cozinha
-                        </Text>
-                    </TouchableOpacity>
-                </View>
+                            <Icon
+                                name="soup_kitchen"
+                                fill={activeMode === 'cozinha'}
+                                color={activeMode === 'cozinha' ? '#303338' : '#EAE8E5'}
+                            />
+                            <Text
+                                style={[
+                                    styles.toggleText,
+                                    activeMode === 'cozinha'
+                                        ? styles.activeToggleText
+                                        : styles.inactiveToggleText,
+                                ]}
+                            >
+                                Cozinha
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
             </View>
         </View>
     );
