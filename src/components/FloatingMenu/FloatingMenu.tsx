@@ -100,7 +100,6 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                                 <Text style={styles.optionText}>Área de Trabalho</Text>
                             </Pressable>
 
-                            {/* Atualizado para acionar a opção 'Cardápio' */}
                             <Pressable
                                 onPress={() => handleOptionPress('Cardápio')}
                                 style={({ pressed }) => [
@@ -143,6 +142,18 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                             >
                                 <Icon name="settings" />
                                 <Text style={styles.optionText}>Configurações</Text>
+                            </Pressable>
+
+                            {/* Botão Sair */}
+                            <Pressable
+                                onPress={() => handleOptionPress('Sair')}
+                                style={({ pressed }) => [
+                                    styles.optionButton,
+                                    pressed && styles.pressedOptionButton,
+                                ]}
+                            >
+                                <Icon name="logout" color="#D9383A" />
+                                <Text style={[styles.optionText, { color: '#D9383A' }]}>Sair</Text>
                             </Pressable>
                         </View>
                     </View>

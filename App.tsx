@@ -34,6 +34,9 @@ export default function App() {
       setIsEmployeeModalOpen(true);
     } else if (option === 'Cardápio') {
       setIsMenuManagerOpen(true);
+    } else if (option === 'Sair') {
+      setSelectedRole(null);
+      return;
     }
   };
 
