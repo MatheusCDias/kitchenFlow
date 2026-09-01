@@ -1,17 +1,17 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, Text, View, Animated, Easing } from 'react-native';
 import Icon from '../Icon';
 import { styles } from './FloatingMenu.styles';
 import { CheckeredBorder } from '../Patterns/CheckeredBorder';
 import { version } from '../../../package.json';
-import { Employee } from '../../models/employee/Employee'; // Ajuste o caminho se necessário
-import { Admin } from '../../models/employee/Admin'; // Ajuste o caminho se necessário
+import { Employee } from '../../models/employee/Employee';
+import { Admin } from '../../models/employee/Admin';
 
 interface FloatingMenuProps {
     visible: boolean;
     onClose: () => void;
     onSelectOption?: (option: string) => void;
-    currentUser?: Employee | null; // Recebe o usuário atual logado
+    currentUser?: Employee | null;
 }
 
 export const FloatingMenu: React.FC<FloatingMenuProps> = ({
@@ -23,12 +23,16 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
     const slideAnim = useRef(new Animated.Value(-300)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
+    // Controle de tela interna: 'main' (menu principal) ou 'config' (sub-menu configurações)
+    const [currentView, setCurrentView] = useState<'main' | 'config'>('main');
+
     const isAdmin =
         currentUser instanceof Admin ||
         currentUser?.getRole()?.toLowerCase() === 'admin';
 
     useEffect(() => {
         if (visible) {
+            setCurrentView('main'); // Reseta para o menu principal ao abrir
             Animated.parallel([
                 Animated.timing(slideAnim, {
                     toValue: 0,
@@ -68,6 +72,11 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
     };
 
     const handleOptionPress = (option: string) => {
+        if (option === 'Configurações') {
+            setCurrentView('config'); // Entra na sub-tela de configurações dentro do próprio menu
+            return;
+        }
+
         if (onSelectOption) {
             onSelectOption(option);
         } else {
@@ -95,86 +104,128 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                     ]}
                 >
                     <View style={styles.menuContent}>
-                        <Text style={styles.title}>Kitchen Flow</Text>
-
-                        <View style={styles.optionsList}>
-                            <Pressable
-                                onPress={() => handleOptionPress('Área de Trabalho')}
-                                style={({ pressed }) => [
-                                    styles.optionButton,
-                                    pressed && styles.pressedOptionButton,
-                                ]}
-                            >
-                                <Icon name="skillet_cooktop" />
-                                <Text style={styles.optionText}>Área de Trabalho</Text>
-                            </Pressable>
-
-                            <Pressable
-                                onPress={() => handleOptionPress('Cardápio')}
-                                style={({ pressed }) => [
-                                    styles.optionButton,
-                                    pressed && styles.pressedOptionButton,
-                                ]}
-                            >
-                                <Icon name="receipt_long" />
-                                <Text style={styles.optionText}>Cardápio</Text>
-                            </Pressable>
-
-                            {/* Renderizado APENAS para o Administrador */}
-                            {isAdmin && (
+                        {/* Cabeçalho dinâmico com botão de voltar na tela de config */}
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                            {currentView === 'config' && (
                                 <Pressable
-                                    onPress={() => handleOptionPress('Adicionar Funcionário')}
+                                    onPress={() => setCurrentView('main')}
+                                    hitSlop={10}
+                                    style={({ pressed }) => [pressed && { opacity: 0.6 }]}
+                                >
+                                    <Icon name="arrow_back" size={24} color="#303338" />
+                                </Pressable>
+                            )}
+                            <Text style={styles.title}>
+                                {currentView === 'config' ? 'Configurações' : 'Kitchen Flow'}
+                            </Text>
+                        </View>
+
+                        {/* VIEW 1: MENU PRINCIPAL */}
+                        {currentView === 'main' ? (
+                            <View style={styles.optionsList}>
+                                <Pressable
+                                    onPress={() => handleOptionPress('Área de Trabalho')}
                                     style={({ pressed }) => [
                                         styles.optionButton,
                                         pressed && styles.pressedOptionButton,
                                     ]}
                                 >
-                                    <Icon name="person_add" />
-                                    <Text style={styles.optionText}>Funcionários</Text>
+                                    <Icon name="skillet_cooktop" />
+                                    <Text style={styles.optionText}>Área de Trabalho</Text>
                                 </Pressable>
-                            )}
 
-                            <Pressable
-                                onPress={() => handleOptionPress('Relatórios')}
-                                style={({ pressed }) => [
-                                    styles.optionButton,
-                                    pressed && styles.pressedOptionButton,
-                                ]}
-                            >
-                                <Icon name="assessment" />
-                                <Text style={styles.optionText}>Relatórios</Text>
-                            </Pressable>
+                                <Pressable
+                                    onPress={() => handleOptionPress('Cardápio')}
+                                    style={({ pressed }) => [
+                                        styles.optionButton,
+                                        pressed && styles.pressedOptionButton,
+                                    ]}
+                                >
+                                    <Icon name="receipt_long" />
+                                    <Text style={styles.optionText}>Cardápio</Text>
+                                </Pressable>
 
-                            <Pressable
-                                onPress={() => handleOptionPress('Configurações')}
-                                style={({ pressed }) => [
-                                    styles.optionButton,
-                                    pressed && styles.pressedOptionButton,
-                                ]}
-                            >
-                                <Icon name="settings" />
-                                <Text style={styles.optionText}>Configurações</Text>
-                            </Pressable>
+                                {isAdmin && (
+                                    <Pressable
+                                        onPress={() => handleOptionPress('Adicionar Funcionário')}
+                                        style={({ pressed }) => [
+                                            styles.optionButton,
+                                            pressed && styles.pressedOptionButton,
+                                        ]}
+                                    >
+                                        <Icon name="person_add" />
+                                        <Text style={styles.optionText}>Funcionários</Text>
+                                    </Pressable>
+                                )}
 
-                            {/* Botão Sair */}
-                            <Pressable
-                                onPress={() => handleOptionPress('Sair')}
-                                style={({ pressed }) => [
-                                    styles.optionButton,
-                                    pressed && styles.pressedOptionButton,
-                                ]}
-                            >
-                                <Icon name="logout" color="#D9383A" />
-                                <Text style={[styles.optionText, { color: '#D9383A' }]}>Sair</Text>
-                            </Pressable>
-                        </View>
+                                <Pressable
+                                    onPress={() => handleOptionPress('Relatórios')}
+                                    style={({ pressed }) => [
+                                        styles.optionButton,
+                                        pressed && styles.pressedOptionButton,
+                                    ]}
+                                >
+                                    <Icon name="assessment" />
+                                    <Text style={styles.optionText}>Relatórios</Text>
+                                </Pressable>
+
+                                <Pressable
+                                    onPress={() => handleOptionPress('Configurações')}
+                                    style={({ pressed }) => [
+                                        styles.optionButton,
+                                        pressed && styles.pressedOptionButton,
+                                    ]}
+                                >
+                                    <Icon name="settings" />
+                                    <Text style={styles.optionText}>Configurações</Text>
+                                </Pressable>
+
+                                <Pressable
+                                    onPress={() => handleOptionPress('Sair')}
+                                    style={({ pressed }) => [
+                                        styles.optionButton,
+                                        pressed && styles.pressedOptionButton,
+                                    ]}
+                                >
+                                    <Icon name="logout" color="#D9383A" />
+                                    <Text style={[styles.optionText, { color: '#D9383A' }]}>Sair</Text>
+                                </Pressable>
+                            </View>
+                        ) : (
+                            /* VIEW 2: SUB-MENU CONFIGURAÇÕES */
+                            <View style={styles.optionsList}>
+                                {isAdmin && (
+                                    <Pressable
+                                        onPress={() => handleOptionPress('Alterar Senha')}
+                                        style={({ pressed }) => [
+                                            styles.optionButton,
+                                            pressed && styles.pressedOptionButton,
+                                        ]}
+                                    >
+                                        <Icon name="lock" />
+                                        <Text style={styles.optionText}>Alterar Senha do Admin</Text>
+                                    </Pressable>
+                                )}
+
+                                {/* Exemplo de outras opções futuras em configurações */}
+                                <Pressable
+                                    onPress={() => handleOptionPress('Sobre')}
+                                    style={({ pressed }) => [
+                                        styles.optionButton,
+                                        pressed && styles.pressedOptionButton,
+                                    ]}
+                                >
+                                    <Icon name="info" />
+                                    <Text style={styles.optionText}>Sobre a Aplicação</Text>
+                                </Pressable>
+                            </View>
+                        )}
                     </View>
 
                     <View>
                         <Text style={styles.footerVersion}>
                             Versão {version}
                         </Text>
-
                         <CheckeredBorder primaryColor="#ED4545" />
                     </View>
                 </Animated.View>

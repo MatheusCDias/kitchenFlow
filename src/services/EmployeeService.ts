@@ -132,3 +132,31 @@ export const deleteEmployee = (id: string) => {
         console.error('======= Erro ao remover funcionário: =======', error);
     }
 };
+
+// Adicione em src/services/EmployeeService.ts
+export const updateAdminPassword = (newPassword: string): boolean => {
+    if (Platform.OS === 'web') {
+        const data = localStorage.getItem('employees');
+        if (!data) return false;
+        
+        const employees: EmployeeData[] = JSON.parse(data);
+        const updated = employees.map((emp) => 
+            emp.role === 'admin' ? { ...emp, password: newPassword } : emp
+        );
+        localStorage.setItem('employees', JSON.stringify(updated));
+        console.log('======= Senha do Admin atualizada no Web! =======');
+        return true;
+    }
+
+    try {
+        db?.runSync(
+            'UPDATE employees SET password = ? WHERE role = ?;',
+            [newPassword, 'admin']
+        );
+        console.log('======= Senha do Admin atualizada no SQLite! =======');
+        return true;
+    } catch (error) {
+        console.error('Erro ao atualizar senha do admin:', error);
+        return false;
+    }
+};

@@ -12,6 +12,8 @@ import { initDatabase } from './src/services/db';
 import { EmployeeManagerModal } from './src/components/Modals/EmployeeManagerModal';
 import { MenuManagerModal } from './src/components/Modals/MenuManagerModal';
 
+import { ChangePasswordModal } from './src/components/Modals/ChangePasswordModal';
+
 export default function App() {
   const [fontsLoaded] = useFonts({
     'Lexend': require('./src/assets/fonts/Lexend.ttf'),
@@ -31,7 +33,7 @@ export default function App() {
   // 2. Modais
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [isMenuManagerOpen, setIsMenuManagerOpen] = useState(false);
-
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   // 3. Hook de pedidos (recebe o usuário atual dinâmico)
   const {
     activeOrder,
@@ -51,8 +53,9 @@ export default function App() {
       setIsEmployeeModalOpen(true);
     } else if (option === 'Cardápio') {
       setIsMenuManagerOpen(true);
+    } else if (option === 'Alterar Senha') {
+      setIsChangePasswordModalOpen(true); // <-- Abre o modal de alterar senha
     } else if (option === 'Sair') {
-      // Faz logout e reseta para a tela inicial
       setCurrentUser(null);
       setSelectedRole(null);
     }
@@ -120,6 +123,11 @@ export default function App() {
       <MenuManagerModal
         visible={isMenuManagerOpen}
         onClose={() => setIsMenuManagerOpen(false)}
+      />
+
+      <ChangePasswordModal
+        visible={isChangePasswordModalOpen}
+        onClose={() => setIsChangePasswordModalOpen(false)}
       />
     </SafeAreaView>
   );
