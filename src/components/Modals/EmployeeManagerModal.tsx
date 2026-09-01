@@ -33,7 +33,8 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
     }, [visible]);
 
     const loadEmployees = () => {
-        setEmployees(getEmployees());
+        const list = getEmployees().filter(emp => emp.role !== 'admin');
+        setEmployees(list);
     };
 
     const resetForm = () => {

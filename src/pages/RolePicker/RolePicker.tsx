@@ -23,7 +23,6 @@ export const RolePicker: React.FC<RolePickerProps> = ({ onSelect }) => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    // Atualiza a lista de funcionários toda vez que um cargo é selecionado
     useEffect(() => {
         if (selectedRole) {
             const list = getEmployeesByRole(selectedRole);
