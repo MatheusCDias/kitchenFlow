@@ -3,8 +3,8 @@ import { Employee } from './Employee';
 export class Attendant extends Employee {
     private totalOrdersCreated: number;
 
-    constructor(id: string, name: string, stationNumber: number, shift: string, totalOrdersCreated: number = 0) {
-        super(id, name, 'Attendant', stationNumber, shift);
+    constructor(id: string, name: string, shift: string, totalOrdersCreated: number = 0) {
+        super(id, name, 'Attendant', shift);
         this.totalOrdersCreated = totalOrdersCreated;
     }
 

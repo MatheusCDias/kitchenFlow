@@ -12,7 +12,7 @@ import { initDatabase } from './src/services/db';
 import { EmployeeManagerModal } from './src/components/Modals/EmployeeManagerModal';
 import { MenuManagerModal } from './src/components/Modals/MenuManagerModal';
 
-const currentUser = new Cook('emp-99', 'Funcionário #1', 5, 'Manhã');
+const currentUser = new Cook('emp-99', 'Funcionário #1', 'Manhã');
 
 export default function App() {
   const [fontsLoaded] = useFonts({

@@ -7,12 +7,11 @@ export class Cook extends Employee {
     constructor(
         id: string,
         name: string,
-        stationNumber: number,
         shift: string,
         isAvailable: boolean = true,
         totalOrdersCompleted: number = 0
     ) {
-        super(id, name, 'Cook', stationNumber, shift);
+        super(id, name, 'Cook', shift);
         this.isAvailable = isAvailable;
         this.totalOrdersCompleted = totalOrdersCompleted;
     }
