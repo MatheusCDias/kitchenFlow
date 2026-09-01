@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Pressable } from 'react-native';
 import FloatingMenu from '../FloatingMenu/FloatingMenu';
 import Icon from '../Icon';
 import { styles } from './Header.styles';
+import { Employee } from '../../models/employee/Employee';
 
 export type ViewMode = 'recepcao' | 'cozinha';
 
@@ -13,6 +14,7 @@ interface HeaderProps {
     onMenuPress?: () => void;
     onNotificationPress?: () => void;
     onSelectMenuOption?: (option: string) => void;
+    currentUser?: Employee | null;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -22,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
     onMenuPress,
     onNotificationPress,
     onSelectMenuOption,
+    currentUser,
 }) => {
     const [menuAberto, setMenuAberto] = useState(false);
 
@@ -66,6 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <FloatingMenu
                     visible={menuAberto}
                     onClose={() => setMenuAberto(false)}
+                    currentUser={currentUser} // 2. REPASSE AQUI
                     onSelectOption={(option) => {
                         onSelectMenuOption?.(option);
                         setMenuAberto(false);

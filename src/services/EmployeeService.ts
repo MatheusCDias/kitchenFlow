@@ -1,14 +1,16 @@
 import { Platform } from 'react-native';
 import { db } from './db';
+import { Admin } from '../models/employee/Admin'; // Ajuste o caminho para a classe Admin se necessário
 
 export interface EmployeeData {
     id: string;
     name: string;
-    role: 'recepcao' | 'cozinha';
+    role: 'recepcao' | 'cozinha' | 'admin';
     shift?: string;
+    password?: string;
 }
 
-// Buscar todos os funcionários
+// 1. Buscar todos os funcionários
 export const getEmployees = (): EmployeeData[] => {
     if (Platform.OS === 'web') {
         const data = localStorage.getItem('employees');
@@ -16,14 +18,63 @@ export const getEmployees = (): EmployeeData[] => {
     }
 
     try {
-        return db?.getAllSync<EmployeeData>('SELECT * FROM employees;') || [];
+        return db?.getAllSync<EmployeeData>('SELECT id, name, role, shift FROM employees;') || [];
     } catch (error) {
         console.error('Erro ao buscar funcionários:', error);
         return [];
     }
 };
 
-// Adicionar um novo funcionário
+// 2. Buscar funcionários filtrados por setor (ignora o admin)
+export const getEmployeesByRole = (role: 'recepcao' | 'cozinha'): EmployeeData[] => {
+    if (Platform.OS === 'web') {
+        const employees = getEmployees();
+        return employees.filter((emp) => emp.role === role);
+    }
+
+    try {
+        return db?.getAllSync<EmployeeData>(
+            'SELECT id, name, role, shift FROM employees WHERE role = ?;',
+            [role]
+        ) || [];
+    } catch (error) {
+        console.error('Erro ao buscar funcionários por cargo:', error);
+        return [];
+    }
+};
+
+// 3. Autenticar o Admin pela senha
+export const authenticateAdmin = (password: string): Admin | null => {
+    if (Platform.OS === 'web') {
+        const data = localStorage.getItem('employees');
+        const employees: EmployeeData[] = data ? JSON.parse(data) : [];
+        const adminFound = employees.find(
+            (emp) => emp.role === 'admin' && emp.password === password
+        );
+
+        if (adminFound) {
+            return new Admin(adminFound.id, adminFound.name, adminFound.shift || 'Integral');
+        }
+        return null;
+    }
+
+    try {
+        const adminFound = db?.getFirstSync<EmployeeData>(
+            'SELECT id, name, role, shift FROM employees WHERE role = ? AND password = ?;',
+            ['admin', password]
+        );
+
+        if (adminFound) {
+            return new Admin(adminFound.id, adminFound.name, adminFound.shift || 'Integral');
+        }
+        return null;
+    } catch (error) {
+        console.error('Erro ao autenticar admin:', error);
+        return null;
+    }
+};
+
+// 4. Adicionar um novo funcionário
 export const addEmployee = (employee: Omit<EmployeeData, 'id'>) => {
     const newEmp: EmployeeData = { id: Date.now().toString(), ...employee };
 
@@ -37,19 +88,19 @@ export const addEmployee = (employee: Omit<EmployeeData, 'id'>) => {
 
     try {
         db?.runSync(
-            'INSERT INTO employees (id, name, role, shift) VALUES (?, ?, ?, ?);',
-            [newEmp.id, newEmp.name, newEmp.role, newEmp.shift || '']
+            'INSERT INTO employees (id, name, role, shift, password) VALUES (?, ?, ?, ?, ?);',
+            [newEmp.id, newEmp.name, newEmp.role, newEmp.shift || '', newEmp.password || null]
         );
     } catch (error) {
         console.error('======= Erro ao cadastrar funcionário: =======', error);
     }
 };
 
-// Atualizar um funcionário existente
+// 5. Atualizar um funcionário existente
 export const updateEmployee = (employee: EmployeeData) => {
     if (Platform.OS === 'web') {
         const current = getEmployees();
-        const updated = current.map((emp) => (emp.id === employee.id ? employee : emp));
+        const updated = current.map((emp) => (emp.id === employee.id ? { ...emp, ...employee } : emp));
         localStorage.setItem('employees', JSON.stringify(updated));
         console.log('======= Funcionário atualizado via Web! =======');
         return;
@@ -65,7 +116,7 @@ export const updateEmployee = (employee: EmployeeData) => {
     }
 };
 
-// Remover um funcionário
+// 6. Remover um funcionário
 export const deleteEmployee = (id: string) => {
     if (Platform.OS === 'web') {
         const current = getEmployees();

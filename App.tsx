@@ -5,14 +5,12 @@ import { Header, ViewMode } from './src/components/Header/Header';
 import { Kitchen } from './src/pages/Kitchen/Kitchen';
 import { Reception } from './src/pages/Reception/Reception';
 import { CheckeredBorder } from './src/components/Patterns/CheckeredBorder';
-import { Cook } from './src/models/employee/Cook';
+import { Employee } from './src/models/employee/Employee';
 import { useOrders } from './src/hooks/useOrders';
 import { RolePicker, Role } from './src/pages/RolePicker/RolePicker';
 import { initDatabase } from './src/services/db';
 import { EmployeeManagerModal } from './src/components/Modals/EmployeeManagerModal';
 import { MenuManagerModal } from './src/components/Modals/MenuManagerModal';
-
-const currentUser = new Cook('emp-99', 'Funcionário #1', 'Manhã');
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -25,43 +23,56 @@ export default function App() {
     initDatabase();
   }, []);
 
+  // 1. Estados de usuário, papel e visualização
+  const [currentUser, setCurrentUser] = useState<Employee | null>(null);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('cozinha');
+
+  // 2. Modais
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [isMenuManagerOpen, setIsMenuManagerOpen] = useState(false);
 
-  // Função que responde ao clique do FloatingMenu
-  const handleSelectMenuOption = (option: string) => {
-    if (option === 'Adicionar Funcionário' || option === 'Gerenciar Funcionários' || option === 'Funcionários') {
-      setIsEmployeeModalOpen(true);
-    } else if (option === 'Cardápio') {
-      setIsMenuManagerOpen(true);
-    } else if (option === 'Sair') {
-      setSelectedRole(null);
-      return;
-    }
-  };
-
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-
-  const [viewMode, setViewMode] = useState<ViewMode>('cozinha');
-
+  // 3. Hook de pedidos (recebe o usuário atual dinâmico)
   const {
     activeOrder,
     allOrders,
     claimOrder,
     completeOrder,
     cancelOrder,
-  } = useOrders(currentUser);
+  } = useOrders(currentUser || undefined);
+
+  // 4. Tratamento das opções do menu lateral
+  const handleSelectMenuOption = (option: string) => {
+    if (
+      option === 'Adicionar Funcionário' ||
+      option === 'Gerenciar Funcionários' ||
+      option === 'Funcionários'
+    ) {
+      setIsEmployeeModalOpen(true);
+    } else if (option === 'Cardápio') {
+      setIsMenuManagerOpen(true);
+    } else if (option === 'Sair') {
+      // Faz logout e reseta para a tela inicial
+      setCurrentUser(null);
+      setSelectedRole(null);
+    }
+  };
+
+  // 5. Recebe o cargo e o usuário instanciado (Admin ou Employee) vindos do RolePicker
+  const handleSelectRole = (role: Role, user?: Employee) => {
+    setSelectedRole(role);
+    setViewMode(role);
+    if (user) {
+      setCurrentUser(user);
+    }
+  };
 
   if (!fontsLoaded) {
     return null;
   }
 
-  const handleSelectRole = (role: Role) => {
-    setSelectedRole(role);
-    setViewMode(role);
-  };
-
-  if (!selectedRole) {
+  // Se nenhum setor/usuário estiver logado, exibe a tela de RolePicker
+  if (!selectedRole || !currentUser) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle="light-content" backgroundColor="#F07342" />
@@ -78,7 +89,9 @@ export default function App() {
           activeMode={viewMode}
           onModeChange={setViewMode}
           onSelectMenuOption={handleSelectMenuOption}
+          currentUser={currentUser} // Passa o usuário para o Header repassar ao FloatingMenu
         />
+
         <ScrollView contentContainerStyle={styles.content}>
           {viewMode === 'cozinha' ? (
             <Kitchen

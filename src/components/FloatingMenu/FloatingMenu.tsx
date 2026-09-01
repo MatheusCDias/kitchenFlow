@@ -4,20 +4,28 @@ import Icon from '../Icon';
 import { styles } from './FloatingMenu.styles';
 import { CheckeredBorder } from '../Patterns/CheckeredBorder';
 import { version } from '../../../package.json';
+import { Employee } from '../../models/employee/Employee'; // Ajuste o caminho se necessário
+import { Admin } from '../../models/employee/Admin'; // Ajuste o caminho se necessário
 
 interface FloatingMenuProps {
     visible: boolean;
     onClose: () => void;
     onSelectOption?: (option: string) => void;
+    currentUser?: Employee | null; // Recebe o usuário atual logado
 }
 
 export const FloatingMenu: React.FC<FloatingMenuProps> = ({
     visible,
     onClose,
     onSelectOption,
+    currentUser,
 }) => {
     const slideAnim = useRef(new Animated.Value(-300)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
+
+    const isAdmin =
+        currentUser instanceof Admin ||
+        currentUser?.getRole()?.toLowerCase() === 'admin';
 
     useEffect(() => {
         if (visible) {
@@ -31,6 +39,7 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                 Animated.timing(fadeAnim, {
                     toValue: 1,
                     duration: 250,
+                    easing: Easing.out(Easing.ease),
                     useNativeDriver: true,
                 }),
             ]).start();
@@ -111,16 +120,19 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                                 <Text style={styles.optionText}>Cardápio</Text>
                             </Pressable>
 
-                            <Pressable
-                                onPress={() => handleOptionPress('Adicionar Funcionário')}
-                                style={({ pressed }) => [
-                                    styles.optionButton,
-                                    pressed && styles.pressedOptionButton,
-                                ]}
-                            >
-                                <Icon name="person_add" />
-                                <Text style={styles.optionText}>Funcionários</Text>
-                            </Pressable>
+                            {/* Renderizado APENAS para o Administrador */}
+                            {isAdmin && (
+                                <Pressable
+                                    onPress={() => handleOptionPress('Adicionar Funcionário')}
+                                    style={({ pressed }) => [
+                                        styles.optionButton,
+                                        pressed && styles.pressedOptionButton,
+                                    ]}
+                                >
+                                    <Icon name="person_add" />
+                                    <Text style={styles.optionText}>Funcionários</Text>
+                                </Pressable>
+                            )}
 
                             <Pressable
                                 onPress={() => handleOptionPress('Relatórios')}

@@ -1,4 +1,4 @@
-export abstract class Employee {
+export class Employee {
     protected id: string;
     protected name: string;
     protected role: string;
@@ -13,4 +13,6 @@ export abstract class Employee {
 
     public getId(): string { return this.id; }
     public getName(): string { return this.name; }
+    public getRole(): string { return this.role; }
+    public getShift(): string { return this.shift; }
 }
