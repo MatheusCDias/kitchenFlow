@@ -24,6 +24,19 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
 }) => {
     const [containerWidth, setContainerWidth] = useState<number>(0);
 
+    // Filtra apenas pedidos pendentes/em preparo para a cozinha (remove concluídos e cancelados)
+    const visibleOrders = useMemo(() => {
+        return orders.filter((order) => {
+            const status = order.getStatus();
+            return (
+                status !== OrderStateEnum.READY &&
+                status !== OrderStateEnum.DELIVERED &&
+                status !== OrderStateEnum.COMPLETED &&
+                status !== OrderStateEnum.CANCELLED
+            );
+        });
+    }, [orders]);
+
     // Atualiza a largura disponível sempre que o layout mudar
     const handleLayout = (event: LayoutChangeEvent) => {
         const { width } = event.nativeEvent.layout;
@@ -37,22 +50,7 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
         return Math.max(1, calculated);
     }, [containerWidth]);
 
-    // Função para definir o texto e estado do botão de ação de acordo com as regras de negócio
     const getActionButtonConfig = (order: Order) => {
-        const status = order.getStatus();
-
-        if (
-            status === OrderStateEnum.READY ||
-            status === OrderStateEnum.DELIVERED ||
-            status === OrderStateEnum.COMPLETED
-        ) {
-            return {
-                actionText: 'Concluído',
-                isActionDisabled: true,
-                variant: 'completed' as const,
-            };
-        }
-
         const assignedEmployee = order.getAssignedEmployee();
         const isActiveOrder = activeOrder?.getId() === order.getId();
         const isAssignedToCurrentUser = assignedEmployee?.getId() === currentUser.getId();
@@ -77,26 +75,29 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
 
         return {
             actionText: 'Pegar Pedido',
-            isActionDisabled: hasActiveWorkspaceOrder, // Fica true se já houver pedido ativo
+            isActionDisabled: hasActiveWorkspaceOrder,
             variant: 'default' as const,
         };
     };
 
     return (
         <View style={styles.container} onLayout={handleLayout}>
-            {/* Título da Seção */}
             <Text style={styles.title}>Todos os Pedidos</Text>
 
-            {/* Grid Dinâmico */}
             {containerWidth > 0 && (
                 <FlatList
                     key={numColumns}
-                    data={orders}
+                    data={visibleOrders} // Passa apenas os pedidos não concluídos
                     keyExtractor={(item) => item.getId()}
                     numColumns={numColumns}
                     scrollEnabled={false}
                     contentContainerStyle={styles.listContent}
                     columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined}
+                    ListEmptyComponent={
+                        <Text style={[styles.title, { fontSize: 14, opacity: 0.6, marginTop: 16 }]}>
+                            Nenhum pedido pendente na cozinha.
+                        </Text>
+                    }
                     renderItem={({ item }) => {
                         const { actionText, isActionDisabled } = getActionButtonConfig(item);
 

@@ -5,6 +5,35 @@ import { OrderItem } from '../models/OrderItem';
 import { OrderOriginEnum } from '../enums/OrderOriginEnum';
 import { TableService } from '../models/service/TableService';
 import { Employee } from '../models/employee/Employee';
+import { OrderState } from '../models/states/OrderState';
+import { ReceivedState } from '../models/states/ReceivedState';
+import { InPreparationState } from '../models/states/InPreparationState';
+import { ReadyState } from '../models/states/ReadyState';
+import { OnTheWayState } from '../models/states/OnTheWayState';
+import { CanceledState } from '../models/states/CanceledState';
+import { OrderStateEnum } from '../enums/OrderStateEnum';
+
+// Helper para converter o texto/enum salvo no banco para a classe de Estado real
+export function createOrderStateFromEnum(status: string | OrderStateEnum): OrderState {
+  switch (status) {
+    case OrderStateEnum.IN_PREPARATION:
+    case 'IN_PREPARATION':
+      return new InPreparationState();
+    case OrderStateEnum.READY:
+    case 'READY':
+      return new ReadyState();
+    case OrderStateEnum.ON_THE_WAY:
+    case 'ON_THE_WAY':
+      return new OnTheWayState();
+    case OrderStateEnum.CANCELLED:
+    case 'CANCELLED':
+      return new CanceledState();
+    case OrderStateEnum.RECEIVED:
+    case 'RECEIVED':
+    default:
+      return new ReceivedState();
+  }
+}
 
 export const orderStorage = {
   saveOrder(order: Order, generalObs: string = ''): void {
@@ -32,14 +61,27 @@ export const orderStorage = {
       created_at: new Date().toISOString(),
     };
 
+    // --- CORREÇÃO NO AMBIENTE WEB ---
     if (Platform.OS === 'web') {
       const stored = localStorage.getItem('orders');
-      const list = stored ? JSON.parse(stored) : [];
-      list.push(serialized);
+      let list: any[] = stored ? JSON.parse(stored) : [];
+
+      // Verifica se já existe um pedido com esse ID
+      const existingIndex = list.findIndex((item) => item.id === serialized.id);
+
+      if (existingIndex >= 0) {
+        // Atualiza o existente em vez de duplicar
+        list[existingIndex] = serialized;
+      } else {
+        // Insere novo
+        list.push(serialized);
+      }
+
       localStorage.setItem('orders', JSON.stringify(list));
       return;
     }
 
+    // --- AMBIENTE SQLITE (Nativo) ---
     try {
       db?.runSync(
         `INSERT OR REPLACE INTO orders 
@@ -79,7 +121,9 @@ export const orderStorage = {
       }
     }
 
-    return rows.map((row: any) => {
+    const uniqueRows = Array.from(new Map(rows.map((item: any) => [item.id, item])).values());
+
+    return uniqueRows.map((row: any) => {
       const kitchenDeadline = new Date(row.kitchen_deadline);
       const promisedTime = new Date(row.promised_time);
       const createdAt = new Date(row.created_at);
@@ -99,6 +143,11 @@ export const orderStorage = {
         undefined,
         createdAt
       );
+
+      // RESTAURA O ESTADO REAL SALVO NO BANCO
+      if (row.status) {
+        order.setState(createOrderStateFromEnum(row.status));
+      }
 
       const itemsParsed = JSON.parse(row.items_json || '[]');
       itemsParsed.forEach((it: any) => {
@@ -140,25 +189,22 @@ export class OrderService {
     if (order) {
       order.setAssignedEmployee(employee);
       order.startKitchenTimer();
+
+      order.advanceStage();
+
       orderStorage.saveOrder(order);
       return order;
     }
     return null;
   }
 
-  public completeOrder(orderId: string): boolean {
-    const index = this.orders.findIndex((o) => o.getId() === orderId);
-    if (index !== -1) {
-      this.orders[index].advanceStage();
-      return true;
-    }
-    return false;
-  }
+  // Em OrderService.ts:
 
   public releaseOrder(orderId: string): boolean {
     const order = this.orders.find((o) => o.getId() === orderId);
     if (order) {
-      order.resetOrder();
+      order.resetOrder(); // Limpa assignedEmployee e reseta estado
+      orderStorage.saveOrder(order); // <-- SALVA A LIBERAÇÃO NO BANCO / STORAGE
       return true;
     }
     return false;
@@ -167,7 +213,23 @@ export class OrderService {
   public cancelOrder(orderId: string): boolean {
     const order = this.orders.find((o) => o.getId() === orderId);
     if (order) {
-      order.cancelOrder();
+      // Se quiser que cancelar devolva o pedido para a fila:
+      order.resetOrder();
+      // Se quiser manter o estado CANCELLED, limpe o assignedEmployee para não travar:
+      // order.cancelOrder();
+      // order.setAssignedEmployee(undefined as any);
+
+      orderStorage.saveOrder(order); // <-- SALVA NO BANCO / STORAGE
+      return true;
+    }
+    return false;
+  }
+
+  public completeOrder(orderId: string): boolean {
+    const index = this.orders.findIndex((o) => o.getId() === orderId);
+    if (index !== -1) {
+      this.orders[index].advanceStage();
+      orderStorage.saveOrder(this.orders[index]); // <-- APROVEITE E PERSISTA A CONCLUSÃO
       return true;
     }
     return false;
