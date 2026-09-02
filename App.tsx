@@ -11,8 +11,8 @@ import { RolePicker, Role } from './src/pages/RolePicker/RolePicker';
 import { initDatabase } from './src/services/db';
 import { EmployeeManagerModal } from './src/components/Modals/EmployeeManagerModal';
 import { MenuManagerModal } from './src/components/Modals/MenuManagerModal';
-
 import { ChangePasswordModal } from './src/components/Modals/ChangePasswordModal';
+import { Reports } from './src/pages/Reports/Reports';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -32,6 +32,8 @@ export default function App() {
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [isMenuManagerOpen, setIsMenuManagerOpen] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+  const [isReportsOpen, setIsReportsOpen] = useState(false); // <-- Controle da tela de Relatórios
+
   const {
     activeOrder,
     allOrders,
@@ -53,7 +55,12 @@ export default function App() {
       setIsMenuManagerOpen(true);
     } else if (option === 'Alterar Senha') {
       setIsChangePasswordModalOpen(true);
+    } else if (option === 'Relatórios') {
+      setIsReportsOpen(true); // <-- Abre a tela de relatórios
+    } else if (option === 'Área de Trabalho') {
+      setIsReportsOpen(false); // Fecha relatórios se clicar em Área de Trabalho
     } else if (option === 'Sair') {
+      setIsReportsOpen(false);
       setCurrentUser(null);
       setSelectedRole(null);
     }
@@ -86,33 +93,42 @@ export default function App() {
       <View style={styles.container}>
         <Header
           activeMode={viewMode}
-          onModeChange={setViewMode}
+          onModeChange={(mode) => {
+            setIsReportsOpen(false);
+            setViewMode(mode);
+          }}
           onSelectMenuOption={handleSelectMenuOption}
           currentUser={currentUser}
+          showWorkspaceHeader={!isReportsOpen} // <-- OCULTA NA TELA DE REPORTS
         />
 
-        <ScrollView contentContainerStyle={styles.content}>
-          {viewMode === 'cozinha' ? (
-            <Kitchen
-              orders={allOrders}
-              activeOrder={activeOrder}
-              currentUser={currentUser}
-              onClaimOrder={claimOrder}
-              onCompleteOrder={completeOrder}
-              onCancelOrder={cancelOrder}
-            />
-          ) : (
-            <Reception
-              orders={allOrders}
-              onAddOrder={addOrder}
-              getNextOrderCode={getNextOrderCode}
-            />
-          )}
+        {isReportsOpen ? (
+          // Exibe a tela de Relatórios com botão de voltar para a tela anterior
+          <Reports onBack={() => setIsReportsOpen(false)} />
+        ) : (
+          <ScrollView contentContainerStyle={styles.content}>
+            {viewMode === 'cozinha' ? (
+              <Kitchen
+                orders={allOrders}
+                activeOrder={activeOrder}
+                currentUser={currentUser}
+                onClaimOrder={claimOrder}
+                onCompleteOrder={completeOrder}
+                onCancelOrder={cancelOrder}
+              />
+            ) : (
+              <Reception
+                orders={allOrders}
+                onAddOrder={addOrder}
+                getNextOrderCode={getNextOrderCode}
+              />
+            )}
 
-          <View style={styles.footerWrapper}>
-            <CheckeredBorder primaryColor="#ED4545" />
-          </View>
-        </ScrollView>
+            <View style={styles.footerWrapper}>
+              <CheckeredBorder primaryColor="#ED4545" />
+            </View>
+          </ScrollView>
+        )}
       </View>
 
       <EmployeeManagerModal

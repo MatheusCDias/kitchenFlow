@@ -34,6 +34,10 @@ export const initDatabase = () => {
             localStorage.setItem('orders', JSON.stringify([]));
         }
 
+        if (Platform.OS === 'web' && !localStorage.getItem('activity_logs')) {
+            localStorage.setItem('activity_logs', JSON.stringify([]));
+        }
+
         console.log('======= Armazenamento Web (LocalStorage) inicializado! =======');
         return;
     }
@@ -71,6 +75,18 @@ export const initDatabase = () => {
                 general_obs TEXT,
                 items_json TEXT NOT NULL,
                 status TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS activity_logs (
+                id TEXT PRIMARY KEY NOT NULL,
+                action TEXT NOT NULL,
+                order_id TEXT NOT NULL,
+                order_code INTEGER NOT NULL,
+                employee_id TEXT NOT NULL,
+                employee_name TEXT NOT NULL,
+                employee_role TEXT NOT NULL,
+                details TEXT,
                 created_at TEXT NOT NULL
             );
         `);

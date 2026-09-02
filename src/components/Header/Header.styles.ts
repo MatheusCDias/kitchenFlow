@@ -16,6 +16,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        paddingBottom: 16,
     },
     title: {
         color: '#EAE8E5',
@@ -43,7 +44,7 @@ export const styles = StyleSheet.create({
     workspaceHeader: {
         width: '100%',
         flexDirection: 'row',
-        paddingVertical: 16,
+        paddingBottom: 16,
         justifyContent: 'space-between',
         alignItems: 'center',
     },
