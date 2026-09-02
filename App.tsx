@@ -25,16 +25,13 @@ export default function App() {
     initDatabase();
   }, []);
 
-  // 1. Estados de usuário, papel e visualização
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('cozinha');
 
-  // 2. Modais
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [isMenuManagerOpen, setIsMenuManagerOpen] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
-  // 3. Hook de pedidos (recebe o usuário atual dinâmico)
   const {
     activeOrder,
     allOrders,
@@ -45,7 +42,6 @@ export default function App() {
     getNextOrderCode,
   } = useOrders(currentUser || undefined);
 
-  // 4. Tratamento das opções do menu lateral
   const handleSelectMenuOption = (option: string) => {
     if (
       option === 'Adicionar Funcionário' ||
@@ -56,14 +52,13 @@ export default function App() {
     } else if (option === 'Cardápio') {
       setIsMenuManagerOpen(true);
     } else if (option === 'Alterar Senha') {
-      setIsChangePasswordModalOpen(true); // <-- Abre o modal de alterar senha
+      setIsChangePasswordModalOpen(true);
     } else if (option === 'Sair') {
       setCurrentUser(null);
       setSelectedRole(null);
     }
   };
 
-  // 5. Recebe o cargo e o usuário instanciado (Admin ou Employee) vindos do RolePicker
   const handleSelectRole = (role: Role, user?: Employee) => {
     setSelectedRole(role);
     setViewMode(role);
@@ -76,7 +71,6 @@ export default function App() {
     return null;
   }
 
-  // Se nenhum setor/usuário estiver logado, exibe a tela de RolePicker
   if (!selectedRole || !currentUser) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -94,7 +88,7 @@ export default function App() {
           activeMode={viewMode}
           onModeChange={setViewMode}
           onSelectMenuOption={handleSelectMenuOption}
-          currentUser={currentUser} // Passa o usuário para o Header repassar ao FloatingMenu
+          currentUser={currentUser}
         />
 
         <ScrollView contentContainerStyle={styles.content}>

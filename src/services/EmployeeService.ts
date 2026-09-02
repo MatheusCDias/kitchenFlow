@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import { db } from './db';
-import { Admin } from '../models/employee/Admin'; // Ajuste o caminho para a classe Admin se necessário
+import { Admin } from '../models/employee/Admin';
 
 export interface EmployeeData {
     id: string;
@@ -10,7 +10,6 @@ export interface EmployeeData {
     password?: string;
 }
 
-// 1. Buscar todos os funcionários
 export const getEmployees = (): EmployeeData[] => {
     if (Platform.OS === 'web') {
         const data = localStorage.getItem('employees');
@@ -25,7 +24,6 @@ export const getEmployees = (): EmployeeData[] => {
     }
 };
 
-// 2. Buscar funcionários filtrados por setor (ignora o admin)
 export const getEmployeesByRole = (role: 'recepcao' | 'cozinha'): EmployeeData[] => {
     if (Platform.OS === 'web') {
         const employees = getEmployees();
@@ -43,7 +41,6 @@ export const getEmployeesByRole = (role: 'recepcao' | 'cozinha'): EmployeeData[]
     }
 };
 
-// 3. Autenticar o Admin pela senha
 export const authenticateAdmin = (password: string): Admin | null => {
     if (Platform.OS === 'web') {
         const data = localStorage.getItem('employees');
@@ -74,7 +71,6 @@ export const authenticateAdmin = (password: string): Admin | null => {
     }
 };
 
-// 4. Adicionar um novo funcionário
 export const addEmployee = (employee: Omit<EmployeeData, 'id'>) => {
     const newEmp: EmployeeData = { id: Date.now().toString(), ...employee };
 
@@ -96,7 +92,6 @@ export const addEmployee = (employee: Omit<EmployeeData, 'id'>) => {
     }
 };
 
-// 5. Atualizar um funcionário existente
 export const updateEmployee = (employee: EmployeeData) => {
     if (Platform.OS === 'web') {
         const current = getEmployees();
@@ -116,7 +111,6 @@ export const updateEmployee = (employee: EmployeeData) => {
     }
 };
 
-// 6. Remover um funcionário
 export const deleteEmployee = (id: string) => {
     if (Platform.OS === 'web') {
         const current = getEmployees();
@@ -133,7 +127,6 @@ export const deleteEmployee = (id: string) => {
     }
 };
 
-// Adicione em src/services/EmployeeService.ts
 export const updateAdminPassword = (newPassword: string): boolean => {
     if (Platform.OS === 'web') {
         const data = localStorage.getItem('employees');

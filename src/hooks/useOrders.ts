@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { Order } from "../models/Order";
 import { Employee } from "../models/employee/Employee";
-import { OrderService, orderStorage } from "../services/OrderService"; // Importa os dois
+import { OrderService, orderStorage } from "../services/OrderService";
 
 export const useOrders = (currentUser?: Employee) => {
   const [orderService] = useState(() => {
@@ -23,11 +23,8 @@ export const useOrders = (currentUser?: Employee) => {
 
   const addOrder = useCallback(
     (newOrder: Order, generalObs?: string) => {
-      // 1. Adiciona na instância em memória
       orderService.addOrder(newOrder);
-      // 2. Persiste no SQLite / LocalStorage
       orderStorage.saveOrder(newOrder, generalObs);
-      // 3. Atualiza o estado da tela
       setAllOrders([...orderService.getAllOrders()]);
     },
     [orderService],

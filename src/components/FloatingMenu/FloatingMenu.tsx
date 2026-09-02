@@ -23,7 +23,6 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
     const slideAnim = useRef(new Animated.Value(-300)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
-    // Controle de tela interna: 'main' (menu principal) ou 'config' (sub-menu configurações)
     const [currentView, setCurrentView] = useState<'main' | 'config'>('main');
 
     const isAdmin =
@@ -32,7 +31,7 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
 
     useEffect(() => {
         if (visible) {
-            setCurrentView('main'); // Reseta para o menu principal ao abrir
+            setCurrentView('main');
             Animated.parallel([
                 Animated.timing(slideAnim, {
                     toValue: 0,
@@ -73,7 +72,7 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
 
     const handleOptionPress = (option: string) => {
         if (option === 'Configurações') {
-            setCurrentView('config'); // Entra na sub-tela de configurações dentro do próprio menu
+            setCurrentView('config');
             return;
         }
 
@@ -192,7 +191,6 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                                 </Pressable>
                             </View>
                         ) : (
-                            /* VIEW 2: SUB-MENU CONFIGURAÇÕES */
                             <View style={styles.optionsList}>
                                 {isAdmin && (
                                     <Pressable
@@ -207,7 +205,6 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                                     </Pressable>
                                 )}
 
-                                {/* Exemplo de outras opções futuras em configurações */}
                                 <Pressable
                                     onPress={() => handleOptionPress('Sobre')}
                                     style={({ pressed }) => [

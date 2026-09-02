@@ -112,11 +112,11 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
         prev.map((item) =>
           item.id === editingItemId
             ? {
-                ...item,
-                quantity: Number(itemQuantity) || 1,
-                name: itemName,
-                observation: itemObs,
-              }
+              ...item,
+              quantity: Number(itemQuantity) || 1,
+              name: itemName,
+              observation: itemObs,
+            }
             : item,
         ),
       );
@@ -164,19 +164,18 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
     const tableNumber = Number(table) || 1;
     const tableService = new TableService(now, tableNumber, 1);
 
-    // Instanciação correta da classe Order usando a comanda incremental
     const newOrder = new Order(
       Date.now().toString(),
       orderCode,
       OrderOriginEnum.PRESENTIAL,
-      kitchenDeadline,
       receptionDeadline,
+      kitchenDeadline,
       deliveryDeadline,
-      estimatedMinutes,
-      undefined, // customer
+      estimatedMinutes, 
+      undefined,
       tableService,
-      undefined, // assignedEmployee
-      now,
+      undefined,
+      now
     );
 
     // Adiciona cada item do formulário ao objeto Order

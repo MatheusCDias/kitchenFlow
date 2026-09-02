@@ -139,6 +139,8 @@ export class OrderService {
     const order = this.orders.find((o) => o.getId() === orderId);
     if (order) {
       order.setAssignedEmployee(employee);
+      order.startKitchenTimer();
+      orderStorage.saveOrder(order);
       return order;
     }
     return null;
