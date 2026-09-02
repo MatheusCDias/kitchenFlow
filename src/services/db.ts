@@ -34,6 +34,10 @@ export const initDatabase = () => {
             localStorage.setItem('menu_items', JSON.stringify([]));
         }
 
+        if (!localStorage.getItem('orders')) {
+            localStorage.setItem('orders', JSON.stringify([]));
+        }
+
         console.log('======= Armazenamento Web (LocalStorage) inicializado! =======');
         return;
     }
@@ -61,6 +65,21 @@ export const initDatabase = () => {
             -- Insere o Admin padrão apenas se ele ainda não existir
             INSERT OR IGNORE INTO employees (id, name, role, shift, password)
             VALUES ('${DEFAULT_ADMIN.id}', '${DEFAULT_ADMIN.name}', '${DEFAULT_ADMIN.role}', '${DEFAULT_ADMIN.shift}', '${DEFAULT_ADMIN.password}');
+
+            // Adicione dentro de db?.execSync(...) no db.ts:
+            CREATE TABLE IF NOT EXISTS orders (
+                id TEXT PRIMARY KEY NOT NULL,
+                order_code INTEGER NOT NULL,
+                origin TEXT NOT NULL,
+                prep_minutes INTEGER NOT NULL,
+                kitchen_deadline TEXT NOT NULL,
+                promised_time TEXT NOT NULL,
+                table_number INTEGER,
+                general_obs TEXT,
+                items_json TEXT NOT NULL,
+                status TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
         `);
 
         console.log('======= Banco de dados SQLite inicializado! =======');

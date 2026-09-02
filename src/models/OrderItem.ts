@@ -10,6 +10,7 @@ export class OrderItem {
   private estimatedDate: Date;
   private menuItem?: MenuItem;
   private recipe?: Recipe;
+  private observation?: string;
 
   constructor(
     id: string,
@@ -19,7 +20,8 @@ export class OrderItem {
     notes?: string,
     menuItem?: MenuItem,
     recipe?: Recipe,
-    prepDate?: Date
+    prepDate?: Date,
+    observation?: string
   ) {
     this.id = id;
     this.productName = productName;
@@ -29,6 +31,7 @@ export class OrderItem {
     this.menuItem = menuItem;
     this.recipe = recipe;
     this.prepDate = prepDate;
+    this.observation = observation;
   }
 
   // Getters
@@ -40,4 +43,5 @@ export class OrderItem {
   public getEstimatedDate(): Date { return this.estimatedDate; }
   public getMenuItem(): MenuItem | undefined { return this.menuItem; }
   public getRecipe(): Recipe | undefined { return this.recipe; }
+  public getObservation(): string | undefined { return this.observation; }
 }

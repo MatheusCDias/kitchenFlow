@@ -38,9 +38,11 @@ export default function App() {
   const {
     activeOrder,
     allOrders,
+    addOrder,
     claimOrder,
     completeOrder,
     cancelOrder,
+    getNextOrderCode,
   } = useOrders(currentUser || undefined);
 
   // 4. Tratamento das opções do menu lateral
@@ -106,7 +108,11 @@ export default function App() {
               onCancelOrder={cancelOrder}
             />
           ) : (
-            <Reception orders={allOrders} />
+            <Reception
+              orders={allOrders}
+              onAddOrder={addOrder}
+              getNextOrderCode={getNextOrderCode}
+            />
           )}
 
           <View style={styles.footerWrapper}>

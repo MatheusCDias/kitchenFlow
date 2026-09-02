@@ -1,27 +1,27 @@
-// src/screens/Reception/Reception.tsx
-
 import React from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { ScrollView } from "react-native";
 import { ReceptionWorkspace } from "../../components/ReceptionWorkspace/ReceptionWorkspace";
 import { ReceptionOrders } from "../../components/ReceptionOrders/ReceptionOrders";
-import { useOrders } from "../../hooks/useOrders";
 import { Order } from "../../models/Order";
 
 interface ReceptionProps {
-  orders?: Order[];
+  orders: Order[];
+  onAddOrder: (order: Order) => void;
+  getNextOrderCode: () => number;
 }
 
-export const Reception: React.FC<ReceptionProps> = () => {
-  // O hook agora funciona perfeitamente sem argumentos obrigatorios
-  const { allOrders, addOrder, getNextOrderCode } = useOrders();
-
+export const Reception: React.FC<ReceptionProps> = ({
+  orders,
+  onAddOrder,
+  getNextOrderCode,
+}) => {
   return (
     <ScrollView>
       <ReceptionWorkspace
         getNextOrderCode={getNextOrderCode}
-        onAddOrder={addOrder}
+        onAddOrder={onAddOrder}
       />
-      <ReceptionOrders orders={allOrders} />
+      <ReceptionOrders orders={orders} />
     </ScrollView>
   );
 };
