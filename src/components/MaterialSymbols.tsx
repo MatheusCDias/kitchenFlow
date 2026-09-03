@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Tipagem para os 3 estilos suportados
 export type IconVariant = 'outlined' | 'rounded' | 'sharp';
 
 interface MaterialSymbolProps {

@@ -66,7 +66,6 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
         >
             <View style={styles.overlay}>
                 <View style={styles.card}>
-                    {/* Botão Superior com Ícone de Seta para Retornar */}
                     <View style={styles.header}>
                         <TouchableOpacity onPress={handleClose} style={styles.backButton}>
                             <Icon name="arrow_back" size={24} color="#303338" />
@@ -74,7 +73,6 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                         <Text style={styles.title}>Alterar Senha</Text>
                     </View>
 
-                    {/* Campos de Entrada */}
                     <View style={styles.body}>
                         <Text style={styles.label}>Nova Senha</Text>
                         <TextInput
@@ -105,7 +103,6 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                         {error ? <Text style={styles.errorText}>{error}</Text> : null}
                     </View>
 
-                    {/* Botão Lateral Inferior para Confirmar */}
                     <View style={styles.footer}>
                         <TouchableOpacity
                             style={styles.confirmButton}

@@ -28,7 +28,6 @@ export class Recipe {
     this.ingredients.push(ingredient);
   }
 
-  // Getters
   public getId(): string { return this.id; }
   public getPrepInstructions(): string { return this.prepInstructions; }
   public getIngredients(): Ingredient[] { return this.ingredients; }

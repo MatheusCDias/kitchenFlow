@@ -31,14 +31,12 @@ export const CheckeredBorder: React.FC<CheckeredBorderProps> = ({
                         height={patternSize}
                         patternUnits="userSpaceOnUse"
                     >
-                        {/* Fundo Claro */}
                         <Rect
                             width={patternSize}
                             height={patternSize}
                             fill={primaryColor}
                         />
 
-                        {/* Quadradinhos Principais */}
                         <Rect
                             width={squareSize}
                             height={squareSize}
@@ -54,7 +52,6 @@ export const CheckeredBorder: React.FC<CheckeredBorderProps> = ({
                     </Pattern>
                 </Defs>
 
-                {/* Aponta para o ID dinâmico recém-criado */}
                 <Rect width="100%" height="100%" fill={`url(#${patternId})`} />
             </Svg>
         </View>

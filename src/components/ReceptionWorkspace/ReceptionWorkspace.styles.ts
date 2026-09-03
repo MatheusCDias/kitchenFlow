@@ -105,7 +105,7 @@ export const styles = StyleSheet.create({
     },
     dropdownContainer: {
         position: 'absolute',
-        top: 48, // Logo abaixo do input
+        top: 48,
         left: 0,
         right: 0,
         backgroundColor: '#FFFFFF',
@@ -113,12 +113,12 @@ export const styles = StyleSheet.create({
         maxHeight: 180,
         borderWidth: 1,
         borderColor: '#D1CDCE',
-        elevation: 5, // Sombra no Android
-        shadowColor: '#000', // Sombra no iOS / Web
+        elevation: 5,
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.15,
         shadowRadius: 4,
-        zIndex: 999, // Fica por cima dos outros elementos
+        zIndex: 999,
     },
     dropdownItem: {
         paddingVertical: 10,

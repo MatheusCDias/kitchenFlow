@@ -13,10 +13,8 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
     const [employees, setEmployees] = useState<EmployeeData[]>([]);
     const [search, setSearch] = useState('');
 
-    // Navegação Interna: null = Categorias | string = Categoria selecionada ('recepcao' | 'cozinha')
     const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
-    // Estados do Formulário (Criar/Editar)
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [name, setName] = useState('');
@@ -72,7 +70,6 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
             loadEmployees();
         };
 
-        // Caso esteja rodando na Web, usa o confirm nativo do navegador
         if (Platform.OS === 'web') {
             const confirmed = window.confirm('Tem certeza que deseja remover este funcionário?');
             if (confirmed) {
@@ -81,7 +78,6 @@ export const EmployeeManagerModal: React.FC<EmployeeManagerModalProps> = ({ visi
             return;
         }
 
-        // Caso esteja no iOS ou Android nativo
         Alert.alert(
             'Excluir Funcionário',
             'Tem certeza que deseja remover este funcionário?',

@@ -13,7 +13,6 @@ import { OnTheWayState } from '../models/states/OnTheWayState';
 import { CanceledState } from '../models/states/CanceledState';
 import { OrderStateEnum } from '../enums/OrderStateEnum';
 
-// Helper para converter o texto/enum salvo no banco para a classe de Estado real
 export function createOrderStateFromEnum(status: string | OrderStateEnum): OrderState {
   switch (status) {
     case OrderStateEnum.IN_PREPARATION:
@@ -61,19 +60,15 @@ export const orderStorage = {
       created_at: new Date().toISOString(),
     };
 
-    // --- CORREÇÃO NO AMBIENTE WEB ---
     if (Platform.OS === 'web') {
       const stored = localStorage.getItem('orders');
       let list: any[] = stored ? JSON.parse(stored) : [];
 
-      // Verifica se já existe um pedido com esse ID
       const existingIndex = list.findIndex((item) => item.id === serialized.id);
 
       if (existingIndex >= 0) {
-        // Atualiza o existente em vez de duplicar
         list[existingIndex] = serialized;
       } else {
-        // Insere novo
         list.push(serialized);
       }
 
@@ -81,7 +76,6 @@ export const orderStorage = {
       return;
     }
 
-    // --- AMBIENTE SQLITE (Nativo) ---
     try {
       db?.runSync(
         `INSERT OR REPLACE INTO orders 
@@ -144,7 +138,6 @@ export const orderStorage = {
         createdAt
       );
 
-      // RESTAURA O ESTADO REAL SALVO NO BANCO
       if (row.status) {
         order.setState(createOrderStateFromEnum(row.status));
       }
@@ -165,7 +158,6 @@ export const orderStorage = {
       const stored = localStorage.getItem('orders');
       if (stored) {
         const list = JSON.parse(stored);
-        // Converte para String em ambos os lados na comparação
         const filtered = list.filter((o: any) => String(o.id) !== idStr);
         localStorage.setItem('orders', JSON.stringify(filtered));
       }
@@ -173,7 +165,6 @@ export const orderStorage = {
     }
 
     try {
-      // Garante que o parâmetro passado ao SQLite seja String
       db?.runSync('DELETE FROM orders WHERE id = ? OR id = CAST(? AS INTEGER);', [idStr, idStr]);
     } catch (error) {
       console.error('Erro ao deletar pedido no SQLite:', error);
@@ -223,8 +214,8 @@ export class OrderService {
   public releaseOrder(orderId: string): boolean {
     const order = this.orders.find((o) => o.getId() === orderId);
     if (order) {
-      order.resetOrder(); // Limpa assignedEmployee e reseta estado
-      orderStorage.saveOrder(order); // <-- SALVA A LIBERAÇÃO NO BANCO / STORAGE
+      order.resetOrder();
+      orderStorage.saveOrder(order);
       return true;
     }
     return false;
@@ -258,7 +249,6 @@ export class OrderService {
     const idStr = String(orderId);
     const previousLength = this.orders.length;
 
-    // Garante comparação por String
     this.orders = this.orders.filter((o) => String(o.getId()) !== idStr);
 
     if (this.orders.length < previousLength) {
@@ -266,7 +256,6 @@ export class OrderService {
       return true;
     }
 
-    // Fallback caso previousLength já fosse 0 ou índice direto
     orderStorage.deleteOrder(idStr);
     return true;
   }

@@ -41,7 +41,7 @@ export const logActivity = (
   if (Platform.OS === 'web') {
     const raw = localStorage.getItem('activity_logs');
     const logs: ActivityLog[] = raw ? JSON.parse(raw) : [];
-    logs.unshift(newLog); // Mais recentes no topo
+    logs.unshift(newLog);
     localStorage.setItem('activity_logs', JSON.stringify(logs));
     return;
   }

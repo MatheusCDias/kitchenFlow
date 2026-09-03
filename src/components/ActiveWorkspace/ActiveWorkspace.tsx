@@ -23,7 +23,6 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
     const [activeMode, setActiveMode] = useState<ViewMode>('cozinha');
     const [secondsLeft, setSecondsLeft] = useState<number>(0);
 
-    // Efeito para contagem regressiva do timer
     useEffect(() => {
         setSelectedItemIndex(0);
 
@@ -35,7 +34,6 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
         const calculateSecondsLeft = () => {
             const deadlineMs = order.getKitchenDeadline().getTime();
             const nowMs = Date.now();
-            // Diferença real em segundos (pode ser negativa se agora > deadline)
             return Math.ceil((deadlineMs - nowMs) / 1000);
         };
 
@@ -48,7 +46,6 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
         return () => clearInterval(intervalId);
     }, [order?.getId()]);
 
-    // Função utilitária para formatar segundos no padrão MM:SS
     const formatTime = (totalSeconds: number): string => {
         const isOverdue = totalSeconds < 0;
         const absSeconds = Math.abs(totalSeconds);
@@ -59,28 +56,25 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
         const paddedMinutes = String(minutes).padStart(2, '0');
         const paddedSeconds = String(seconds).padStart(2, '0');
 
-        // Adiciona o prefixo '+' quando o tempo estoura (ex: +00:01)
         return isOverdue ? `+${paddedMinutes}:${paddedSeconds}` : `${paddedMinutes}:${paddedSeconds}`;
     };
 
-    // 1. Ref para a animação da opacidade do texto
     const fadeAnim = useRef(new Animated.Value(1)).current;
 
     const isOverdue = secondsLeft < 0;
 
-    // 2. Efeito para controlar o piscar suave quando o tempo estourar
     useEffect(() => {
         if (isOverdue) {
             const animation = Animated.loop(
                 Animated.sequence([
                     Animated.timing(fadeAnim, {
-                        toValue: 0.3, // Opacidade mínima (quase invisível)
-                        duration: 800, // Duração do fade out (ms)
+                        toValue: 0.3,
+                        duration: 800,
                         useNativeDriver: true,
                     }),
                     Animated.timing(fadeAnim, {
-                        toValue: 1, // Voltar para total visibilidade
-                        duration: 700, // Duração do fade in (ms)
+                        toValue: 1,
+                        duration: 700,
                         useNativeDriver: true,
                     }),
                 ])
@@ -90,11 +84,10 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
 
             return () => animation.stop();
         } else {
-            fadeAnim.setValue(1); // Reseta opacidade normal se o tempo não estiver estourado
+            fadeAnim.setValue(1);
         }
     }, [isOverdue]);
 
-    // Cálculos dos dados da receita (só são processados se houver um order)
     const items = order ? order.getItems() : [];
     const selectedItem = items[selectedItemIndex] || items[0];
     const recipe = selectedItem?.getRecipe();
@@ -122,7 +115,6 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
                         />
                     </View>
 
-                    {/* Detalhes do Pedido e Receita */}
                     <View style={styles.detailsContainer}>
                         <View style={styles.recipeHeader}>
                             <Text style={styles.recipeTitleLabel}>Receita</Text>
@@ -191,7 +183,6 @@ export const ActiveWorkspace: React.FC<ActiveWorkspaceProps> = ({
                 </View>
             )}
 
-            {/* Borda no rodapé da seção */}
             <CheckeredBorder />
         </View>
     );

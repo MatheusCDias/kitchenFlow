@@ -19,7 +19,6 @@ export class Address {
     this.referencePoint = referencePoint;
   }
 
-  // Getters & Setters
   public getStreet(): string { return this.street; }
   public getNumber(): number { return this.number; }
   public getZipCode(): string { return this.zipCode; }

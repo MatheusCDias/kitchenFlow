@@ -28,35 +28,29 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
   getNextOrderCode,
   onAddOrder,
 }) => {
-  // Campos do Pedido
   const [table, setTable] = useState("");
   const [prepTime, setPrepTime] = useState("");
   const [generalObs, setGeneralObs] = useState("");
   const [items, setItems] = useState<OrderItem[]>([]);
 
-  // Campos do Formulário de Item
   const [itemQuantity, setItemQuantity] = useState("1");
   const [itemName, setItemName] = useState("");
   const [itemObs, setItemObs] = useState("");
 
-  // Estado do Dropdown do Cardápio
   const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
   const [filteredMenu, setFilteredMenu] = useState<MenuItemData[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Estado para saber qual item está sendo editado (null = criando novo)
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
   const currentOrderCode = getNextOrderCode();
 
-  // Carrega os itens salvos do banco de dados na montagem do componente
   useEffect(() => {
     const loadedMenu = getMenuItems();
     setMenuItems(loadedMenu);
     setFilteredMenu(loadedMenu);
   }, []);
 
-  // Filtra o dropdown à medida que a recepção digita o nome do item
   const handleItemNameChange = (text: string) => {
     setItemName(text);
     if (text.trim() === "") {
@@ -70,13 +64,11 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
     setIsDropdownOpen(true);
   };
 
-  // Seleciona um item do dropdown
   const handleSelectMenuItem = (selectedItem: MenuItemData) => {
     setItemName(selectedItem.name);
     setIsDropdownOpen(false);
   };
 
-  // Quando clica num item do ticket para editar
   const handleSelectItemToEdit = (item: OrderItem) => {
     setEditingItemId(item.id);
     setItemQuantity(String(item.quantity));
@@ -85,7 +77,6 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
     setIsDropdownOpen(false);
   };
 
-  // Limpa o formulário de itens e sai do modo edição
   const resetItemForm = () => {
     setEditingItemId(null);
     setItemQuantity("1");
@@ -94,7 +85,6 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
     setIsDropdownOpen(false);
   };
 
-  // Reseta todo o formulário do pedido após a criação
   const resetOrderForm = () => {
     setTable("");
     setPrepTime("");
@@ -103,7 +93,6 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
     resetItemForm();
   };
 
-  // Adiciona ou Salva Alteração do Item
   const handleSaveItem = () => {
     if (!itemName.trim()) return;
 
@@ -133,14 +122,12 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
     resetItemForm();
   };
 
-  // Exclui o item em edição
   const handleDeleteItem = () => {
     if (!editingItemId) return;
     setItems((prev) => prev.filter((item) => item.id !== editingItemId));
     resetItemForm();
   };
 
-  // Helper para aceitar APENAS números
   const handleNumericInput = (text: string, setter: (val: string) => void) => {
     const cleanedText = text.replace(/[^0-9]/g, "");
     setter(cleanedText);
@@ -160,7 +147,6 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
       now.getTime() + (estimatedMinutes + 15) * 60000,
     );
 
-    // Instanciação da mesa (caso informada no formulário)
     const tableNumber = Number(table) || 1;
     const tableService = new TableService(now, tableNumber, 1);
 
@@ -178,7 +164,6 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
       now
     );
 
-    // Adiciona cada item do formulário ao objeto Order
     items.forEach((item) => {
       const orderItem = new OrderItemModel(
         item.id,
@@ -198,7 +183,6 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.sectionContent}>
-          {/* Lado Esquerdo: Ticket Preview com a comanda incremental */}
           <View style={styles.ticketSection}>
             <OrderTicketPreview
               orderNumber={String(currentOrderCode)}
@@ -210,9 +194,7 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
             />
           </View>
 
-          {/* Lado Direito: Formulário */}
           <View style={styles.formContainer}>
-            {/* Mesa */}
             <Text style={styles.label}>Mesa</Text>
             <TextInput
               style={styles.input}
@@ -223,7 +205,6 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
               onChangeText={(text) => handleNumericInput(text, setTable)}
             />
 
-            {/* Adicionar / Editar Item */}
             <Text style={styles.label}>
               {editingItemId ? "Editar item" : "Adicionar item"}
             </Text>
@@ -239,7 +220,6 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
                 }
               />
 
-              {/* Campo com Dropdown */}
               <View style={[styles.flexInput, { position: "relative" }]}>
                 <TextInput
                   style={[styles.input]}
@@ -250,7 +230,6 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
                   onChangeText={handleItemNameChange}
                 />
 
-                {/* Lista Flutuante do Dropdown */}
                 {isDropdownOpen && filteredMenu.length > 0 && (
                   <View style={styles.dropdownContainer}>
                     <ScrollView
@@ -288,7 +267,6 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
                 onChangeText={setItemObs}
               />
 
-              {/* Botões de Ação do Item */}
               {editingItemId ? (
                 <>
                   <TouchableOpacity
@@ -316,7 +294,6 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
               )}
             </View>
 
-            {/* Prazo e Obs Geral */}
             <View style={styles.row}>
               <View style={styles.flexInput}>
                 <Text style={styles.label}>Prazo de Preparo</Text>
@@ -342,7 +319,6 @@ export const ReceptionWorkspace: React.FC<ReceptionWorkspaceProps> = ({
               </View>
             </View>
 
-            {/* Submit do Pedido */}
             <TouchableOpacity
               style={[
                 styles.submitButton,

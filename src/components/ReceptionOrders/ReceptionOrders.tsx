@@ -91,7 +91,6 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({
         };
     }, [orders]);
 
-    // Diálogo de confirmação para cancelamento
     const handleConfirmCancel = () => {
         if (!selectedOrderForTimeline) return;
 
@@ -124,16 +123,13 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({
         );
     };
 
-    // Diálogo de confirmação para exclusão definitiva
     const handleConfirmDelete = () => {
         if (!selectedOrderForTimeline) return;
 
         const orderIdToDelete = selectedOrderForTimeline.getId();
 
         const executeDelete = () => {
-            // 1. Fecha o modal primeiro
             setSelectedOrderForTimeline(null);
-            // 2. Dispara a exclusão global
             onDeleteOrder?.(orderIdToDelete);
         };
 
@@ -168,7 +164,6 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({
         <View style={styles.container} onLayout={handleLayout}>
             <Text style={styles.title}>Pedidos da Recepção</Text>
 
-            {/* Abas de Origem */}
             <View style={{ flexDirection: 'row', gap: 12, alignSelf: 'flex-start' }}>
                 <TouchableOpacity
                     activeOpacity={0.8}
@@ -237,7 +232,6 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({
                 </TouchableOpacity>
             </View>
 
-            {/* Grid Dinâmico */}
             {containerWidth > 0 && (
                 <FlatList
                     key={numColumns}
@@ -269,7 +263,6 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({
                 />
             )}
 
-            {/* Modal de Linha do Tempo */}
             <Modal
                 visible={Boolean(selectedOrderForTimeline)}
                 transparent
@@ -301,7 +294,6 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({
                             Status do Pedido #{selectedOrderForTimeline?.getOrderCode()}
                         </Text>
 
-                        {/* Etapas da Linha do Tempo */}
                         <View style={{ gap: 16, marginVertical: 8 }}>
                             {ORDER_TIMELINE_STEPS.map((step, index) => {
                                 const currentStatus = selectedOrderForTimeline?.getStatus();
@@ -343,9 +335,7 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({
                             })}
                         </View>
 
-                        {/* Botões do Rodapé */}
                         <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-                            {/* Se o pedido estiver cancelado, exibe "Excluir Pedido" */}
                             {isOrderCancelled ? (
                                 <TouchableOpacity
                                     activeOpacity={0.8}
@@ -363,7 +353,6 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({
                                     </Text>
                                 </TouchableOpacity>
                             ) : (
-                                /* Se NÃO estiver cancelado e NÃO estiver entregue, exibe "Cancelar Pedido" */
                                 !isOrderDelivered && (
                                     <TouchableOpacity
                                         activeOpacity={0.8}
@@ -383,7 +372,6 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({
                                 )
                             )}
 
-                            {/* Botão Fechar */}
                             <TouchableOpacity
                                 activeOpacity={0.8}
                                 style={{

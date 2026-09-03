@@ -24,7 +24,6 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
 }) => {
     const [containerWidth, setContainerWidth] = useState<number>(0);
 
-    // Filtra apenas pedidos pendentes/em preparo para a cozinha (remove concluídos e cancelados)
     const visibleOrders = useMemo(() => {
         return orders.filter((order) => {
             const status = order.getStatus();
@@ -37,13 +36,11 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
         });
     }, [orders]);
 
-    // Atualiza a largura disponível sempre que o layout mudar
     const handleLayout = (event: LayoutChangeEvent) => {
         const { width } = event.nativeEvent.layout;
         setContainerWidth(width);
     };
 
-    // Calcula dinamicamente quantas colunas cabem no espaço disponível
     const numColumns = useMemo(() => {
         if (!containerWidth) return 1;
         const calculated = Math.floor((containerWidth + GAP) / (CARD_WIDTH + GAP));
@@ -87,7 +84,7 @@ export const AllOrders: React.FC<AllOrdersProps> = ({
             {containerWidth > 0 && (
                 <FlatList
                     key={numColumns}
-                    data={visibleOrders} // Passa apenas os pedidos não concluídos
+                    data={visibleOrders}
                     keyExtractor={(item) => item.getId()}
                     numColumns={numColumns}
                     scrollEnabled={false}

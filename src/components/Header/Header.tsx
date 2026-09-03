@@ -16,7 +16,7 @@ interface HeaderProps {
     onNotificationPress?: () => void;
     onSelectMenuOption?: (option: string) => void;
     currentUser?: Employee | null;
-    showWorkspaceHeader?: boolean; // <-- 1. ADICIONE A PROP AQUI
+    showWorkspaceHeader?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -27,7 +27,7 @@ export const Header: React.FC<HeaderProps> = ({
     onNotificationPress,
     onSelectMenuOption,
     currentUser,
-    showWorkspaceHeader = true, // <-- 2. RECEBA COM VALOR PADRÃO TRUE
+    showWorkspaceHeader = true,
 }) => {
     const [menuAberto, setMenuAberto] = useState(false);
 
@@ -84,7 +84,6 @@ export const Header: React.FC<HeaderProps> = ({
                 />
             </View>
 
-            {/* 3. EXIBE O WORKSPACEHEADER APENAS QUANDO FOR TRUE */}
             {showWorkspaceHeader && (
                 <View style={styles.workspaceHeader}>
                     <Text style={styles.headerTitle}>
@@ -93,7 +92,6 @@ export const Header: React.FC<HeaderProps> = ({
 
                     {isAdmin && (
                         <View style={styles.toggleContainer}>
-                            {/* Botão Recepção */}
                             <TouchableOpacity
                                 activeOpacity={0.8}
                                 style={[
@@ -121,7 +119,6 @@ export const Header: React.FC<HeaderProps> = ({
                                 </Text>
                             </TouchableOpacity>
 
-                            {/* Botão Cozinha */}
                             <TouchableOpacity
                                 activeOpacity={0.8}
                                 style={[

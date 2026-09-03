@@ -23,7 +23,6 @@ export class Customer {
     this.totalOrders += 1;
   }
 
-  // Getters
   public getId(): string { return this.id; }
   public getName(): string { return this.name; }
   public getPhone(): string { return this.phone; }

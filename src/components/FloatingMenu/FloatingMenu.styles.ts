@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
     },
     backdropContainer: {
         ...StyleSheet.absoluteFill,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fundo suave ao abrir
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     backdrop: {
         flex: 1,
@@ -19,7 +19,6 @@ export const styles = StyleSheet.create({
         borderTopRightRadius: 16,
         borderBottomRightRadius: 16,
         overflow: 'hidden',
-        // Sombras nativas para iOS e Android
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.20,

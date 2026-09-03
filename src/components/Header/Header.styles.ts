@@ -2,13 +2,12 @@ import { StyleSheet, StatusBar, Platform } from 'react-native';
 
 export const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#F07342', // Cor laranja da imagem
+        backgroundColor: '#F07342',
         width: '100%',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        // Garante que o Header não fique escondido sob a barra de status do celular
         paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 12 : 32,
     },
     topContainer: {

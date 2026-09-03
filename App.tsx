@@ -32,7 +32,7 @@ export default function App() {
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [isMenuManagerOpen, setIsMenuManagerOpen] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
-  const [isReportsOpen, setIsReportsOpen] = useState(false); // <-- Controle da tela de Relatórios
+  const [isReportsOpen, setIsReportsOpen] = useState(false);
 
   const {
     activeOrder,
@@ -57,9 +57,9 @@ export default function App() {
     } else if (option === 'Alterar Senha') {
       setIsChangePasswordModalOpen(true);
     } else if (option === 'Relatórios') {
-      setIsReportsOpen(true); // <-- Abre a tela de relatórios
+      setIsReportsOpen(true);
     } else if (option === 'Área de Trabalho') {
-      setIsReportsOpen(false); // Fecha relatórios se clicar em Área de Trabalho
+      setIsReportsOpen(false);
     } else if (option === 'Sair') {
       setIsReportsOpen(false);
       setCurrentUser(null);

@@ -103,7 +103,6 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                     ]}
                 >
                     <View style={styles.menuContent}>
-                        {/* Cabeçalho dinâmico com botão de voltar na tela de config */}
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                             {currentView === 'config' && (
                                 <Pressable
@@ -119,7 +118,6 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({
                             </Text>
                         </View>
 
-                        {/* VIEW 1: MENU PRINCIPAL */}
                         {currentView === 'main' ? (
                             <View style={styles.optionsList}>
                                 <Pressable

@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Order } from "../models/Order";
 import { Employee } from "../models/employee/Employee";
 import { OrderService, orderStorage } from "../services/OrderService";
-import { logActivity } from "../services/LogService"; // <-- IMPORT AQUI
+import { logActivity } from "../services/LogService";
 
 export const useOrders = (currentUser?: Employee) => {
   const [orderService] = useState(() => {
@@ -22,7 +22,6 @@ export const useOrders = (currentUser?: Employee) => {
     return orderService.getNextAvailableCode();
   }, [orderService]);
 
-  // 1. Log de Criação
   const addOrder = useCallback(
     (newOrder: Order, generalObs?: string) => {
       orderService.addOrder(newOrder);
@@ -46,7 +45,6 @@ export const useOrders = (currentUser?: Employee) => {
     [orderService, currentUser],
   );
 
-  // 2. Log de Início de Preparo
   const claimOrder = useCallback(
     (orderId: string) => {
       if (!currentUser) return null;
@@ -73,7 +71,6 @@ export const useOrders = (currentUser?: Employee) => {
     [orderService, currentUser],
   );
 
-  // 3. Log de Conclusão
   const completeOrder = useCallback(
     (order: Order) => {
       const success = orderService.completeOrder(order.getId());
@@ -100,13 +97,11 @@ export const useOrders = (currentUser?: Employee) => {
     [orderService, currentUser],
   );
 
-  // 4. Log de Liberação / Devolução à Fila
   const cancelOrder = useCallback(
     (order: Order) => {
       const success = orderService.cancelOrder(order.getId());
       if (success) {
         setActiveOrder(null);
-        // Força a atualização do estado criando novo array
         setAllOrders([...orderService.getAllOrders()]);
       }
       return success;
@@ -135,7 +130,7 @@ export const useOrders = (currentUser?: Employee) => {
     claimOrder,
     completeOrder,
     cancelOrder,
-    deleteOrder, // <-- RETORNE AQUI
+    deleteOrder,
     getNextOrderCode,
     availableOrders: orderService.getAvailableOrders(),
   }

@@ -13,10 +13,8 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
     const [items, setItems] = useState<MenuItemData[]>([]);
     const [search, setSearch] = useState('');
 
-    // Controle de Navegação Interna
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-    // Estados do Formulário (Criar/Editar)
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [name, setName] = useState('');
@@ -24,7 +22,6 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
     const [price, setPrice] = useState('');
     const [recipe, setRecipe] = useState('');
 
-    // Estado para controlar expansão de receita
     const [expandedRecipeId, setExpandedRecipeId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -82,7 +79,6 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
         setExpandedRecipeId(expandedRecipeId === id ? null : id);
     };
 
-    // Agrupa os itens e conta a quantidade por categoria
     const categoriesMap = useMemo(() => {
         const map: Record<string, MenuItemData[]> = {};
 
@@ -102,7 +98,6 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
 
     const categoriesList = Object.keys(categoriesMap);
 
-    // Itens filtrados para exibição
     const currentCategoryItems = useMemo(() => {
         if (!selectedCategory) return [];
 
@@ -118,7 +113,6 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
             <View style={styles.overlay}>
                 <View style={[styles.card]}>
-                    {/* Cabeçalho */}
                     <View style={styles.header}>
                         <View style={styles.headerTitleGroup}>
                             {selectedCategory && !isFormOpen && (
@@ -138,7 +132,6 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                         </TouchableOpacity>
                     </View>
 
-                    {/* MODO 1: FORMULÁRIO DE ADIÇÃO/EDIÇÃO */}
                     {isFormOpen ? (
                         <View style={styles.formContainer}>
                             <View style={styles.scrollFlex}>
@@ -187,7 +180,6 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                                 />
                             </View>
 
-                            {/* Ações no Rodapé do Formulário */}
                             <View style={styles.formActions}>
                                 <TouchableOpacity style={styles.cancelBtn} onPress={resetForm}>
                                     <Text style={styles.cancelText}>Cancelar</Text>
@@ -200,7 +192,6 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                             </View>
                         </View>
                     ) : (
-                        /* MODO 2: LISTAGEM DE CATEGORIAS E ITENS */
                         <View style={styles.formContainer}>
                             <TouchableOpacity
                                 style={styles.addBtn}
@@ -215,7 +206,6 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                                 <Text style={styles.saveText}>Adicionar Novo Item</Text>
                             </TouchableOpacity>
 
-                            {/* LISTA DE CATEGORIAS */}
                             {!selectedCategory ? (
                                 <View style={styles.scrollGroup}>
                                     {categoriesList.length === 0 ? (
@@ -251,7 +241,6 @@ export const MenuManagerModal: React.FC<MenuManagerModalProps> = ({ visible, onC
                                     )}
                                 </View>
                             ) : (
-                                /* ITENS DA CATEGORIA SELECIONADA */
                                 <View style={styles.scrollGroup}>
                                     <TextInput
                                         style={[styles.input]}

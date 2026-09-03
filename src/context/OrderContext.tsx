@@ -2,14 +2,12 @@ import React, { createContext, useContext, ReactNode } from 'react';
 import { useOrders } from '../hooks/useOrders';
 import { Employee } from '../models/employee/Employee';
 
-// Gerenciador de Estado Global
 
 interface OrderContextType {
     activeOrder: ReturnType<typeof useOrders>['activeOrder'];
     allOrders: ReturnType<typeof useOrders>['allOrders'];
     claimOrder: ReturnType<typeof useOrders>['claimOrder'];
     completeOrder: ReturnType<typeof useOrders>['completeOrder'];
-    refreshOrders: ReturnType<typeof useOrders>['refreshOrders'];
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);

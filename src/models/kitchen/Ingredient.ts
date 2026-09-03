@@ -19,7 +19,6 @@ export class Ingredient {
         this.unitOfMeasure = unitOfMeasure;
     }
 
-    // Getters & Setters
     public getId(): string { return this.id; }
     public getProductName(): string { return this.productName; }
     public getStockQuantity(): number { return this.stockQuantity; }

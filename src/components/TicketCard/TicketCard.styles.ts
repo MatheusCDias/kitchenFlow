@@ -34,7 +34,6 @@ export const styles = StyleSheet.create({
         borderWidth: 0.8,
         borderColor: '#F07342',
         borderStyle: 'dashed',
-        //marginVertical: 8,
     },
     dividerLine: {
         height: 1,

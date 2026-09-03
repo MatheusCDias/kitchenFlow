@@ -8,7 +8,7 @@ import {
     getEmployeesByRole,
     authenticateAdmin,
     EmployeeData
-} from '../../services/EmployeeService'; // Ajuste o caminho relativo conforme a sua estrutura
+} from '../../services/EmployeeService';
 
 export type Role = 'recepcao' | 'cozinha';
 
@@ -60,7 +60,6 @@ export const RolePicker: React.FC<RolePickerProps> = ({ onSelect }) => {
             return;
         }
 
-        // Validação no SQLite / LocalStorage via EmployeeService
         const adminUser = authenticateAdmin(password);
 
         if (adminUser && selectedRole) {
@@ -88,7 +87,6 @@ export const RolePicker: React.FC<RolePickerProps> = ({ onSelect }) => {
             <Text style={styles.title}>Kitchen Flow</Text>
             <View style={styles.content}>
                 {!selectedRole ? (
-                    // Etapa 1: Seleção de Setor (Recepção ou Cozinha)
                     <>
                         <Text style={styles.optionTitle}>Você é da Recepção ou da Cozinha?</Text>
 
@@ -113,14 +111,12 @@ export const RolePicker: React.FC<RolePickerProps> = ({ onSelect }) => {
                         </View>
                     </>
                 ) : !showPasswordModal ? (
-                    // Etapa 2: Seleção de Perfil (Admin fixo + Funcionários do setor)
                     <>
                         <Text style={styles.optionTitle}>
                             Selecione sua conta ({selectedRole === 'recepcao' ? 'Recepção' : 'Cozinha'}):
                         </Text>
 
                         <View style={[styles.optionsRow, { flexWrap: 'wrap' }]}>
-                            {/* Botão padrão do Admin */}
                             <TouchableOpacity
                                 style={styles.option}
                                 activeOpacity={0.8}
@@ -130,7 +126,6 @@ export const RolePicker: React.FC<RolePickerProps> = ({ onSelect }) => {
                                 <Text style={styles.optionText}>Admin</Text>
                             </TouchableOpacity>
 
-                            {/* Renderização dinâmica dos funcionários cadastrados no banco */}
                             {employees.map((emp) => (
                                 <TouchableOpacity
                                     key={emp.id}
@@ -153,7 +148,6 @@ export const RolePicker: React.FC<RolePickerProps> = ({ onSelect }) => {
                         </TouchableOpacity>
                     </>
                 ) : (
-                    // Etapa 3: Modal / Tela de Senha para o Admin
                     <View style={styles.authContainer}>
                         <Text style={styles.optionTitle}>Digite a senha do Admin</Text>
 

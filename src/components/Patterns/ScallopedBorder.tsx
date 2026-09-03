@@ -3,12 +3,12 @@ import { View, StyleSheet } from 'react-native';
 import Svg, { Defs, Pattern, Rect, Circle } from 'react-native-svg';
 
 interface ScallopedBorderProps {
-    circleRadius?: number;      // Raio dos semicírculos
-    circleSpacing?: number;     // Espaçamento entre os semicírculos
-    topColor?: string;          // Cor do papel (ex: Cinza claro #EAE8E5)
-    bottomColor?: string;       // Cor do fundo exterior (ex: Laranja #F07342)
+    circleRadius?: number;      
+    circleSpacing?: number;     
+    topColor?: string;          
+    bottomColor?: string;       
     position?: 'top' | 'bottom';
-    sidePadding?: number;       // Margem nas extremidades da cor do papel
+    sidePadding?: number;       
 }
 
 export const ScallopedBorder: React.FC<ScallopedBorderProps> = ({
@@ -38,10 +38,8 @@ export const ScallopedBorder: React.FC<ScallopedBorderProps> = ({
                         width={patternWidth}
                         height={height}
                         patternUnits="userSpaceOnUse"
-                        // Desloca o início do padrão para alinhar exatamente com o padding
                         patternTransform={`translate(${sidePadding}, 0)`}
                     >
-                        {/* Base retangular cinza */}
                         <Rect
                             x={0}
                             y={0}
@@ -50,7 +48,6 @@ export const ScallopedBorder: React.FC<ScallopedBorderProps> = ({
                             fill={topColor}
                         />
 
-                        {/* Circunferência/Mordida */}
                         <Circle
                             cx={patternWidth / 2}
                             cy={circleY}
@@ -60,10 +57,8 @@ export const ScallopedBorder: React.FC<ScallopedBorderProps> = ({
                     </Pattern>
                 </Defs>
 
-                {/* Faixa retangular contínua preenchendo o fundo total com a cor do papel */}
                 <Rect x={0} y={0} width="100%" height={height} fill={topColor} />
 
-                {/* Área central preenchida com o padrão repetitivo das mordidas */}
                 <Rect
                     x={sidePadding}
                     y={0}

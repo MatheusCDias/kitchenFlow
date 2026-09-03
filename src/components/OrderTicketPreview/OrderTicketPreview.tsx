@@ -18,7 +18,7 @@ interface OrderTicketPreviewProps {
     generalObs?: string;
     prepTime?: string;
     backgroundColor?: string;
-    onSelectItem?: (item: OrderItem) => void; // Callback para clique no item
+    onSelectItem?: (item: OrderItem) => void;
 }
 
 export const OrderTicketPreview: React.FC<OrderTicketPreviewProps> = ({

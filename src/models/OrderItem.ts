@@ -34,7 +34,6 @@ export class OrderItem {
     this.observation = observation;
   }
 
-  // Getters
   public getId(): string { return this.id; }
   public getProductName(): string { return this.productName; }
   public getQuantity(): number { return this.quantity; }
