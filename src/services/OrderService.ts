@@ -157,6 +157,28 @@ export const orderStorage = {
       return order;
     });
   },
+
+  deleteOrder(orderId: string): void {
+    const idStr = String(orderId);
+
+    if (Platform.OS === 'web') {
+      const stored = localStorage.getItem('orders');
+      if (stored) {
+        const list = JSON.parse(stored);
+        // Converte para String em ambos os lados na comparação
+        const filtered = list.filter((o: any) => String(o.id) !== idStr);
+        localStorage.setItem('orders', JSON.stringify(filtered));
+      }
+      return;
+    }
+
+    try {
+      // Garante que o parâmetro passado ao SQLite seja String
+      db?.runSync('DELETE FROM orders WHERE id = ? OR id = CAST(? AS INTEGER);', [idStr, idStr]);
+    } catch (error) {
+      console.error('Erro ao deletar pedido no SQLite:', error);
+    }
+  },
 };
 
 export class OrderService {
@@ -198,8 +220,6 @@ export class OrderService {
     return null;
   }
 
-  // Em OrderService.ts:
-
   public releaseOrder(orderId: string): boolean {
     const order = this.orders.find((o) => o.getId() === orderId);
     if (order) {
@@ -213,13 +233,12 @@ export class OrderService {
   public cancelOrder(orderId: string): boolean {
     const order = this.orders.find((o) => o.getId() === orderId);
     if (order) {
-      // Se quiser que cancelar devolva o pedido para a fila:
-      order.resetOrder();
-      // Se quiser manter o estado CANCELLED, limpe o assignedEmployee para não travar:
-      // order.cancelOrder();
-      // order.setAssignedEmployee(undefined as any);
+      order.cancelOrder();
 
-      orderStorage.saveOrder(order); // <-- SALVA NO BANCO / STORAGE
+      order.setAssignedEmployee(undefined as any);
+
+      orderStorage.saveOrder(order);
+
       return true;
     }
     return false;
@@ -229,10 +248,27 @@ export class OrderService {
     const index = this.orders.findIndex((o) => o.getId() === orderId);
     if (index !== -1) {
       this.orders[index].advanceStage();
-      orderStorage.saveOrder(this.orders[index]); // <-- APROVEITE E PERSISTA A CONCLUSÃO
+      orderStorage.saveOrder(this.orders[index]);
       return true;
     }
     return false;
+  }
+
+  public deleteOrder(orderId: string): boolean {
+    const idStr = String(orderId);
+    const previousLength = this.orders.length;
+
+    // Garante comparação por String
+    this.orders = this.orders.filter((o) => String(o.getId()) !== idStr);
+
+    if (this.orders.length < previousLength) {
+      orderStorage.deleteOrder(idStr);
+      return true;
+    }
+
+    // Fallback caso previousLength já fosse 0 ou índice direto
+    orderStorage.deleteOrder(idStr);
+    return true;
   }
 
   public getAvailableOrders(): Order[] {

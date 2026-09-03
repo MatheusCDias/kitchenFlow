@@ -1,7 +1,15 @@
-// src/components/ReceptionOrders/ReceptionOrders.tsx
-
 import React, { useState, useMemo } from 'react';
-import { View, Text, FlatList, TouchableOpacity, LayoutChangeEvent, Modal, Pressable } from 'react-native';
+import {
+    View,
+    Text,
+    FlatList,
+    TouchableOpacity,
+    LayoutChangeEvent,
+    Modal,
+    Pressable,
+    Alert,
+    Platform,
+} from 'react-native';
 import { Order } from '../../models/Order';
 import { OrderOriginEnum } from '../../enums/OrderOriginEnum';
 import { OrderStateEnum } from '../../enums/OrderStateEnum';
@@ -11,12 +19,13 @@ import { styles } from '../AllOrders/AllOrders.styles';
 interface ReceptionOrdersProps {
     orders: Order[];
     onSelectOrder?: (orderId: string) => void;
+    onCancelOrder?: (order: Order) => void;
+    onDeleteOrder?: (orderId: string) => void;
 }
 
 const CARD_WIDTH = 280;
 const GAP = 32;
 
-// Ordem lógica dos estados no fluxo do pedido
 const ORDER_TIMELINE_STEPS = [
     { key: OrderStateEnum.RECEIVED, label: 'Recebido' },
     { key: OrderStateEnum.PENDING, label: 'Pendente' },
@@ -26,8 +35,12 @@ const ORDER_TIMELINE_STEPS = [
     { key: OrderStateEnum.DELIVERED, label: 'Entregue' },
 ];
 
-export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({ orders, onSelectOrder }) => {
-    // Utiliza diretamente o OrderOriginEnum como tipo do estado
+export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({
+    orders,
+    onSelectOrder,
+    onCancelOrder,
+    onDeleteOrder,
+}) => {
     const [activeTab, setActiveTab] = useState<OrderOriginEnum>(OrderOriginEnum.PRESENTIAL);
     const [containerWidth, setContainerWidth] = useState<number>(0);
     const [selectedOrderForTimeline, setSelectedOrderForTimeline] = useState<Order | null>(null);
@@ -66,12 +79,10 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({ orders, onSele
         }
     };
 
-    // Filtra os pedidos comparando diretamente com o OrderOriginEnum
     const filteredOrders = useMemo(() => {
         return orders.filter((order) => order.getOrigin() === activeTab);
     }, [orders, activeTab]);
 
-    // Contadores das abas agrupados por valor do enum
     const counts = useMemo(() => {
         return {
             [OrderOriginEnum.PRESENTIAL]: orders.filter((o) => o.getOrigin() === OrderOriginEnum.PRESENTIAL).length,
@@ -80,11 +91,84 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({ orders, onSele
         };
     }, [orders]);
 
+    // Diálogo de confirmação para cancelamento
+    const handleConfirmCancel = () => {
+        if (!selectedOrderForTimeline) return;
+
+        const executeCancel = () => {
+            onCancelOrder?.(selectedOrderForTimeline);
+            setSelectedOrderForTimeline(null);
+        };
+
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm(
+                `Tem certeza de que deseja cancelar o Pedido #${selectedOrderForTimeline.getOrderCode()}?`
+            );
+            if (confirmed) {
+                executeCancel();
+            }
+            return;
+        }
+
+        Alert.alert(
+            'Cancelar Pedido',
+            `Deseja realmente cancelar o Pedido #${selectedOrderForTimeline.getOrderCode()}?`,
+            [
+                { text: 'Voltar', style: 'cancel' },
+                {
+                    text: 'Confirmar Cancelamento',
+                    style: 'destructive',
+                    onPress: executeCancel,
+                },
+            ]
+        );
+    };
+
+    // Diálogo de confirmação para exclusão definitiva
+    const handleConfirmDelete = () => {
+        if (!selectedOrderForTimeline) return;
+
+        const orderIdToDelete = selectedOrderForTimeline.getId();
+
+        const executeDelete = () => {
+            // 1. Fecha o modal primeiro
+            setSelectedOrderForTimeline(null);
+            // 2. Dispara a exclusão global
+            onDeleteOrder?.(orderIdToDelete);
+        };
+
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm(
+                `Tem certeza de que deseja excluir permanentemente o Pedido #${selectedOrderForTimeline.getOrderCode()}? Esta ação não pode ser desfeita.`
+            );
+            if (confirmed) {
+                executeDelete();
+            }
+            return;
+        }
+
+        Alert.alert(
+            'Excluir Pedido',
+            `Deseja realmente excluir permanentemente o Pedido #${selectedOrderForTimeline.getOrderCode()}?`,
+            [
+                { text: 'Voltar', style: 'cancel' },
+                {
+                    text: 'Excluir Definitivamente',
+                    style: 'destructive',
+                    onPress: executeDelete,
+                },
+            ]
+        );
+    };
+
+    const isOrderCancelled = selectedOrderForTimeline?.getStatus() === OrderStateEnum.CANCELLED;
+    const isOrderDelivered = selectedOrderForTimeline?.getStatus() === OrderStateEnum.DELIVERED;
+
     return (
         <View style={styles.container} onLayout={handleLayout}>
             <Text style={styles.title}>Pedidos da Recepção</Text>
 
-            {/* Abas de Filtro usando OrderOriginEnum */}
+            {/* Abas de Origem */}
             <View style={{ flexDirection: 'row', gap: 12, alignSelf: 'flex-start' }}>
                 <TouchableOpacity
                     activeOpacity={0.8}
@@ -217,6 +301,7 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({ orders, onSele
                             Status do Pedido #{selectedOrderForTimeline?.getOrderCode()}
                         </Text>
 
+                        {/* Etapas da Linha do Tempo */}
                         <View style={{ gap: 16, marginVertical: 8 }}>
                             {ORDER_TIMELINE_STEPS.map((step, index) => {
                                 const currentStatus = selectedOrderForTimeline?.getStatus();
@@ -258,21 +343,63 @@ export const ReceptionOrders: React.FC<ReceptionOrdersProps> = ({ orders, onSele
                             })}
                         </View>
 
-                        <TouchableOpacity
-                            activeOpacity={0.8}
-                            style={{
-                                backgroundColor: '#303338',
-                                borderRadius: 8,
-                                paddingVertical: 12,
-                                alignItems: 'center',
-                                marginTop: 8,
-                            }}
-                            onPress={() => setSelectedOrderForTimeline(null)}
-                        >
-                            <Text style={{ fontFamily: 'Lexend', color: '#EAE8E5', fontWeight: '500' }}>
-                                Fechar
-                            </Text>
-                        </TouchableOpacity>
+                        {/* Botões do Rodapé */}
+                        <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+                            {/* Se o pedido estiver cancelado, exibe "Excluir Pedido" */}
+                            {isOrderCancelled ? (
+                                <TouchableOpacity
+                                    activeOpacity={0.8}
+                                    style={{
+                                        flex: 1,
+                                        backgroundColor: '#D9383A',
+                                        borderRadius: 8,
+                                        paddingVertical: 12,
+                                        alignItems: 'center',
+                                    }}
+                                    onPress={handleConfirmDelete}
+                                >
+                                    <Text style={{ fontFamily: 'Lexend', color: '#FFFFFF', fontWeight: '600' }}>
+                                        Excluir Pedido
+                                    </Text>
+                                </TouchableOpacity>
+                            ) : (
+                                /* Se NÃO estiver cancelado e NÃO estiver entregue, exibe "Cancelar Pedido" */
+                                !isOrderDelivered && (
+                                    <TouchableOpacity
+                                        activeOpacity={0.8}
+                                        style={{
+                                            flex: 1,
+                                            backgroundColor: '#ED4545',
+                                            borderRadius: 8,
+                                            paddingVertical: 12,
+                                            alignItems: 'center',
+                                        }}
+                                        onPress={handleConfirmCancel}
+                                    >
+                                        <Text style={{ fontFamily: 'Lexend', color: '#FFFFFF', fontWeight: '600' }}>
+                                            Cancelar Pedido
+                                        </Text>
+                                    </TouchableOpacity>
+                                )
+                            )}
+
+                            {/* Botão Fechar */}
+                            <TouchableOpacity
+                                activeOpacity={0.8}
+                                style={{
+                                    flex: 1,
+                                    backgroundColor: '#303338',
+                                    borderRadius: 8,
+                                    paddingVertical: 12,
+                                    alignItems: 'center',
+                                }}
+                                onPress={() => setSelectedOrderForTimeline(null)}
+                            >
+                                <Text style={{ fontFamily: 'Lexend', color: '#EAE8E5', fontWeight: '500' }}>
+                                    Fechar
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
                     </Pressable>
                 </Pressable>
             </Modal>

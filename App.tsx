@@ -41,6 +41,7 @@ export default function App() {
     claimOrder,
     completeOrder,
     cancelOrder,
+    deleteOrder,
     getNextOrderCode,
   } = useOrders(currentUser || undefined);
 
@@ -99,11 +100,10 @@ export default function App() {
           }}
           onSelectMenuOption={handleSelectMenuOption}
           currentUser={currentUser}
-          showWorkspaceHeader={!isReportsOpen} // <-- OCULTA NA TELA DE REPORTS
+          showWorkspaceHeader={!isReportsOpen}
         />
 
         {isReportsOpen ? (
-          // Exibe a tela de Relatórios com botão de voltar para a tela anterior
           <Reports onBack={() => setIsReportsOpen(false)} />
         ) : (
           <ScrollView contentContainerStyle={styles.content}>
@@ -121,6 +121,8 @@ export default function App() {
                 orders={allOrders}
                 onAddOrder={addOrder}
                 getNextOrderCode={getNextOrderCode}
+                onCancelOrder={cancelOrder}
+                onDeleteOrder={deleteOrder}
               />
             )}
 

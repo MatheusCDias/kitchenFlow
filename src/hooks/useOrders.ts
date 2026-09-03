@@ -106,25 +106,26 @@ export const useOrders = (currentUser?: Employee) => {
       const success = orderService.cancelOrder(order.getId());
       if (success) {
         setActiveOrder(null);
+        // Força a atualização do estado criando novo array
         setAllOrders([...orderService.getAllOrders()]);
-
-        if (currentUser) {
-          logActivity(
-            'PEDIDO_LIBERADO',
-            order.getId(),
-            order.getOrderCode(),
-            {
-              id: currentUser.getId(),
-              name: currentUser.getName(),
-              role: currentUser.getRole(),
-            },
-            'Cancelou/Devolveu o pedido para a fila'
-          );
-        }
       }
       return success;
     },
-    [orderService, currentUser],
+    [orderService],
+  );
+
+  const deleteOrder = useCallback(
+    (orderId: string) => {
+      const success = orderService.deleteOrder(orderId);
+      if (success) {
+        if (activeOrder?.getId() === orderId) {
+          setActiveOrder(null);
+        }
+        setAllOrders([...orderService.getAllOrders()]);
+      }
+      return success;
+    },
+    [orderService, activeOrder],
   );
 
   return {
@@ -134,7 +135,8 @@ export const useOrders = (currentUser?: Employee) => {
     claimOrder,
     completeOrder,
     cancelOrder,
+    deleteOrder, // <-- RETORNE AQUI
     getNextOrderCode,
     availableOrders: orderService.getAvailableOrders(),
-  };
+  }
 };

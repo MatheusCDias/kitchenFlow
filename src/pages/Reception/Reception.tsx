@@ -8,12 +8,16 @@ interface ReceptionProps {
   orders: Order[];
   onAddOrder: (order: Order) => void;
   getNextOrderCode: () => number;
+  onCancelOrder?: (order: Order) => void;
+  onDeleteOrder?: (orderId: string) => void;
 }
 
 export const Reception: React.FC<ReceptionProps> = ({
   orders,
   onAddOrder,
   getNextOrderCode,
+  onCancelOrder,
+  onDeleteOrder,
 }) => {
   return (
     <ScrollView>
@@ -21,7 +25,11 @@ export const Reception: React.FC<ReceptionProps> = ({
         getNextOrderCode={getNextOrderCode}
         onAddOrder={onAddOrder}
       />
-      <ReceptionOrders orders={orders} />
+      <ReceptionOrders
+        orders={orders}
+        onCancelOrder={onCancelOrder}
+        onDeleteOrder={onDeleteOrder}
+      />
     </ScrollView>
   );
 };
